@@ -3,7 +3,7 @@ import logo from "../assets/chefmate-logo.png"; // Make sure your logo image is 
 
 export default function Navbar() {
   return (
-    <nav className="bg-[#F9F6F0] p-4 flex justify-between items-center shadow-md">
+    <nav className="bg-[#F9F6F0] p-4 flex justify-between items-center shadow-md fixed top-0 left-0 w-full z-50">
       {/* Logo */}
       <div className="flex items-center">
         <img src={logo} alt="ChefMate Logo" className="h-10 w-auto" />

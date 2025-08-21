@@ -5,9 +5,14 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import PrivateRoute from './components/PrivateRoute'
+import RecipePage from './pages/RecipePage'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 const App = () => {
   return (
+    <>
+    <Navbar />
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
@@ -22,7 +27,10 @@ const App = () => {
               </PrivateRoute>
             }
           />
+      <Route path="/recipe/:id" element={<RecipePage />} />
     </Routes>
+    <Footer />
+    </>
   )
 }
 

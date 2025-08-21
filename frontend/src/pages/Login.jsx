@@ -15,7 +15,7 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", form);
-      login(res.data.user, res.data.token); // ✅ pass both user and token
+      login(res.data.user, res.data.token);
       navigate("/profile");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials");
@@ -23,20 +23,43 @@ export default function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <form onSubmit={handleSubmit} className="max-w-md w-full bg-white p-8 rounded shadow">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="flex justify-center items-center min-h-screen bg-secondary">
+      <form 
+        onSubmit={handleSubmit} 
+        className="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg border border-primary/20"
+      >
+        <h2 className="text-3xl font-bold mb-6 text-center text-primary">Login</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange}
-          className="block mb-4 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"/>
-        <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange}
-          className="block mb-6 p-3 w-full border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"/>
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          className="block mb-4 p-3 w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          className="block mb-6 p-3 w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        />
 
-        <button type="submit" className="w-full bg-purple-600 text-white p-3 rounded hover:bg-purple-700 transition">Login</button>
+        <button
+          type="submit"
+          className="w-full bg-primary text-white p-3 rounded-lg hover:bg-accent transition"
+        >
+          Login
+        </button>
 
         <p className="mt-4 text-center text-gray-600">
-          Don't have an account? <Link to="/signup" className="text-purple-600 font-semibold">Signup</Link>
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-primary font-semibold hover:text-accent">
+            Signup
+          </Link>
         </p>
       </form>
     </div>
