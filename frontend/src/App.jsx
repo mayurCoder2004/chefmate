@@ -8,6 +8,8 @@ import PrivateRoute from './components/PrivateRoute'
 import RecipePage from './pages/RecipePage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import ErrorPage from './pages/ErrorPage'
+import Recipes from './pages/Recipe'
 
 const App = () => {
   return (
@@ -28,6 +30,10 @@ const App = () => {
             }
           />
       <Route path="/recipe/:id" element={<RecipePage />} />
+      <Route path='/recipes' element={<Recipes />} />
+
+      {/* Catch-all route for 404 */}
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
     <Footer />
     </>
