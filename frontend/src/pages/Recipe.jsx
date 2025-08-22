@@ -8,18 +8,32 @@ export default function Recipes() {
   const [loading, setLoading] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Fetch some random meals initially
+  // Fetch some random meals initially (excluding Beef and Pork)
   useEffect(() => {
     async function fetchRandomMeals() {
       setLoading(true);
       const results = [];
-      for (let i = 0; i < 6; i++) {
+      let attempts = 0;
+
+      while (results.length < 20 && attempts < 50) {
         const res = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
         const data = await res.json();
+        attempts++;
+
         if (data.meals && data.meals.length > 0) {
-          results.push(data.meals[0]);
+          const meal = data.meals[0];
+
+          // Exclude Beef and Pork
+          if (
+            meal.strCategory &&
+            meal.strCategory.toLowerCase() !== "beef" &&
+            meal.strCategory.toLowerCase() !== "pork"
+          ) {
+            results.push(meal);
+          }
         }
       }
+
       setRecipes(results);
       setLoading(false);
     }
@@ -40,7 +54,7 @@ export default function Recipes() {
         data = { meals: [] }; // No query, empty result
       }
 
-      // Optional: filter by category/area if provided
+      // Filter by category/area if provided
       let filtered = data.meals || [];
       if (category) {
         filtered = filtered.filter((meal) =>

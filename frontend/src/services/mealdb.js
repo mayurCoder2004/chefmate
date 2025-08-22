@@ -9,9 +9,7 @@ export const getRandomMeals = async () => {
 // Search meals by name
 export async function searchMeals(query) {
   try {
-    const res = await fetch(
-      `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`
-    );
+    const res = await fetch(`${BASE_URL}/search.php?s=${query}`);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -28,14 +26,24 @@ export const filterMealsByIngredient = async (ingredient) => {
 
 // Filter meals by category
 export const filterMealsByCategory = async (category) => {
-  const res = await fetch(
-    `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
-  );
+  const res = await fetch(`${BASE_URL}/filter.php?c=${category}`);
   return res.json();
 };
 
 // Filter meals by region
 export async function filterMealsByRegion(area) {
-  const res = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`);
+  const res = await fetch(`${BASE_URL}/filter.php?a=${area}`);
   return res.json();
 }
+
+// Fetch all categories
+export const getCategories = async () => {
+  const res = await fetch(`${BASE_URL}/categories.php`);
+  return res.json();
+};
+
+// Fetch all areas/regions
+export const getAreas = async () => {
+  const res = await fetch(`${BASE_URL}/list.php?a=list`);
+  return res.json();
+};
