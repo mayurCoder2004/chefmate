@@ -126,7 +126,15 @@ export default function SmartRecipe() {
       </div>
 
       {/* Result */}
-      {recipe && (
+      {loading && !recipe && (
+        <div className="mt-6 space-y-2">
+          <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-32 bg-gray-100 rounded animate-pulse"></div>
+        </div>
+      )}
+
+      {recipe && !loading && (
         <div className="mt-6 bg-white border rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-start justify-between gap-4">
             <h2 className="text-xl font-semibold">{recipe.title}</h2>
