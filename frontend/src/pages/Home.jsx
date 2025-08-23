@@ -3,6 +3,7 @@ import HeroSection from "../components/home/HeroSection";
 import RecipeList from "../components/home/RecipeList";
 import SearchFilter from "../components/home/SearchFilter";
 import AiRecipeCard from "../components/home/AiRecipeCard";
+import MealPlannerPromo from "../components/home/MealPlannerPromo";
 
 const Home = () => {
   return (
@@ -10,6 +11,7 @@ const Home = () => {
       <HeroSection />
       <RecipeList />
       <AiRecipeCard />
+      <MealPlannerPromo />
 
       <div className="container mx-auto px-4 py-8">
         <SearchFilter />

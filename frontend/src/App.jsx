@@ -12,6 +12,7 @@ import ErrorPage from './pages/ErrorPage'
 import Recipes from './pages/Recipe'
 import SmartRecipe from './pages/SmartRecipe'
 import AiRecipePage from './pages/AiRecipePage'
+import MealPlanner from './pages/MealPlanner'
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
       <Route path='/recipes' element={<Recipes />} />
       <Route path="/smart-recipe" element={<SmartRecipe />} />
       <Route path="/ai-recipe/:id" element={<AiRecipePage />} />
+      <Route path='/meal-planner' element={<MealPlanner />} />
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<ErrorPage />} />

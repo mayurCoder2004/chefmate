@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import recipeRoutes from "./routes/recipeRoutes.js";
+import mealPlanRoutes from "./routes/mealPlanRoutes.js";
 import axios from "axios";
 import { z } from "zod";
 
@@ -25,6 +26,9 @@ app.use("/api/auth", authRoutes);
 
 // Saved recipes routes
 app.use("/api/recipes", recipeRoutes);
+
+// Meal Plan Routes
+app.use("/api/meal-plan", mealPlanRoutes);
 
 // ------------------------
 // Smart Recipe Route (OpenRouter - Mistral)
