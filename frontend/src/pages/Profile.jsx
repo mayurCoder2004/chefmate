@@ -7,6 +7,7 @@ export default function Profile() {
   const navigate = useNavigate();
 
   const [savedRecipes, setSavedRecipes] = useState([]);
+  const [savedMealPlans, setSavedMealPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -15,16 +16,28 @@ export default function Profile() {
     navigate("/login");
   };
 
-  const fetchSavedRecipes = async () => {
+  // Fetch saved recipes and meal plans
+  const fetchSavedData = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/recipes/saved`, {
+
+      // Recipes
+      const resRecipes = await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/recipes/saved`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to fetch saved recipes");
-      setSavedRecipes(data.savedRecipes || []);
+      const dataRecipes = await resRecipes.json();
+      if (!resRecipes.ok) throw new Error(dataRecipes.error || "Failed to fetch recipes");
+      setSavedRecipes(dataRecipes.savedRecipes || []);
+
+      // Meal Plans
+      const resPlans = await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/meal-plan`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const dataPlans = await resPlans.json();
+      if (!resPlans.ok) throw new Error(dataPlans.error || "Failed to fetch meal plans");
+      setSavedMealPlans(dataPlans.savedMealPlans || []);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -33,7 +46,7 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    fetchSavedRecipes();
+    fetchSavedData();
   }, []);
 
   const handleRemoveRecipe = async (id) => {
@@ -54,34 +67,24 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-secondary p-6">
-      <div className="bg-white p-8 rounded-2xl shadow-lg border border-primary/20 max-w-3xl w-full">
-        
+      <div className="bg-white p-8 rounded-2xl shadow-lg border border-primary/20 max-w-4xl w-full">
+
         {/* User Info */}
         <div className="text-center border-b pb-6 mb-6">
-          <h2 className="text-3xl font-bold mb-2 text-primary">
-            Welcome, {user?.name}
-          </h2>
+          <h2 className="text-3xl font-bold mb-2 text-primary">Welcome, {user?.name}</h2>
           <p className="text-gray-600">Email: {user?.email}</p>
         </div>
 
-        {/* Saved Recipes Section */}
-        <div>
-          <h3 className="text-xl font-semibold mb-4 text-primary">
-            Your Saved Recipes
-          </h3>
+        {loading && <p className="text-gray-500">Loading saved data...</p>}
+        {error && <p className="text-red-500">{error}</p>}
 
-          {loading && <p className="text-gray-500">Loading recipes...</p>}
-          {error && <p className="text-red-500">{error}</p>}
-          {!loading && !error && savedRecipes.length === 0 && (
-            <p className="text-gray-500">You have no saved recipes yet.</p>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Tabs */}
+        <div className="mt-4">
+          <h3 className="text-xl font-semibold mb-2 text-primary">Your Saved Recipes</h3>
+          {savedRecipes.length === 0 && <p className="text-gray-500">No saved recipes yet.</p>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {savedRecipes.map((recipe, idx) => (
-              <div
-                key={recipe._id || idx}
-                className="bg-secondary p-4 rounded-lg shadow-sm border border-primary/10 flex flex-col justify-between"
-              >
+              <div key={recipe._id || idx} className="bg-secondary p-4 rounded-lg shadow-sm border border-primary/10 flex flex-col justify-between">
                 <div>
                   <h4 className="font-medium text-accent">{recipe.title}</h4>
                   <p className="text-sm text-gray-600 mb-2">
@@ -104,6 +107,28 @@ export default function Profile() {
               </div>
             ))}
           </div>
+
+          <h3 className="text-xl font-semibold mb-2 text-primary">Your Saved Meal Plans</h3>
+          {savedMealPlans.length === 0 && <p className="text-gray-500">No saved meal plans yet.</p>}
+          <div className="space-y-4">
+            {savedMealPlans.map((plan, idx) => (
+              <div key={idx} className="bg-secondary p-4 rounded-lg shadow-sm border border-primary/10">
+                <p className="text-sm text-gray-600 mb-2">Diet: {plan.diet} • Saved on {new Date(plan.createdAt).toLocaleDateString()}</p>
+                {plan.plan.map(day => (
+                  <div key={day.day} className="mb-2">
+                    <h4 className="font-semibold text-primary">Day {day.day}</h4>
+                    {day.meals.map((meal, i) => (
+                      <div key={i} className="mb-1 border-b pb-1">
+                        <p><strong>{meal.name}</strong> {meal.calories && `(Calories: ${meal.calories})`}</p>
+                        <p className="text-sm"><strong>Ingredients:</strong> {meal.ingredients.join(", ")}</p>
+                        <p className="text-sm"><strong>Instructions:</strong> {meal.instructions}</p>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Logout Button */}
@@ -115,6 +140,7 @@ export default function Profile() {
             Logout
           </button>
         </div>
+
       </div>
     </div>
   );

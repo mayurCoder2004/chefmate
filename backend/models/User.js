@@ -4,7 +4,7 @@ const RecipeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   usedIngredients: { type: [String], default: [] },
   optionalIngredients: { type: [String], default: [] },
-  healthBenefits: { type: [String], default: [] }, // ← Fixed: array of strings
+  healthBenefits: { type: [String], default: [] },
   cookingSteps: { type: [String], default: [] },
   estimatedTime: { type: Number },
   servings: { type: Number },
@@ -18,7 +18,17 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     preferences: { type: [String], default: [] },
-    savedRecipes: { type: [RecipeSchema], default: [] }
+    savedRecipes: { type: [RecipeSchema], default: [] },
+    savedMealPlans: {
+      type: [
+        {
+          plan: { type: Array, default: [] },
+          diet: { type: String, default: "none" },
+          createdAt: { type: Date, default: Date.now }
+        }
+      ],
+      default: []
+    }
   },
   { timestamps: true }
 );
