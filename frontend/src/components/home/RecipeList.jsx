@@ -8,12 +8,27 @@ export default function RecipeList() {
   useEffect(() => {
     async function fetchRecipes() {
       const results = [];
-      for (let i = 0; i < 3; i++) {   // fetch 3 random meals
+      let attempts = 0;
+
+      // Fetch until we get 3 valid meals (excluding Beef & Pork)
+      while (results.length < 3 && attempts < 20) {
         const data = await getRandomMeals();
+        attempts++;
+
         if (data.meals && data.meals.length > 0) {
-          results.push(data.meals[0]);
+          const meal = data.meals[0];
+
+          // Exclude Beef and Pork categories
+          if (
+            meal.strCategory &&
+            meal.strCategory.toLowerCase() !== "beef" &&
+            meal.strCategory.toLowerCase() !== "pork"
+          ) {
+            results.push(meal);
+          }
         }
       }
+
       setRecipes(results);
     }
     fetchRecipes();
