@@ -13,6 +13,7 @@ import Recipes from './pages/Recipe'
 import SmartRecipe from './pages/SmartRecipe'
 import AiRecipePage from './pages/AiRecipePage'
 import MealPlanner from './pages/MealPlanner'
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
       <Route path="*" element={<ErrorPage />} />
     </Routes>
     <Footer />
+    <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
     </>
   )
 }

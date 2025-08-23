@@ -7,15 +7,11 @@ import MealPlannerPromo from "../components/home/MealPlannerPromo";
 
 const Home = () => {
   return (
-    <div className="p-6">
+    <div>
       <HeroSection />
       <RecipeList />
       <AiRecipeCard />
       <MealPlannerPromo />
-
-      <div className="container mx-auto px-4 py-8">
-        <SearchFilter />
-      </div>
     </div>
   );
 };

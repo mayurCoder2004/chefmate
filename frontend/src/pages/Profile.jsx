@@ -66,82 +66,290 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-secondary p-6">
-      <div className="bg-white p-8 rounded-2xl shadow-lg border border-primary/20 max-w-4xl w-full">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8 px-4 mt-20">
+      {/* Background decorative elements */}
+      <div className="fixed top-0 left-0 w-80 h-80 bg-gradient-to-br from-orange-300/10 to-amber-300/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+      <div className="fixed bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-yellow-300/10 to-orange-300/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
 
-        {/* User Info */}
-        <div className="text-center border-b pb-6 mb-6">
-          <h2 className="text-3xl font-bold mb-2 text-primary">Welcome, {user?.name}</h2>
-          <p className="text-gray-600">Email: {user?.email}</p>
+      {/* Floating elements */}
+      <div className="fixed top-20 right-20 w-4 h-4 bg-orange-400/40 rounded-full animate-float"></div>
+      <div 
+        className="fixed bottom-32 left-16 w-6 h-6 bg-amber-400/40 rounded-full animate-float"
+        style={{ animationDelay: "2s" }}
+      ></div>
+      <div 
+        className="fixed top-1/2 left-10 w-3 h-3 bg-yellow-400/40 rounded-full animate-float"
+        style={{ animationDelay: "1s" }}
+      ></div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-5xl sm:text-6xl font-extrabold mb-4 drop-shadow-lg leading-tight">
+            <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+              My Profile
+            </span>
+            <span className="text-4xl ml-3 inline-block animate-bounce">👨‍🍳✨</span>
+          </h1>
+          <p className="text-xl text-orange-700/80 font-medium">
+            Welcome back, {user?.name}! 🎉
+          </p>
         </div>
 
-        {loading && <p className="text-gray-500">Loading saved data...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+        {/* Main Content Container */}
+        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-orange-200/50 group hover:shadow-3xl transition-all duration-500 overflow-hidden">
+          {/* Pattern overlay */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.03%22%3E%3Cpath d=%22m0 40l40-40h-40v40zm40 0v-40h-40l40 40z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+          
+          <div className="relative z-10">
+            {/* Loading State */}
+            {loading && (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
+                <p className="text-xl text-orange-700 font-semibold">
+                  🔍 Loading your culinary collection...
+                </p>
+              </div>
+            )}
 
-        {/* Tabs */}
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold mb-2 text-primary">Your Saved Recipes</h3>
-          {savedRecipes.length === 0 && <p className="text-gray-500">No saved recipes yet.</p>}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {savedRecipes.map((recipe, idx) => (
-              <div key={recipe._id || idx} className="bg-secondary p-4 rounded-lg shadow-sm border border-primary/10 flex flex-col justify-between">
+            {/* Error State */}
+            {error && (
+              <div className="p-6 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl mb-8">
+                <p className="text-red-700 font-semibold flex items-center gap-2 text-center justify-center">
+                  ❌ {error}
+                </p>
+              </div>
+            )}
+
+            {/* Saved Recipes Section */}
+            {!loading && (
+              <div className="space-y-8">
                 <div>
-                  <h4 className="font-medium text-accent">{recipe.title}</h4>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {recipe.cookingSteps?.length ? `Steps: ${recipe.cookingSteps.length}` : "No steps"} •{" "}
-                    {recipe.estimatedTime ? `${recipe.estimatedTime} min` : "Time N/A"}
-                  </p>
-                  <button
-                    onClick={() => navigate(`/ai-recipe/${recipe._id}`)}
-                    className="text-blue-600 hover:underline text-sm mb-2"
-                  >
-                    View Details
-                  </button>
+                  <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+                      Your Saved Recipes
+                    </span>
+                    <span className="text-2xl">📚</span>
+                    <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-200 to-transparent"></div>
+                  </h2>
+
+                  {savedRecipes.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="text-6xl mb-4">🍽️</div>
+                      <p className="text-xl text-orange-600 font-medium">
+                        No saved recipes yet. Start cooking up some magic! ✨
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {savedRecipes.map((recipe, idx) => (
+                        <div 
+                          key={recipe._id || idx} 
+                          className="relative bg-gradient-to-br from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200/50 shadow-sm hover:shadow-xl transition-all duration-300 group/card overflow-hidden"
+                        >
+                          {/* Card pattern overlay */}
+                          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2220%22 height=%2220%22 viewBox=%220 0 20 20%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.02%22%3E%3Cpath d=%22m0 20l20-20h-20v20zm20 0v-20h-20l20 20z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-start justify-between mb-3">
+                              <h3 className="font-bold text-amber-700 text-lg group-hover/card:text-amber-800 transition-colors">
+                                {recipe.title}
+                              </h3>
+                              <span className="text-2xl">🍳</span>
+                            </div>
+
+                            <div className="flex items-center gap-4 mb-4">
+                              <div className="flex items-center gap-1 bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
+                                <span className="text-xs">📋</span>
+                                <span className="text-sm font-medium text-amber-700">
+                                  {recipe.cookingSteps?.length ? `${recipe.cookingSteps.length} steps` : "No steps"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
+                                <span className="text-xs">⏱️</span>
+                                <span className="text-sm font-medium text-amber-700">
+                                  {recipe.estimatedTime ? `${recipe.estimatedTime} min` : "Time N/A"}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => navigate(`/ai-recipe/${recipe._id}`)}
+                                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                              >
+                                👁️ View Details
+                              </button>
+                              <button
+                                onClick={() => handleRemoveRecipe(recipe._id)}
+                                className="bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
+                {/* Saved Meal Plans Section */}
+                <div>
+                  <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+                      Your Saved Meal Plans
+                    </span>
+                    <span className="text-2xl">📅</span>
+                    <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-200 to-transparent"></div>
+                  </h2>
+
+                  {savedMealPlans.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="text-6xl mb-4">📋</div>
+                      <p className="text-xl text-orange-600 font-medium">
+                        No saved meal plans yet. Plan your perfect week! 🗓️
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {savedMealPlans.map((plan, idx) => (
+                        <div 
+                          key={idx} 
+                          className="relative bg-gradient-to-br from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                        >
+                          {/* Pattern overlay */}
+                          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2220%22 height=%2220%22 viewBox=%220 0 20 20%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.02%22%3E%3Cpath d=%22m0 20l20-20h-20v20zm20 0v-20h-20l20 20z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center text-white font-bold">
+                                  🥗
+                                </div>
+                                <div>
+                                  <h3 className="font-bold text-amber-700 text-lg">
+                                    {plan.diet.charAt(0).toUpperCase() + plan.diet.slice(1)} Meal Plan
+                                  </h3>
+                                  <p className="text-sm text-amber-600">
+                                    Saved on {new Date(plan.createdAt).toLocaleDateString('en-US', { 
+                                      year: 'numeric', 
+                                      month: 'long', 
+                                      day: 'numeric' 
+                                    })} 📅
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
+                                <span className="text-sm font-bold text-amber-700">
+                                  {plan.plan.length} days
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              {plan.plan.map(day => (
+                                <div key={day.day} className="bg-white/50 rounded-xl p-4 border border-amber-100">
+                                  <h4 className="font-bold text-amber-700 mb-3 flex items-center gap-2">
+                                    <span className="w-6 h-6 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                      {day.day}
+                                    </span>
+                                    Day {day.day}
+                                  </h4>
+                                  
+                                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                                    {day.meals.map((meal, i) => (
+                                      <div key={i} className="bg-gradient-to-br from-yellow-50/70 to-amber-50/70 p-3 rounded-lg border border-yellow-200/50">
+                                        <div className="flex items-center justify-between mb-2">
+                                          <h5 className="font-semibold text-amber-800 flex items-center gap-1">
+                                            <span className="text-sm">
+                                              {i === 0 ? '🌅' : i === 1 ? '☀️' : i === 2 ? '🌅' : '🌙'}
+                                            </span>
+                                            {meal.name}
+                                          </h5>
+                                          {meal.calories && (
+                                            <span className="bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-bold px-2 py-1 rounded-full border border-orange-200">
+                                              🔥 {meal.calories}
+                                            </span>
+                                          )}
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                          <div>
+                                            <p className="text-xs font-semibold text-amber-700 mb-1">🥬 Ingredients:</p>
+                                            <div className="flex flex-wrap gap-1">
+                                              {meal.ingredients.slice(0, 3).map((ingredient, idx) => (
+                                                <span key={idx} className="text-xs bg-white/70 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200/50">
+                                                  {ingredient}
+                                                </span>
+                                              ))}
+                                              {meal.ingredients.length > 3 && (
+                                                <span className="text-xs bg-white/70 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200/50">
+                                                  +{meal.ingredients.length - 3} more
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                          
+                                          <div>
+                                            <p className="text-xs font-semibold text-amber-700 mb-1">👨‍🍳 Instructions:</p>
+                                            <p className="text-xs text-amber-800 bg-white/50 p-2 rounded border border-amber-100 line-clamp-2">
+                                              {meal.instructions.length > 100 
+                                                ? `${meal.instructions.substring(0, 100)}...` 
+                                                : meal.instructions
+                                              }
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Logout Button */}
+            {!loading && (
+              <div className="text-center mt-12 pt-8 border-t border-orange-200/50">
                 <button
-                  onClick={() => handleRemoveRecipe(recipe._id)}
-                  className="text-red-600 hover:underline text-sm mt-2 self-start"
+                  onClick={handleLogout}
+                  className="bg-gradient-to-r from-red-500 via-pink-500 to-red-500 hover:from-red-600 hover:via-pink-600 hover:to-red-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 text-lg flex items-center justify-center gap-3 mx-auto"
                 >
-                  Remove
+                  🚪 Logout
                 </button>
               </div>
-            ))}
-          </div>
-
-          <h3 className="text-xl font-semibold mb-2 text-primary">Your Saved Meal Plans</h3>
-          {savedMealPlans.length === 0 && <p className="text-gray-500">No saved meal plans yet.</p>}
-          <div className="space-y-4">
-            {savedMealPlans.map((plan, idx) => (
-              <div key={idx} className="bg-secondary p-4 rounded-lg shadow-sm border border-primary/10">
-                <p className="text-sm text-gray-600 mb-2">Diet: {plan.diet} • Saved on {new Date(plan.createdAt).toLocaleDateString()}</p>
-                {plan.plan.map(day => (
-                  <div key={day.day} className="mb-2">
-                    <h4 className="font-semibold text-primary">Day {day.day}</h4>
-                    {day.meals.map((meal, i) => (
-                      <div key={i} className="mb-1 border-b pb-1">
-                        <p><strong>{meal.name}</strong> {meal.calories && `(Calories: ${meal.calories})`}</p>
-                        <p className="text-sm"><strong>Ingredients:</strong> {meal.ingredients.join(", ")}</p>
-                        <p className="text-sm"><strong>Instructions:</strong> {meal.instructions}</p>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ))}
+            )}
           </div>
         </div>
-
-        {/* Logout Button */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={handleLogout}
-            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-accent transition"
-          >
-            Logout
-          </button>
-        </div>
-
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-15px) rotate(180deg);
+          }
+        }
+        .animate-float {
+          animation: float 4s ease-in-out infinite;
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 }
