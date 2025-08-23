@@ -7,11 +7,12 @@ const btnStyle = "rounded-xl px-4 py-2 font-medium shadow-sm border border-gray-
 export default function SmartRecipe() {
   const [input, setInput] = useState('');
   const [ingredients, setIngredients] = useState([]);
-  const [diet, setDiet] = useState('none'); // none | veg | vegan | keto | paleo
+  const [diet, setDiet] = useState('none');
   const [maxTime, setMaxTime] = useState('');
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState(null);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const canSubmit = useMemo(() => ingredients.length > 0 && !loading, [ingredients, loading]);
 
@@ -36,22 +37,39 @@ export default function SmartRecipe() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ingredients,
-          prefs: {
-            diet,
-            ...(maxTime ? { maxTime: Number(maxTime) } : {})
-          }
+          prefs: { diet, ...(maxTime ? { maxTime: Number(maxTime) } : {}) }
         })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      let data;
+      try { data = await res.json(); } 
+      catch { const text = await res.text(); console.error("Non-JSON response:", text); throw new Error("Server returned invalid JSON"); }
 
+      if (!res.ok) throw new Error(data.error || 'Failed');
       setRecipe(data);
-    } catch (e) {
-      setError(e.message || 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { setError(e.message || 'Something went wrong'); } 
+    finally { setLoading(false); }
+  }
+
+  async function saveRecipe() {
+    if (!recipe) return;
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/recipes/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify(recipe)
+      });
+
+      let data;
+      try { data = await res.json(); } 
+      catch { const text = await res.text(); console.error("Non-JSON response:", text); throw new Error("Server returned invalid JSON"); }
+
+      if (!res.ok) throw new Error(data.error || "Failed to save recipe");
+      alert("Recipe saved successfully!");
+    } catch (err) { alert(err.message); } 
+    finally { setSaving(false); }
   }
 
   return (
@@ -85,11 +103,7 @@ export default function SmartRecipe() {
         <div className="flex flex-wrap gap-3">
           <div>
             <label className="text-sm mr-2">Diet</label>
-            <select
-              value={diet}
-              onChange={e => setDiet(e.target.value)}
-              className="border rounded-xl px-3 py-2"
-            >
+            <select value={diet} onChange={e => setDiet(e.target.value)} className="border rounded-xl px-3 py-2">
               <option value="none">None</option>
               <option value="veg">Vegetarian</option>
               <option value="vegan">Vegan</option>
@@ -99,24 +113,12 @@ export default function SmartRecipe() {
           </div>
           <div>
             <label className="text-sm mr-2">Max time (min)</label>
-            <input
-              type="number"
-              min="5"
-              max="240"
-              className="border rounded-xl px-3 py-2 w-28"
-              value={maxTime}
-              onChange={e => setMaxTime(e.target.value)}
-              placeholder="e.g. 30"
-            />
+            <input type="number" min="5" max="240" className="border rounded-xl px-3 py-2 w-28" value={maxTime} onChange={e => setMaxTime(e.target.value)} placeholder="e.g. 30" />
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            disabled={!canSubmit}
-            onClick={fetchSmartRecipe}
-            className={clsx(btnStyle, canSubmit ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-400")}
-          >
+          <button disabled={!canSubmit} onClick={fetchSmartRecipe} className={clsx(btnStyle, canSubmit ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-400")}>
             {loading ? "Thinking..." : "Get Best Recipe"}
           </button>
           <button onClick={() => { setIngredients([]); setRecipe(null); }} className={btnStyle}>Reset</button>
@@ -125,7 +127,6 @@ export default function SmartRecipe() {
         {error && <p className="text-red-600 text-sm">{error}</p>}
       </div>
 
-      {/* Result */}
       {loading && !recipe && (
         <div className="mt-6 space-y-2">
           <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse"></div>
@@ -140,36 +141,32 @@ export default function SmartRecipe() {
             <h2 className="text-xl font-semibold">{recipe.title}</h2>
             <span className="text-sm bg-gray-100 border px-2 py-1 rounded">⏱ {recipe.estimatedTime} min</span>
           </div>
-          {!!recipe.healthBenefits && (
-            <p className="text-sm text-gray-700"><strong>Why it’s healthy:</strong> {recipe.healthBenefits}</p>
+          {!!recipe.healthBenefits?.length && (
+            <p className="text-sm text-gray-700"><strong>Why it’s healthy:</strong> {recipe.healthBenefits.join(', ')}</p>
           )}
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
               <h3 className="font-medium mb-1">Used Ingredients</h3>
-              <ul className="list-disc list-inside text-sm">
-                {(recipe.usedIngredients || []).map((x, i) => <li key={x + i}>{x}</li>)}
-              </ul>
-              {(recipe.optionalIngredients?.length > 0) && (
+              <ul className="list-disc list-inside text-sm">{recipe.usedIngredients?.map((x, i) => <li key={x + i}>{x}</li>)}</ul>
+              {recipe.optionalIngredients?.length > 0 && (
                 <>
                   <h3 className="font-medium mt-4 mb-1">Optional / Pantry</h3>
-                  <ul className="list-disc list-inside text-sm">
-                    {recipe.optionalIngredients.map((x, i) => <li key={x + i}>{x}</li>)}
-                  </ul>
+                  <ul className="list-disc list-inside text-sm">{recipe.optionalIngredients.map((x, i) => <li key={x + i}>{x}</li>)}</ul>
                 </>
               )}
             </div>
             <div>
               <h3 className="font-medium mb-1">Steps</h3>
-              <ol className="list-decimal list-inside text-sm space-y-1">
-                {recipe.cookingSteps.map((s, i) => <li key={i}>{s}</li>)}
-              </ol>
-              {recipe.servings && (
-                <p className="text-sm text-gray-600 mt-3">Servings: {recipe.servings}</p>
-              )}
-              {recipe.notes && (
-                <p className="text-sm text-gray-600 mt-1">{recipe.notes}</p>
-              )}
+              <ol className="list-decimal list-inside text-sm space-y-1">{recipe.cookingSteps?.map((s, i) => <li key={i}>{s}</li>)}</ol>
+              {recipe.servings && <p className="text-sm text-gray-600 mt-3">Servings: {recipe.servings}</p>}
+              {recipe.notes && <p className="text-sm text-gray-600 mt-1">{recipe.notes}</p>}
             </div>
+          </div>
+
+          <div className="mt-4">
+            <button onClick={saveRecipe} disabled={saving} className={clsx("bg-blue-600 text-white px-4 py-2 rounded-xl shadow transition hover:bg-blue-700", saving && "opacity-50 cursor-not-allowed")}>
+              {saving ? "Saving..." : "Save Recipe"}
+            </button>
           </div>
         </div>
       )}

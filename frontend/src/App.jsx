@@ -11,6 +11,7 @@ import Footer from './components/Footer'
 import ErrorPage from './pages/ErrorPage'
 import Recipes from './pages/Recipe'
 import SmartRecipe from './pages/SmartRecipe'
+import AiRecipePage from './pages/AiRecipePage'
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
       <Route path="/recipe/:id" element={<RecipePage />} />
       <Route path='/recipes' element={<Recipes />} />
       <Route path="/smart-recipe" element={<SmartRecipe />} />
+      <Route path="/ai-recipe/:id" element={<AiRecipePage />} />
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<ErrorPage />} />

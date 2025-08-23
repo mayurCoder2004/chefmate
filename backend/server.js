@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import recipeRoutes from "./routes/recipeRoutes.js";
 import axios from "axios";
 import { z } from "zod";
 
@@ -21,6 +22,9 @@ app.get("/", (req, res) => res.send("Backend is running"));
 
 // Auth Routes
 app.use("/api/auth", authRoutes);
+
+// Saved recipes routes
+app.use("/api/recipes", recipeRoutes);
 
 // ------------------------
 // Smart Recipe Route (OpenRouter - Mistral)
