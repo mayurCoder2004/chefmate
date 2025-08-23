@@ -42,8 +42,10 @@ export default function SmartRecipe() {
           }
         })
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
+
       setRecipe(data);
     } catch (e) {
       setError(e.message || 'Something went wrong');
