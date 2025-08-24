@@ -43,7 +43,45 @@ const App = () => {
       <Route path="*" element={<ErrorPage />} />
     </Routes>
     <Footer />
-    <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+    <Toaster
+        position="top-right"
+        reverseOrder={false}
+        gutter={8}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'linear-gradient(135deg, #fed7aa, #fde68a)',
+            color: '#92400e',
+            fontWeight: '600',
+            fontSize: '14px',
+            borderRadius: '16px',
+            border: '2px solid rgba(251, 146, 60, 0.3)',
+            backdropFilter: 'blur(8px)',
+            maxWidth: '400px',
+          },
+          success: {
+            style: {
+              background: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
+              color: '#065f46',
+              border: '2px solid rgba(34, 197, 94, 0.3)',
+            },
+          },
+          error: {
+            style: {
+              background: 'linear-gradient(135deg, #fee2e2, #fecaca)',
+              color: '#991b1b',
+              border: '2px solid rgba(239, 68, 68, 0.3)',
+            },
+          },
+          loading: {
+            style: {
+              background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
+              color: '#3730a3',
+              border: '2px solid rgba(99, 102, 241, 0.3)',
+            },
+          },
+        }}
+      />
     </>
   )
 }
