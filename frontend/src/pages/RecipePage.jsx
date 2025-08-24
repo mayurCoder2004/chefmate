@@ -1,11 +1,14 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
 import toast from "react-hot-toast";
+import { AuthContext } from "../contexts/AuthContext"; // adjust path if needed
 
 export default function RecipePage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [saving, setSaving] = useState(false);
+  const { user, token } = useContext(AuthContext); // get auth state
 
   useEffect(() => {
     fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
@@ -15,11 +18,16 @@ export default function RecipePage() {
 
   const handleSaveRecipe = async () => {
     if (!recipe) return;
+
+    if (!token) {
+      toast.error("Please log in to save recipes.");
+      setTimeout(() => navigate("/login"), 1500); // redirect after 1.5s
+      return;
+    }
+
     setSaving(true);
 
     try {
-      const token = localStorage.getItem("token");
-
       const ingredients = Array.from(
         { length: 20 },
         (_, i) => recipe[`strIngredient${i + 1}`]
@@ -39,7 +47,9 @@ export default function RecipePage() {
       };
 
       const res = await fetch(
-        `${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/recipes/save`,
+        `${
+          import.meta.env.VITE_BASE_URL || "http://localhost:5000"
+        }/api/recipes/save`,
         {
           method: "POST",
           headers: {
@@ -114,12 +124,6 @@ export default function RecipePage() {
                   alt={recipe.strMeal}
                   className="relative w-full rounded-3xl shadow-2xl border-2 border-orange-200/50 object-cover transform transition-all duration-500 group-hover/image:shadow-3xl group-hover/image:border-orange-300/70"
                 />
-
-                {/* Decorative frame elements */}
-                <div className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-orange-400 rounded-tl-lg opacity-0 group-hover/image:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 border-t-2 border-r-2 border-orange-400 rounded-tr-lg opacity-0 group-hover/image:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute -bottom-2 -left-2 w-6 h-6 border-b-2 border-l-2 border-orange-400 rounded-bl-lg opacity-0 group-hover/image:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-orange-400 rounded-br-lg opacity-0 group-hover/image:opacity-100 transition-opacity duration-500"></div>
               </div>
             </div>
 
@@ -162,9 +166,7 @@ export default function RecipePage() {
                       Saving Recipe...
                     </>
                   ) : (
-                    <>
-                      Save Recipe ✅
-                    </>
+                    <>Save Recipe ✅</>
                   )}
                 </span>
               </button>

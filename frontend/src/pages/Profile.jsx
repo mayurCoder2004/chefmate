@@ -2,6 +2,83 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+// Toast Notification Component
+const Toast = ({ message, type = 'success', onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor = type === 'success' 
+    ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+    : type === 'error'
+    ? 'bg-gradient-to-r from-red-500 to-pink-500'
+    : 'bg-gradient-to-r from-blue-500 to-indigo-500';
+
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+
+  return (
+    <div className="fixed top-4 right-4 z-50 animate-slide-in">
+      <div className={`${bgColor} text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-sm max-w-sm`}>
+        <div className="flex items-center gap-3">
+          <span className="text-xl">{icon}</span>
+          <p className="font-semibold flex-1">{message}</p>
+          <button 
+            onClick={onClose}
+            className="text-white/80 hover:text-white text-xl font-bold transition-colors"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Custom Confirmation Modal Component
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, recipeName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-orange-200/50 animate-scale-in">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="text-6xl mb-4">🗑️</div>
+          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+            Delete Recipe?
+          </h3>
+          <p className="text-gray-600">
+            Are you sure you want to remove <span className="font-semibold text-orange-600">"{recipeName}"</span> from your saved recipes?
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            This action cannot be undone.
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+          >
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Profile() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -10,6 +87,20 @@ export default function Profile() {
   const [savedMealPlans, setSavedMealPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    recipeId: null,
+    recipeName: ''
+  });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  const hideToast = () => {
+    setToast(null);
+  };
 
   const handleLogout = () => {
     logout();
@@ -49,24 +140,60 @@ export default function Profile() {
     fetchSavedData();
   }, []);
 
-  const handleRemoveRecipe = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this recipe?")) return;
+  const openConfirmModal = (id, recipeName) => {
+    setConfirmModal({
+      isOpen: true,
+      recipeId: id,
+      recipeName: recipeName
+    });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      recipeId: null,
+      recipeName: ''
+    });
+  };
+
+  const handleRemoveRecipe = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/recipes/remove/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/recipes/remove/${confirmModal.recipeId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to remove recipe");
+      
       setSavedRecipes(data.savedRecipes);
+      showToast(`"${confirmModal.recipeName}" has been removed from your saved recipes! 🗑️`, 'success');
+      closeConfirmModal();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message, 'error');
+      closeConfirmModal();
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8 px-4 mt-20">
+      {/* Toast Notification */}
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={hideToast} 
+        />
+      )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleRemoveRecipe}
+        recipeName={confirmModal.recipeName}
+      />
+
       {/* Background decorative elements */}
       <div className="fixed top-0 left-0 w-80 h-80 bg-gradient-to-br from-orange-300/10 to-amber-300/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
       <div className="fixed bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-yellow-300/10 to-orange-300/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
@@ -181,7 +308,7 @@ export default function Profile() {
                                 👁️ View Details
                               </button>
                               <button
-                                onClick={() => handleRemoveRecipe(recipe._id)}
+                                onClick={() => openConfirmModal(recipe._id, recipe.title)}
                                 className="bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                               >
                                 🗑️
@@ -340,8 +467,45 @@ export default function Profile() {
             transform: translateY(-15px) rotate(180deg);
           }
         }
+        @keyframes slide-in {
+          from {
+            transform: translateX(100%) translateY(-50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0) translateY(0);
+            opacity: 1;
+          }
+        }
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes scale-in {
+          from {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
         .animate-float {
           animation: float 4s ease-in-out infinite;
+        }
+        .animate-slide-in {
+          animation: slide-in 0.4s ease-out forwards;
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
+        }
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out forwards;
         }
         .line-clamp-2 {
           display: -webkit-box;

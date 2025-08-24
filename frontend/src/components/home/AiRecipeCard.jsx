@@ -1,8 +1,44 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const AiRecipeCard = () => {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      toast.error('Please log in to access Smart Recipe! 🔐', {
+        duration: 4000,
+        style: {
+          background: 'linear-gradient(135deg, #fee2e2, #fecaca)',
+          color: '#991b1b',
+          border: '2px solid rgba(239, 68, 68, 0.3)',
+          fontWeight: '600',
+          fontSize: '14px',
+          borderRadius: '16px',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          maxWidth: '400px',
+        },
+        iconTheme: {
+          primary: '#ef4444',
+          secondary: '#ffffff',
+        },
+      });
+      
+      // Redirect to login after a short delay
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+    
+    // If logged in, proceed to smart recipe page
+    navigate("/smart-recipe");
+  };
 
   return (
     <div className="relative bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 border-2 border-orange-200/50 rounded-3xl p-8 text-center shadow-xl hover:shadow-2xl transition-all duration-500 group overflow-hidden">
@@ -97,7 +133,7 @@ const AiRecipeCard = () => {
         </div>
 
         <button
-          onClick={() => navigate("/smart-recipe")}
+          onClick={handleClick}
           className="group/btn relative bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 overflow-hidden"
         >
           <span className="relative z-10 flex items-center justify-center gap-3">

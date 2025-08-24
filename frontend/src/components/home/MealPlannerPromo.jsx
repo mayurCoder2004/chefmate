@@ -1,8 +1,44 @@
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import mealPlannerPhoto from '../../assets/meal-planner-photo.jpg';
 
 export default function MealPlannerPromo() {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      toast.error('Please log in to access Meal Planner! 🔐', {
+        duration: 4000,
+        style: {
+          background: 'linear-gradient(135deg, #fee2e2, #fecaca)',
+          color: '#991b1b',
+          border: '2px solid rgba(239, 68, 68, 0.3)',
+          fontWeight: '600',
+          fontSize: '14px',
+          borderRadius: '16px',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          maxWidth: '400px',
+        },
+        iconTheme: {
+          primary: '#ef4444',
+          secondary: '#ffffff',
+        },
+      });
+      
+      // Redirect to login after a short delay
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+    
+    // If logged in, proceed to meal planner page
+    navigate("/meal-planner");
+  };
 
   return (
     <section className="relative bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 text-gray-900 rounded-3xl p-12 mx-4 md:mx-10 my-12 shadow-2xl overflow-hidden border border-orange-200/50 group hover:shadow-3xl transition-all duration-500">
@@ -69,7 +105,7 @@ export default function MealPlannerPromo() {
           </div>
 
           <button
-            onClick={() => navigate("/meal-planner")}
+            onClick={handleClick}
             className="group/btn relative bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden"
           >
             <span className="relative z-10 flex items-center gap-3">
