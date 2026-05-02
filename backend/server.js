@@ -109,10 +109,50 @@ function normalizeRecipe(raw) {
   };
 }
 
+function buildLocalFallbackRecipe(ingredients, prefs = {}) {
+  const base = ingredients.map((x) => String(x).toLowerCase().trim()).filter(Boolean);
+  const title = `${base.slice(0, 2).map((w) => w[0]?.toUpperCase() + w.slice(1)).join(" & ")} Quick Bowl`;
+  const estimatedTime = prefs?.maxTime && Number.isFinite(prefs.maxTime) ? Math.min(prefs.maxTime, 30) : 25;
+
+  return {
+    title: title || "Quick Smart Bowl",
+    usedIngredients: base,
+    optionalIngredients: ["oil", "salt", "pepper", "turmeric", "cumin"],
+    healthBenefits: [
+      "Uses whole ingredients with minimal processing",
+      "Balanced carbs with hydration-rich vegetables",
+      "Lower sodium possible by light seasoning"
+    ],
+    cookingSteps: [
+      `Rinse and prep: ${base.join(", ")}.`,
+      "Heat a pan with a little oil, add spices, then cook tomatoes until soft.",
+      "Add rice with water, simmer until cooked and flavors combine.",
+      "Adjust salt and pepper lightly, rest for 2 minutes, and serve warm."
+    ],
+    estimatedTime,
+    servings: 2,
+    notes: "Generated via local fallback because AI provider is temporarily rate-limited."
+  };
+}
+
+function scoreRecipeCandidate(obj) {
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return 0;
+  const has = (k) => Object.prototype.hasOwnProperty.call(obj, k);
+  let score = 0;
+  if (has("title") || has("name")) score += 4;
+  if (has("cookingSteps") || has("steps") || has("instructions")) score += 4;
+  if (has("usedIngredients") || has("ingredients")) score += 3;
+  if (has("estimatedTime") || has("time")) score += 3;
+  if (has("healthBenefits") || has("benefits")) score += 1;
+  return score;
+}
+
 function extractStructuredJSONFromChoice(choice) {
   if (!choice) return null;
 
   const visited = new Set();
+  let bestCandidate = null;
+  let bestScore = 0;
   const walk = (node) => {
     if (node == null) return null;
     if (typeof node === "string") return extractJSON(node);
@@ -130,8 +170,12 @@ function extractStructuredJSONFromChoice(choice) {
 
     const keys = Object.keys(node);
 
-    // If object already looks like a recipe payload, accept directly.
-    if (keys.some((k) => ["title", "name", "ingredients", "usedIngredients", "cookingSteps", "steps", "instructions", "estimatedTime", "time"].includes(k))) {
+    const candidateScore = scoreRecipeCandidate(node);
+    if (candidateScore > bestScore) {
+      bestScore = candidateScore;
+      bestCandidate = node;
+    }
+    if (candidateScore >= 8) {
       return node;
     }
 
@@ -160,7 +204,7 @@ function extractStructuredJSONFromChoice(choice) {
   const fromChoice = walk(choice);
   if (fromChoice) return fromChoice;
 
-  return null;
+  return bestScore > 0 ? bestCandidate : null;
 }
 
 app.post('/api/smart-recipe', async (req, res) => {
@@ -200,6 +244,19 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
     const firstChoice = response?.data?.choices?.[0] || null;
     const extracted = extractJSON(text) || extractStructuredJSONFromChoice(firstChoice);
     const recipe = normalizeRecipe(extracted);
+    if ((!recipe.estimatedTime || recipe.estimatedTime <= 0) && prefs?.maxTime) {
+      recipe.estimatedTime = prefs.maxTime;
+    }
+    if (!recipe.estimatedTime || recipe.estimatedTime <= 0) {
+      recipe.estimatedTime = 25;
+    }
+    if ((!recipe.cookingSteps || recipe.cookingSteps.length === 0) && recipe.usedIngredients.length > 0) {
+      recipe.cookingSteps = [
+        `Wash and prep ${recipe.usedIngredients.slice(0, 3).join(", ")}.`,
+        "Cook rice with tomatoes and basic pantry spices over medium heat until tender.",
+        "Taste, adjust seasoning lightly, and serve warm."
+      ];
+    }
 
     if (!extracted) {
       console.error("[smart-recipe] JSON parse failed", {
@@ -227,7 +284,15 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
       Number.isFinite(recipe.estimatedTime) &&
       recipe.estimatedTime > 0;
 
-    if (!ok) return res.status(502).json({ error: 'AI JSON missing required fields', raw: recipe });
+    if (!ok) {
+      console.error("[smart-recipe] JSON missing required fields", {
+        model,
+        extractedType: Array.isArray(extracted) ? "array" : typeof extracted,
+        extractedKeys: extracted && typeof extracted === "object" && !Array.isArray(extracted) ? Object.keys(extracted) : [],
+        normalized: recipe
+      });
+      return res.status(502).json({ error: 'AI JSON missing required fields', raw: recipe });
+    }
 
     res.json({
       modelUsed: model,
@@ -237,6 +302,16 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
     });
 
   } catch (err) {
+    if (err?.message === "All OpenRouter fallback models failed") {
+      const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+      console.warn("[smart-recipe] using local fallback recipe due to provider rate limits");
+      return res.status(200).json({
+        modelUsed: "local-fallback",
+        fallback: true,
+        ...fallbackRecipe
+      });
+    }
+
     console.error(err.details || err.message);
     res.status(err.statusCode || 500).json({ error: err.message || "LLM request failed", details: err.details || undefined });
   }

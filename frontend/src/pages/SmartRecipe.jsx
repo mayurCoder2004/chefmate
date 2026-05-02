@@ -147,6 +147,9 @@ export default function SmartRecipe() {
     
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Please login first to save recipes");
+      }
       const res = await fetch(`${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/recipes/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },

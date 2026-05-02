@@ -10,12 +10,36 @@ router.post("/save", verifyToken, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ error: "User not found" });
 
+    const toArray = (value) => {
+      if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+      if (typeof value === "string") {
+        return value
+          .split(/\n|,|;|\d+\.\s+/)
+          .map((v) => v.trim())
+          .filter(Boolean);
+      }
+      return [];
+    };
+
+    const toNumberOrUndefined = (value) => {
+      if (value === undefined || value === null || value === "") return undefined;
+      if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+      const matched = String(value).match(/\d+/);
+      if (!matched) return undefined;
+      const n = Number(matched[0]);
+      return Number.isFinite(n) ? n : undefined;
+    };
+
     // Ensure healthBenefits is always an array
     const recipeData = {
       ...req.body,
-      healthBenefits: Array.isArray(req.body.healthBenefits)
-        ? req.body.healthBenefits
-        : req.body.healthBenefits ? [req.body.healthBenefits] : []
+      title: String(req.body.title || "Untitled Recipe"),
+      usedIngredients: toArray(req.body.usedIngredients),
+      optionalIngredients: toArray(req.body.optionalIngredients),
+      cookingSteps: toArray(req.body.cookingSteps),
+      healthBenefits: toArray(req.body.healthBenefits),
+      estimatedTime: toNumberOrUndefined(req.body.estimatedTime),
+      servings: toNumberOrUndefined(req.body.servings)
     };
 
     user.savedRecipes.push(recipeData);

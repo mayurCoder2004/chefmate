@@ -42,6 +42,14 @@ function parseContent(choice) {
   return "";
 }
 
+function hasUsableOutput(response, text) {
+  const choice = response?.data?.choices?.[0];
+  const content = choice?.message?.content;
+  if (typeof text === "string" && text.trim().length > 0) return true;
+  if (content && typeof content === "object") return true;
+  return false;
+}
+
 function buildErrorSummary(errors) {
   return errors.map((e) => ({
     model: e.model,
@@ -84,11 +92,19 @@ export async function callOpenRouterWithFallback({
           }
         );
 
+        const text = parseContent(response.data?.choices?.[0] || null);
+        if (!hasUsableOutput(response, text)) {
+          const finishReason = response?.data?.choices?.[0]?.finish_reason || null;
+          const err = new Error(`Empty/invalid model output (finish_reason=${finishReason || "unknown"})`);
+          err.status = 502;
+          throw err;
+        }
+
         console.log(`[OpenRouter] success model=${model} attempt=${attempt + 1}`);
         return {
           model,
           response,
-          text: parseContent(response.data?.choices?.[0] || null)
+          text
         };
       } catch (err) {
         const status = err.response?.status;
