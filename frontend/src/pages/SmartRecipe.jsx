@@ -17,6 +17,33 @@ export default function SmartRecipe() {
 
   const canSubmit = useMemo(() => ingredients.length > 0 && !loading, [ingredients, loading]);
 
+  function toArray(value) {
+    if (Array.isArray(value)) return value.filter(Boolean).map((x) => String(x).trim()).filter(Boolean);
+    if (typeof value === "string") {
+      return value
+        .split(/\n|,|;|\d+\.\s+/)
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }
+
+  function normalizeRecipePayload(data) {
+    if (!data || typeof data !== "object") return null;
+    const src = data.recipe && typeof data.recipe === "object" ? data.recipe : data;
+
+    return {
+      ...src,
+      title: String(src.title || "Untitled Recipe"),
+      estimatedTime: Number(src.estimatedTime) || 0,
+      servings: src.servings ? Number(src.servings) || src.servings : undefined,
+      usedIngredients: toArray(src.usedIngredients),
+      optionalIngredients: toArray(src.optionalIngredients),
+      healthBenefits: toArray(src.healthBenefits),
+      cookingSteps: toArray(src.cookingSteps)
+    };
+  }
+
   function addFromInput() {
     const raw = input.trim();
     if (!raw) {
@@ -90,7 +117,9 @@ export default function SmartRecipe() {
 
       if (!res.ok) throw new Error(data.error || 'Failed');
       
-      setRecipe(data);
+      const normalized = normalizeRecipePayload(data);
+      if (!normalized) throw new Error("Recipe payload is invalid");
+      setRecipe(normalized);
       toast.dismiss('recipe-loading');
       toast.success('Perfect recipe created! 🎉✨', {
         icon: '👨‍🍳',

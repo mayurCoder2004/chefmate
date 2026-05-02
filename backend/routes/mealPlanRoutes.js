@@ -1,8 +1,8 @@
 import express from "express";
 import { verifyToken } from "../middlewares/auth.js";
 import User from "../models/User.js";
-import axios from "axios";
 import { z } from "zod";
+import { callOpenRouterWithFallback } from "../services/openRouterService.js";
 
 const router = express.Router();
 
@@ -24,10 +24,29 @@ const SaveMealPlanBody = z.object({
 // Utility: Extract JSON from AI text
 // ------------------------
 function extractJSON(str) {
-  const match = str.match(/(\{[\s\S]*\})|(\[[\s\S]*\])/);
-  if (match) {
-    try { return JSON.parse(match[0]); } catch {}
+  if (!str || typeof str !== "string") return null;
+
+  try { return JSON.parse(str); } catch {}
+
+  const fenced = str.match(/```json\s*([\s\S]*?)\s*```/i) || str.match(/```\s*([\s\S]*?)\s*```/i);
+  if (fenced?.[1]) {
+    try { return JSON.parse(fenced[1]); } catch {}
   }
+
+  const firstObj = str.indexOf("{");
+  const lastObj = str.lastIndexOf("}");
+  if (firstObj !== -1 && lastObj !== -1 && lastObj > firstObj) {
+    const candidate = str.slice(firstObj, lastObj + 1);
+    try { return JSON.parse(candidate); } catch {}
+  }
+
+  const firstArr = str.indexOf("[");
+  const lastArr = str.lastIndexOf("]");
+  if (firstArr !== -1 && lastArr !== -1 && lastArr > firstArr) {
+    const candidate = str.slice(firstArr, lastArr + 1);
+    try { return JSON.parse(candidate); } catch {}
+  }
+
   return null;
 }
 
@@ -58,25 +77,22 @@ Return STRICT JSON in the format:
   `;
 
   try {
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: 'mistralai/mistral-small-3.2-24b-instruct:free',
-        messages: [{ role: 'system', content: systemPrompt }],
-        temperature: 0.6
-      },
-      { headers: { 'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' } }
-    );
-
-    const text = response.data?.choices?.[0]?.message?.content || '';
+    const { text, model } = await callOpenRouterWithFallback({
+      messages: [{ role: "system", content: systemPrompt }],
+      temperature: 0.6,
+      stream: false,
+      extraPayload: {
+        response_format: { type: "json_object" }
+      }
+    });
     const mealPlan = extractJSON(text);
 
     if (!mealPlan) return res.status(502).json({ error: 'AI returned invalid JSON', rawText: text });
 
-    res.json({ mealPlan });
+    res.json({ mealPlan, modelUsed: model });
   } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).json({ error: 'LLM request failed' });
+    console.error(err.details || err.message);
+    res.status(err.statusCode || 500).json({ error: err.message || 'LLM request failed', details: err.details || undefined });
   }
 });
 
