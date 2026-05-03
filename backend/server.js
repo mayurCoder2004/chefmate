@@ -213,27 +213,23 @@ app.post('/api/smart-recipe', async (req, res) => {
 
   const { ingredients, prefs } = parsed.data;
 
-  const system = [
-    "You are a professional chef and nutrition coach.",
-    "Use ONLY the provided ingredients as core items. Optional pantry items like oil, salt, pepper, basic spices are okay.",
-    "Optimize for health (balanced macros, low ultra-processed, sensible sodium) and taste.",
-    "Output STRICT JSON with keys: title, usedIngredients, optionalIngredients, healthBenefits, cookingSteps, estimatedTime, servings, notes."
-  ].join(' ');
+  const systemPrompt = `
+You are a professional chef and nutrition coach.
+Use ONLY the provided ingredients as core items. Optional pantry items like oil, salt, pepper, basic spices are okay.
+Optimize for health (balanced macros, low ultra-processed, sensible sodium) and taste.
 
-  const user = `
 Ingredients: ${ingredients.join(', ')}
 Diet: ${prefs.diet}
 ${prefs.maxTime ? `MaxTime: ${prefs.maxTime} minutes` : ''} 
+
+Output STRICT JSON with keys: title, usedIngredients, optionalIngredients, healthBenefits, cookingSteps, estimatedTime, servings, notes.
 Return a single best recipe. cookingSteps is an array of short, numbered steps.
 estimatedTime is a number (minutes). servings is an integer (e.g. 2).
 `;
 
   try {
     const { text, model, response } = await callOpenRouterWithFallback({
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user }
-      ],
+      messages: [{ role: 'system', content: systemPrompt }],
       temperature: 0.6,
       stream: false,
       extraPayload: {

@@ -57,27 +57,23 @@ router.post("/", async (req, res) => {
 
   const { prompt, ingredients, prefs = { diet: "none" } } = parsed.data;
 
-  const system = [
-    "You are a professional chef and nutrition coach.",
-    "Use ONLY the provided ingredients as core items when ingredients are provided.",
-    "Optional pantry items like oil, salt, pepper, basic spices are okay.",
-    "Optimize for health and taste.",
-    "Output STRICT JSON with keys: title, usedIngredients, optionalIngredients, healthBenefits, cookingSteps, estimatedTime, servings, notes."
-  ].join(" ");
+  const systemPrompt = `
+You are a professional chef and nutrition coach.
+Use ONLY the provided ingredients as core items when ingredients are provided.
+Optional pantry items like oil, salt, pepper, basic spices are okay.
+Optimize for health and taste.
 
-  const userPrompt = prompt || `
-Ingredients: ${ingredients.join(", ")}
+${prompt || `Ingredients: ${ingredients ? ingredients.join(", ") : "None"}
 Diet: ${prefs.diet}
 ${prefs.maxTime ? `MaxTime: ${prefs.maxTime} minutes` : ""}
-Return a single best recipe.
+Return a single best recipe.`}
+
+Output STRICT JSON with keys: title, usedIngredients, optionalIngredients, healthBenefits, cookingSteps, estimatedTime, servings, notes.
 `;
 
   try {
     const { text, model } = await callOpenRouterWithFallback({
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: [{ type: "text", text: userPrompt }] }
-      ],
+      messages: [{ role: "system", content: systemPrompt }],
       temperature: 0.6,
       stream: false,
       extraPayload: {
