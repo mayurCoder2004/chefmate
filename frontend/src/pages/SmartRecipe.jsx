@@ -7,18 +7,36 @@ const btnStyle =
 
 // ── Predefined ingredients grouped loosely ────────────────────────────────────
 const PREDEFINED_INGREDIENTS = [
-  // Proteins
-  'chicken', 'eggs', 'paneer', 'tofu', 'beef', 'shrimp', 'salmon', 'lentils',
-  // Vegetables
-  'spinach', 'tomato', 'onion', 'garlic', 'broccoli', 'carrot',
-  'mushroom', 'potato', 'bell pepper', 'zucchini',
-  // Dairy
-  'butter', 'milk', 'cheese', 'yogurt', 'cream',
-  // Grains & staples
-  'rice', 'pasta', 'bread', 'flour', 'oats',
-  // Pantry / spices
-  'olive oil', 'soy sauce', 'lemon', 'ginger', 'chili', 'cumin',
-  'coriander', 'turmeric',
+  "onion",
+  "tomato",
+  "potato",
+  "green chili",
+  "garlic",
+  "ginger",
+
+  "rice",
+  "atta",
+  "roti",
+  "bread",
+  "maggi",
+  "poha",
+
+  "egg",
+  "paneer",
+  "milk",
+  "curd",
+
+  "salt",
+  "turmeric",
+  "red chili powder",
+  "garam masala",
+
+  "oil",
+  "butter",
+  "ghee",
+
+  "ketchup",
+  "peanut butter"
 ];
 
 export default function SmartRecipe() {
