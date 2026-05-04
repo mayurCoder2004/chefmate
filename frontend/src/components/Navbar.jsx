@@ -97,16 +97,16 @@ export default function Navbar() {
 
                 <Link 
                   className={`relative px-4 py-2.5 rounded-2xl transition-all duration-300 font-semibold text-sm overflow-hidden group ${
-                    isActive('/smart-recipe') 
+                    isActive('/app') 
                       ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-lg' 
                       : 'text-orange-700 hover:text-white hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 hover:shadow-lg'
                   }`} 
-                  to="/smart-recipe"
+                  to="/app"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     🤖 AI Recipes
                   </span>
-                  {!isActive('/smart-recipe') && (
+                  {!isActive('/app') && (
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-2xl"></div>
                   )}
                 </Link>
@@ -286,11 +286,11 @@ export default function Navbar() {
 
               <Link 
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 font-semibold text-base ${
-                  isActive('/smart-recipe') 
+                  isActive('/app') 
                     ? 'bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-lg' 
                     : 'text-orange-700 hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 hover:text-white hover:shadow-lg'
                 }`} 
-                to="/smart-recipe"
+                to="/app"
                 onClick={closeMobileMenu}
               >
                 <span className="text-xl">🤖</span>
