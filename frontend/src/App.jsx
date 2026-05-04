@@ -14,13 +14,15 @@ import SmartRecipe from './pages/SmartRecipe'
 import AiRecipePage from './pages/AiRecipePage'
 import MealPlanner from './pages/MealPlanner'
 import { Toaster } from "react-hot-toast";
+import LandingPage from './pages/LandingPage'
 
 const App = () => {
   return (
     <>
     <Navbar />
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/app" element={<SmartRecipe />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       
