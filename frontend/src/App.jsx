@@ -1,6 +1,6 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
+import { Route, Routes, useLocation } from 'react-router-dom'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Profile from './pages/Profile'
@@ -16,11 +16,14 @@ import MealPlanner from './pages/MealPlanner'
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
+  const location = useLocation()
+  const isLanding = location.pathname === '/'
+
   return (
     <>
-    <Navbar />
+    {!isLanding && <Navbar />}
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       
@@ -42,7 +45,7 @@ const App = () => {
       {/* Catch-all route for 404 */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
-    <Footer />
+    {!isLanding && <Footer />}
     <Toaster
         position="top-right"
         reverseOrder={false}
