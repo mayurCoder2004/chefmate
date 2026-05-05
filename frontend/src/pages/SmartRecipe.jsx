@@ -118,6 +118,27 @@ export default function SmartRecipe() {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Please login first to save recipes');
+      
+      // Check if recipe already exists
+      const checkRes = await fetch(
+        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/recipes/saved`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const checkData = await checkRes.json();
+      
+      if (checkRes.ok && checkData.savedRecipes) {
+        const alreadyExists = checkData.savedRecipes.some(
+          r => r.title.toLowerCase() === recipe.title.toLowerCase()
+        );
+        
+        if (alreadyExists) {
+          toast.dismiss('recipe-saving');
+          toast.error('Recipe already saved!', { duration: 3000 });
+          setSaving(false);
+          return;
+        }
+      }
+      
       const res = await fetch(
         `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/recipes/save`,
         { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -220,7 +241,7 @@ export default function SmartRecipe() {
   const customChips = selectedIngredients.filter((i) => !PREDEFINED_INGREDIENTS.includes(i));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20 pt-28 px-4">
+    <div className="min-h-screen pb-20 pt-28 px-4" style={{ backgroundColor: '#FDF6EE' }}>
       <div className="max-w-3xl mx-auto space-y-6">
 
         {/* Header */}
