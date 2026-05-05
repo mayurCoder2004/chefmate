@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import mealPlannerPhoto from '../../assets/meal-planner-photo.jpg';
+import { Utensils } from 'lucide-react';
 
 export default function MealPlannerPromo() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export default function MealPlannerPromo() {
     const token = localStorage.getItem("token");
     
     if (!token) {
-      toast.error('Please log in to access Meal Planner! 🔐', {
+      toast.error('Please log in to access Meal Planner!', {
         duration: 4000,
         style: {
           background: 'linear-gradient(135deg, #fee2e2, #fecaca)',
@@ -70,9 +71,9 @@ export default function MealPlannerPromo() {
               Plan Your Meals
             </span>
             <br />
-            <span className="relative">
+            <span className="relative flex items-center gap-2">
               in a Click
-              <span className="text-3xl md:text-4xl ml-2 inline-block animate-bounce">🍽️</span>
+              <Utensils size={36} className="text-orange-500 animate-bounce" />
             </span>
           </h2>
           

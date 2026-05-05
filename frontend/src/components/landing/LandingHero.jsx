@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { sharedStyles } from './landingStyles'
+import { Sparkles, Utensils, Share2, Flame } from 'lucide-react'
 
 const chips = ['Dal', 'Chawal', 'Aata', 'Tomato', 'Egg', 'Onion', 'Bread', 'Paneer']
 
@@ -194,11 +195,11 @@ const PhoneMockup = () => {
             ))}
           </div>
 
-          <button style={styles.genBtn}>✨ Find my recipe</button>
+          <button style={styles.genBtn} className="flex items-center justify-center gap-1"><Sparkles size={11} /> Find my recipe</button>
 
           <div style={styles.recipeCard}>
-            <div style={styles.recipeTop}>
-              <div style={styles.recipeEmoji}>🍛</div>
+              <div style={styles.recipeTop}>
+              <div style={styles.recipeEmoji}><Utensils size={26} color="#E8521A" /></div>
               <div>
                 <div style={styles.recipeName}>Dal Tadka + Chawal</div>
                 <div style={styles.recipeTags}>
@@ -210,7 +211,7 @@ const PhoneMockup = () => {
             </div>
             <div style={styles.recipeBottom}>
               <div style={styles.miniBtn}>Save</div>
-              <div style={styles.miniBtn}>📲 Share</div>
+              <div style={styles.miniBtn} className="flex items-center justify-center gap-1"><Share2 size={9} /> Share</div>
               <div style={styles.miniBtnPrimary}>Cook this</div>
             </div>
           </div>
@@ -230,7 +231,7 @@ const LandingHero = () => {
         {/* Left: copy */}
         <div>
           <div className="hero-child" style={styles.badge}>
-            🔥 Made for Indian bachelor life
+            <Flame size={12} /> Made for Indian bachelor life
           </div>
           <h1 className="hero-child" style={styles.h1}>
             1 burner.<br />

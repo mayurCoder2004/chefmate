@@ -1,8 +1,8 @@
-# ChefMate - AI Recipe Finder 🍳🤖
+# ChefMate - AI Recipe Finder
 
 ChefMate is a full-stack AI-powered recipe discovery and meal-planning application. It allows users to generate smart recipes based on ingredients they have, save their favorite recipes, and organize meal plans, all while providing a seamless, modern user interface.
 
-## 🌟 Features
+## Features
 
 - **AI-Powered Recipe Generation**: Generate complete, structured recipes from a list of ingredients, dietary preferences, and time constraints using AI (powered by OpenRouter/Mistral).
 - **Smart Fallbacks**: Reliable local fallback recipes when AI services are rate-limited or unavailable.
@@ -11,7 +11,7 @@ ChefMate is a full-stack AI-powered recipe discovery and meal-planning applicati
 - **Meal Planning**: Organize recipes into daily or weekly meal plans.
 - **Responsive UI**: Modern, fast, and responsive user interface built with React, Vite, and Tailwind CSS.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **Framework**: React 19 + Vite
@@ -29,7 +29,7 @@ ChefMate is a full-stack AI-powered recipe discovery and meal-planning applicati
 - **Validation**: Zod
 - **AI Integration**: OpenRouter API (`@google/genai` & `@google/generative-ai` SDKs supported)
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ai-recipe-finder/
@@ -53,7 +53,7 @@ ai-recipe-finder/
 └── README.md                 # Project documentation
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v18+ recommended)
@@ -112,13 +112,13 @@ npm run dev
 ```
 The frontend will run on the URL provided by Vite (usually `http://localhost:5173`).
 
-## 🔌 Core API Endpoints
+## Core API Endpoints
 
 - **Auth**: `POST /api/auth/register`, `POST /api/auth/login`
 - **Recipes**: `GET /api/recipes`, `POST /api/recipes`, etc.
 - **Meal Plans**: `GET /api/meal-plan`, `POST /api/meal-plan`, etc.
 - **AI Smart Recipe**: `POST /api/smart-recipe` (Accepts ingredients, dietary preferences, and max time)
 
-## 📄 License
+## License
 
 This project is licensed under the ISC License.

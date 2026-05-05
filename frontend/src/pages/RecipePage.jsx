@@ -64,7 +64,7 @@ export default function RecipePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save recipe");
 
-      toast.success("Recipe saved successfully 🎉");
+      toast.success("Recipe saved successfully", { icon: <Bookmark size={18} /> });
     } catch (err) {
       toast.error(err.message || "Something went wrong!");
     } finally {
@@ -165,7 +165,9 @@ export default function RecipePage() {
                       Saving Recipe...
                     </>
                   ) : (
-                    <>Save Recipe ✅</>
+                    <span className="flex items-center gap-2">
+                      <Bookmark size={18} /> Save Recipe
+                    </span>
                   )}
                 </span>
               </button>

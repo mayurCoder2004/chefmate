@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChefHat } from "lucide-react";
 import { searchMeals } from "../services/mealdb";
 import SidebarFilters from "../components/SidebarFilters";
 import RecipeCard from "../components/RecipeCard";
@@ -113,7 +114,9 @@ export default function Recipes() {
               <br />
               <span className="relative">
                 Amazing Recipes
-                <span className="text-4xl lg:text-5xl ml-3 inline-block animate-bounce">🍳</span>
+                <span className="text-4xl lg:text-5xl ml-3 inline-flex items-center gap-2 animate-bounce">
+                  <ChefHat size={20} className="text-orange-500" />
+                </span>
               </span>
             </h1>
 

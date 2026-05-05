@@ -66,7 +66,7 @@ const CookMode = () => {
 
   const shareOnWhatsApp = () => {
     // FIX 2: Use recipe.title instead of recipe.name
-    const text = `🍛 Just cooked ${recipe?.title || 'an amazing dish'} using ChefMate! Try it free: https://chefmate-frontend.vercel.app`
+    const text = `Just cooked ${recipe?.title || 'an amazing dish'} using ChefMate! Try it free: https://chefmate-frontend.vercel.app`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`)
   }
 

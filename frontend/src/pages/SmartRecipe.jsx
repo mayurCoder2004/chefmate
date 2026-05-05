@@ -109,13 +109,13 @@ export default function SmartRecipe() {
       const next = [...new Set([...prev, ...parts])].slice(0, 20);
       const added = next.length - prev.length;
       if (added > 0)
-        toast.success(`Added ${added} ingredient${added > 1 ? 's' : ''}! 🎉`, {
-          icon: '🥗',
+        toast.success(`Added ${added} ingredient${added > 1 ? 's' : ''}!`, {
+          icon: null,
           duration: 2000,
         });
-      else toast('Already added! 😊', { icon: '💡', duration: 2000 });
+      else toast('Already added!', { icon: null, duration: 2000 });
       if (next.length >= 20)
-        toast('Max 20 ingredients reached! 🔥', { icon: '📝', duration: 3000 });
+        toast('Max 20 ingredients reached!', { icon: null, duration: 3000 });
       return next;
     });
     setCustomInput('');
@@ -124,7 +124,7 @@ export default function SmartRecipe() {
   // ── Remove a custom (non-predefined) chip ──────────────────────────────────
   function removeCustomIngredient(name) {
     setSelectedIngredients((prev) => prev.filter((i) => i !== name));
-    toast.success(`Removed "${name}" 🗑️`, { icon: '✅', duration: 1500 });
+    toast.success(`Removed "${name}"`, { icon: null, duration: 1500 });
   }
 
   // ── API: Generate recipe (UNCHANGED) ──────────────────────────────────────
@@ -133,7 +133,7 @@ export default function SmartRecipe() {
     setError('');
     setRecipe(null);
 
-    toast.loading('AI Chef is analyzing your ingredients... 🧠', {
+    toast.loading('AI Chef is analyzing your ingredients...', {
       id: 'recipe-loading',
       duration: 4000,
     });
@@ -166,7 +166,7 @@ export default function SmartRecipe() {
       if (!normalized) throw new Error('Recipe payload is invalid');
       setRecipe(normalized);
       toast.dismiss('recipe-loading');
-      toast.success('Perfect recipe created! 🎉✨', { icon: '👨‍🍳', duration: 3000 });
+      toast.success('Perfect recipe created!', { icon: null, duration: 3000 });
 
       // Scroll AFTER recipe is ready
       setTimeout(() => {
@@ -178,7 +178,7 @@ export default function SmartRecipe() {
     } catch (e) {
       toast.dismiss('recipe-loading');
       setError(e.message || 'Something went wrong');
-      toast.error(`Oops! ${e.message || 'Something went wrong'} 😞`, { duration: 4000 });
+      toast.error(`Oops! ${e.message || 'Something went wrong'}`, { duration: 4000 });
     } finally {
       setLoading(false);
     }
@@ -189,7 +189,7 @@ export default function SmartRecipe() {
     if (!recipe) return;
     setSaving(true);
 
-    toast.loading('Saving your amazing recipe... 💾', { id: 'recipe-saving' });
+    toast.loading('Saving your amazing recipe...', { id: 'recipe-saving' });
 
     try {
       const token = localStorage.getItem('token');
@@ -219,10 +219,10 @@ export default function SmartRecipe() {
       if (!res.ok) throw new Error(data.error || 'Failed to save recipe');
 
       toast.dismiss('recipe-saving');
-      toast.success('Saved! You can cook this anytime 🍳', { icon: '💾', duration: 3000 });
+      toast.success('Saved! You can cook this anytime', { icon: null, duration: 3000 });
     } catch (err) {
       toast.dismiss('recipe-saving');
-      toast.error(`Failed to save recipe: ${err.message} 😞`, { duration: 4000 });
+      toast.error(`Failed to save recipe: ${err.message}`, { duration: 4000 });
     } finally {
       setSaving(false);
     }
@@ -231,13 +231,13 @@ export default function SmartRecipe() {
   // ── Share recipe ──────────────────────────────────────────────────────────
   async function shareRecipe() {
     if (!recipe) return;
-    const text = `I just cooked ${recipe.title} using ChefMate 😄🔥`;
+    const text = `I just cooked ${recipe.title} using ChefMate! Check it out!`;
     try {
       if (navigator.share) {
         await navigator.share({ title: recipe.title, text });
       } else {
         await navigator.clipboard.writeText(text);
-        toast.success('Copied to clipboard! 📋', { icon: '✨', duration: 2000 });
+        toast.success('Copied to clipboard!', { icon: null, duration: 2000 });
       }
     } catch {
       // user cancelled share — no-op
@@ -410,8 +410,8 @@ export default function SmartRecipe() {
                 onClick={() => {
                   setSelectedIngredients([]);
                   setRecipe(null);
-                  toast.success('Everything cleared! Ready for new ingredients 🔄', {
-                    icon: '✨',
+                  toast.success('Everything cleared! Ready for new ingredients.', {
+                    icon: null,
                     duration: 2000,
                   });
                 }}

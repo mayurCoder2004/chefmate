@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import RecipeCard from "../RecipeCard";
 import { filterMealsByCategory, searchMeals, filterMealsByRegion } from "../../services/mealdb";
+import { ChefHat } from "lucide-react";
 
 export default function SearchFilter() {
   const [search, setSearch] = useState("");
@@ -87,7 +88,9 @@ export default function SearchFilter() {
               <RecipeCard key={recipe.idMeal} recipe={recipe} />
             ))
           ) : (
-            <p className="text-center text-gray-500">No recipes found 🍳</p>
+            <p className="text-center text-gray-500 flex items-center justify-center gap-2">
+              No recipes found <ChefHat size={18} />
+            </p>
           )}
         </div>
       )}

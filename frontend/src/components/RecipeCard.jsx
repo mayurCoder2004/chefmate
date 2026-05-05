@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 export default function RecipeCard({ recipe }) {
   return (
@@ -17,7 +18,9 @@ export default function RecipeCard({ recipe }) {
           to={`/recipe/${recipe.idMeal}`}
           className="text-orange-600 hover:text-orange-700 font-semibold mt-2 inline-flex items-center gap-2 group/link relative overflow-hidden px-3 py-2 -mx-3 rounded-lg hover:bg-orange-50 transition-all duration-300"
         >
-          View Details →
+          <span className="flex items-center gap-2">
+            View Details <ArrowRight size={18} />
+          </span>
         </Link>
       </div>
     </div>

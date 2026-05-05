@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { ChefHat, KeyRound, Lock, LogIn, Mail, Rocket, Sparkles, XCircle } from "lucide-react";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -50,10 +51,12 @@ export default function Login() {
             <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
               Welcome Back
             </span>
-            <span className="text-3xl ml-2 inline-block animate-bounce">👋</span>
+            <span className="text-3xl ml-2 inline-flex items-center gap-2 animate-bounce">
+              <Sparkles size={20} className="text-amber-500" />
+            </span>
           </h1>
-          <p className="text-lg text-orange-700/80 font-medium">
-            Sign in to continue cooking! ✨
+          <p className="text-lg text-orange-700/80 font-medium flex items-center justify-center gap-2">
+            Sign in to continue cooking! <Sparkles size={18} />
           </p>
         </div>
 
@@ -67,13 +70,13 @@ export default function Login() {
           
           <div className="relative z-10">
             <h2 className="text-2xl font-bold text-center text-orange-700 mb-6 flex items-center justify-center gap-2">
-              🔐 Login
+              <KeyRound size={18} /> Login
             </h2>
             
             {error && (
               <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl animate-shake">
                 <p className="text-red-700 font-semibold flex items-center gap-2">
-                  ❌ {error}
+                  <XCircle size={18} /> {error}
                 </p>
               </div>
             )}
@@ -81,7 +84,7 @@ export default function Login() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  📧 Email Address
+                  <Mail size={18} /> Email Address
                 </label>
                 <input
                   name="email"
@@ -96,7 +99,7 @@ export default function Login() {
 
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  🔒 Password
+                  <Lock size={18} /> Password
                 </label>
                 <input
                   name="password"
@@ -121,9 +124,9 @@ export default function Login() {
                   Signing in...
                 </>
               ) : (
-                <>
-                  ✨ Sign In
-                </>
+                <span className="flex items-center gap-2">
+                  <LogIn size={18} /> Sign In
+                </span>
               )}
             </button>
 
@@ -134,7 +137,9 @@ export default function Login() {
                   to="/signup" 
                   className="font-bold text-orange-600 hover:text-amber-600 underline decoration-2 underline-offset-4 hover:decoration-amber-600 transition-all duration-300"
                 >
-                  Create Account 🚀
+                  <span className="inline-flex items-center gap-2">
+                    Create Account <Rocket size={18} />
+                  </span>
                 </Link>
               </p>
             </div>
@@ -143,8 +148,8 @@ export default function Login() {
 
         {/* Additional decorative element */}
         <div className="text-center mt-8 opacity-60">
-          <p className="text-orange-600/60 text-sm font-medium">
-            🍳 Ready to cook something amazing?
+          <p className="text-orange-600/60 text-sm font-medium flex items-center justify-center gap-2">
+            <ChefHat size={18} /> Ready to cook something amazing?
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Utensils } from 'lucide-react';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const HeroSection = () => {
           <br />
           <span className="relative">
             Made Just for You
-            <span className="text-4xl md:text-6xl ml-2 inline-block animate-bounce">🍲</span>
+            <Utensils size={44} className="text-orange-500 animate-bounce ml-2 inline" />
           </span>
         </h1>
 

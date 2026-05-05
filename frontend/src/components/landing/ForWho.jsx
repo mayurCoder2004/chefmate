@@ -3,22 +3,22 @@ import { sharedStyles } from './landingStyles'
 
 const whoCards = [
   {
-    emoji: '🏠',
+    Icon: '🏠',
     title: 'PG & hostel residents',
     desc: 'One burner, shared kitchen, random leftovers. ChefMate works with exactly what you have.',
   },
   {
-    emoji: '💼',
+    Icon: '💼',
     title: 'Working professionals',
     desc: 'Too tired to think about dinner. Open ChefMate, tap 4 things, eat in 15 minutes.',
   },
   {
-    emoji: '🎓',
+    Icon: '🎓',
     title: 'College students',
     desc: "Budget is tight. Swiggy adds up. Cook real food for ₹20–40 with what's already in your room.",
   },
   {
-    emoji: '🌙',
+    Icon: '🌙',
     title: 'Late night hunger',
     desc: "Nothing's open, you have eggs and bread. ChefMate turns that into something decent in 10 minutes.",
   },
@@ -49,7 +49,7 @@ const styles = {
     gap: 14,
     alignItems: 'flex-start',
   },
-  whoEmoji: { fontSize: 28, flexShrink: 0 },
+  whoIcon: { flexShrink: 0, color: '#FF7043', display: 'flex', alignItems: 'center' },
   whoTitle: { fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 4 },
   whoDesc: { fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 },
 }
@@ -65,7 +65,7 @@ const ForWho = () => (
       <div style={styles.whoGrid} className="who-grid">
         {whoCards.map(w => (
           <div key={w.title} style={styles.whoCard}>
-            <div style={styles.whoEmoji}>{w.emoji}</div>
+            <div style={styles.whoIcon}>{w.Icon}</div>
             <div>
               <div style={styles.whoTitle}>{w.title}</div>
               <div style={styles.whoDesc}>{w.desc}</div>

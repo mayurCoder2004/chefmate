@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { Bot, Bookmark, ChefHat, Lightbulb, Lock, LogIn, Mail, Rocket, ShieldCheck, Smartphone, Sparkles, User, XCircle } from "lucide-react";
 
 export default function Signup() {
   const { login } = useContext(AuthContext);
@@ -54,10 +55,12 @@ export default function Signup() {
             <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
               Join the Kitchen
             </span>
-            <span className="text-3xl ml-2 inline-block animate-bounce">🍳</span>
+            <span className="text-3xl ml-2 inline-flex items-center gap-2 animate-bounce">
+              <ChefHat size={20} className="text-orange-500" />
+            </span>
           </h1>
-          <p className="text-lg text-orange-700/80 font-medium">
-            Start your culinary journey today! ✨
+          <p className="text-lg text-orange-700/80 font-medium flex items-center justify-center gap-2">
+            Start your culinary journey today! <Sparkles size={18} />
           </p>
         </div>
 
@@ -71,13 +74,13 @@ export default function Signup() {
           
           <div className="relative z-10">
             <h2 className="text-2xl font-bold text-center text-orange-700 mb-6 flex items-center justify-center gap-2">
-              🚀 Create Account
+              <Rocket size={18} /> Create Account
             </h2>
             
             {error && (
               <div className="mb-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl animate-shake">
                 <p className="text-red-700 font-semibold flex items-center gap-2">
-                  ❌ {error}
+                  <XCircle size={18} /> {error}
                 </p>
               </div>
             )}
@@ -85,7 +88,7 @@ export default function Signup() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  👤 Full Name
+                  <User size={18} /> Full Name
                 </label>
                 <input
                   name="name"
@@ -100,7 +103,7 @@ export default function Signup() {
 
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  📧 Email Address
+                  <Mail size={18} /> Email Address
                 </label>
                 <input
                   name="email"
@@ -115,7 +118,7 @@ export default function Signup() {
 
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  🔒 Password
+                  <Lock size={18} /> Password
                 </label>
                 <input
                   name="password"
@@ -127,7 +130,7 @@ export default function Signup() {
                   required
                 />
                 <p className="text-xs text-orange-600/70 mt-1 flex items-center gap-1">
-                  💡 Use at least 6 characters with numbers & letters
+                  <Lightbulb size={18} /> Use at least 6 characters with numbers & letters
                 </p>
               </div>
             </div>
@@ -143,9 +146,9 @@ export default function Signup() {
                   Creating Account...
                 </>
               ) : (
-                <>
-                  🎉 Create Account
-                </>
+                <span className="flex items-center gap-2">
+                  <Sparkles size={18} /> Create Account
+                </span>
               )}
             </button>
 
@@ -156,7 +159,9 @@ export default function Signup() {
                   to="/login" 
                   className="font-bold text-orange-600 hover:text-amber-600 underline decoration-2 underline-offset-4 hover:decoration-amber-600 transition-all duration-300"
                 >
-                  Sign In 👋
+                  <span className="inline-flex items-center gap-2">
+                    <LogIn size={18} /> Sign In
+                  </span>
                 </Link>
               </p>
             </div>
@@ -164,7 +169,7 @@ export default function Signup() {
             {/* Additional info */}
             <div className="mt-4 p-3 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border border-blue-200/50 rounded-2xl">
               <p className="text-xs text-blue-700/80 text-center flex items-center justify-center gap-2">
-                🔐 Your data is secure and encrypted
+                <ShieldCheck size={18} /> Your data is secure and encrypted
               </p>
             </div>
           </div>
@@ -172,23 +177,23 @@ export default function Signup() {
 
         {/* Additional decorative elements */}
         <div className="text-center mt-8 opacity-60">
-          <p className="text-orange-600/60 text-sm font-medium">
-            🌟 Join thousands of home chefs already cooking with us!
+          <p className="text-orange-600/60 text-sm font-medium flex items-center justify-center gap-2">
+            <Sparkles size={18} /> Join thousands of home chefs already cooking with us!
           </p>
         </div>
 
         {/* Feature highlights */}
         <div className="mt-6 grid grid-cols-3 gap-4 text-center">
-          <div className="text-orange-600/70">
-            <div className="text-2xl mb-1">🤖</div>
+          <div className="text-orange-600/70 flex flex-col items-center">
+            <Bot size={20} className="mb-1" />
             <p className="text-xs font-medium">AI Recipes</p>
           </div>
-          <div className="text-amber-600/70">
-            <div className="text-2xl mb-1">📱</div>
+          <div className="text-amber-600/70 flex flex-col items-center">
+            <Smartphone size={20} className="mb-1" />
             <p className="text-xs font-medium">Easy to Use</p>
           </div>
-          <div className="text-yellow-600/70">
-            <div className="text-2xl mb-1">💾</div>
+          <div className="text-yellow-600/70 flex flex-col items-center">
+            <Bookmark size={20} className="mb-1" />
             <p className="text-xs font-medium">Save Favorites</p>
           </div>
         </div>

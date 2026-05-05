@@ -1,6 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import {
+  ChefHat, Sparkles, BookOpen, Calendar, ClipboardList, Utensils,
+  Timer, Salad, Sunrise, Sun, Moon, Flame, Leaf, LogOut,
+  Eye, Trash2, CheckCircle2, XCircle, Info, Search
+} from 'lucide-react';
 
 // Toast Notification Component
 const Toast = ({ message, type = 'success', onClose }) => {
@@ -18,13 +23,13 @@ const Toast = ({ message, type = 'success', onClose }) => {
     ? 'bg-gradient-to-r from-red-500 to-pink-500'
     : 'bg-gradient-to-r from-blue-500 to-indigo-500';
 
-  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  const IconComp = type === 'success' ? CheckCircle2 : type === 'error' ? XCircle : Info;
 
   return (
     <div className="fixed top-4 right-4 z-50 animate-slide-in">
       <div className={`${bgColor} text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-sm max-w-sm`}>
         <div className="flex items-center gap-3">
-          <span className="text-xl">{icon}</span>
+          <IconComp size={20} className="flex-shrink-0" />
           <p className="font-semibold flex-1">{message}</p>
           <button 
             onClick={onClose}
@@ -47,7 +52,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, recipeName }) => {
       <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-orange-200/50 animate-scale-in">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="text-6xl mb-4">🗑️</div>
+          <div className="flex justify-center mb-4"><Trash2 size={56} className="text-red-400" /></div>
           <h3 className="text-2xl font-bold text-gray-800 mb-2">
             Delete Recipe?
           </h3>
@@ -71,7 +76,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, recipeName }) => {
             onClick={onConfirm}
             className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
           >
-            🗑️ Delete
+            <Trash2 size={16} /> Delete
           </button>
         </div>
       </div>
@@ -167,7 +172,7 @@ export default function Profile() {
       if (!res.ok) throw new Error(data.error || "Failed to remove recipe");
       
       setSavedRecipes(data.savedRecipes);
-      showToast(`"${confirmModal.recipeName}" has been removed from your saved recipes! 🗑️`, 'success');
+      showToast(`"${confirmModal.recipeName}" has been removed from your saved recipes!`, 'success');
       closeConfirmModal();
     } catch (err) {
       showToast(err.message, 'error');
@@ -216,10 +221,10 @@ export default function Profile() {
             <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
               My Profile
             </span>
-            <span className="text-4xl ml-3 inline-block animate-bounce">👨‍🍳✨</span>
+            <ChefHat size={40} className="text-orange-500 animate-bounce ml-3" />
           </h1>
-          <p className="text-xl text-orange-700/80 font-medium">
-            Welcome back, {user?.name}! 🎉
+          <p className="text-xl text-orange-700/80 font-medium flex items-center justify-center gap-2">
+            <Sparkles size={18} className="text-amber-500" /> Welcome back, {user?.name}!
           </p>
         </div>
 
@@ -234,7 +239,7 @@ export default function Profile() {
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
                 <p className="text-xl text-orange-700 font-semibold">
-                  🔍 Loading your culinary collection...
+                  <Search size={20} className="inline mr-2" /> Loading your culinary collection...
                 </p>
               </div>
             )}
@@ -243,7 +248,7 @@ export default function Profile() {
             {error && (
               <div className="p-6 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl mb-8">
                 <p className="text-red-700 font-semibold flex items-center gap-2 text-center justify-center">
-                  ❌ {error}
+                  <XCircle size={18} /> {error}
                 </p>
               </div>
             )}
@@ -256,15 +261,15 @@ export default function Profile() {
                     <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                       Your Saved Recipes
                     </span>
-                    <span className="text-2xl">📚</span>
+                    <BookOpen size={24} className="text-orange-500" />
                     <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-200 to-transparent"></div>
                   </h2>
 
                   {savedRecipes.length === 0 ? (
                     <div className="text-center py-12">
-                      <div className="text-6xl mb-4">🍽️</div>
-                      <p className="text-xl text-orange-600 font-medium">
-                        No saved recipes yet. Start cooking up some magic! ✨
+                      <div className="flex justify-center mb-4"><Utensils size={56} className="text-orange-300" /></div>
+                      <p className="text-xl text-orange-600 font-medium flex items-center justify-center gap-2">
+                        <Sparkles size={18} /> No saved recipes yet. Start cooking up some magic!
                       </p>
                     </div>
                   ) : (
@@ -282,18 +287,18 @@ export default function Profile() {
                               <h3 className="font-bold text-amber-700 text-lg group-hover/card:text-amber-800 transition-colors">
                                 {recipe.title}
                               </h3>
-                              <span className="text-2xl">🍳</span>
+                              <ChefHat size={22} className="text-amber-500" />
                             </div>
 
                             <div className="flex items-center gap-4 mb-4">
                               <div className="flex items-center gap-1 bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
-                                <span className="text-xs">📋</span>
+                                <ClipboardList size={12} className="text-amber-600" />
                                 <span className="text-sm font-medium text-amber-700">
                                   {recipe.cookingSteps?.length ? `${recipe.cookingSteps.length} steps` : "No steps"}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1 bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
-                                <span className="text-xs">⏱️</span>
+                                <Timer size={12} className="text-amber-600" />
                                 <span className="text-sm font-medium text-amber-700">
                                   {recipe.estimatedTime ? `${recipe.estimatedTime} min` : "Time N/A"}
                                 </span>
@@ -305,13 +310,13 @@ export default function Profile() {
                                 onClick={() => navigate(`/ai-recipe/${recipe._id}`)}
                                 className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
                               >
-                                👁️ View Details
+                                <Eye size={14} /> View Details
                               </button>
                               <button
                                 onClick={() => openConfirmModal(recipe._id, recipe.title)}
                                 className="bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                               >
-                                🗑️
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           </div>
@@ -327,15 +332,15 @@ export default function Profile() {
                     <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                       Your Saved Meal Plans
                     </span>
-                    <span className="text-2xl">📅</span>
+                    <Calendar size={24} className="text-orange-500" />
                     <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-200 to-transparent"></div>
                   </h2>
 
                   {savedMealPlans.length === 0 ? (
                     <div className="text-center py-12">
-                      <div className="text-6xl mb-4">📋</div>
-                      <p className="text-xl text-orange-600 font-medium">
-                        No saved meal plans yet. Plan your perfect week! 🗓️
+                      <div className="flex justify-center mb-4"><ClipboardList size={56} className="text-orange-300" /></div>
+                      <p className="text-xl text-orange-600 font-medium flex items-center justify-center gap-2">
+                        <Calendar size={18} /> No saved meal plans yet. Plan your perfect week!
                       </p>
                     </div>
                   ) : (
@@ -352,18 +357,18 @@ export default function Profile() {
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center text-white font-bold">
-                                  🥗
+                                  <Salad size={20} />
                                 </div>
                                 <div>
                                   <h3 className="font-bold text-amber-700 text-lg">
                                     {plan.diet.charAt(0).toUpperCase() + plan.diet.slice(1)} Meal Plan
                                   </h3>
-                                  <p className="text-sm text-amber-600">
-                                    Saved on {new Date(plan.createdAt).toLocaleDateString('en-US', { 
+                                  <p className="text-sm text-amber-600 flex items-center gap-1">
+                                    <Calendar size={12} /> Saved on {new Date(plan.createdAt).toLocaleDateString('en-US', { 
                                       year: 'numeric', 
                                       month: 'long', 
                                       day: 'numeric' 
-                                    })} 📅
+                                    })}
                                   </p>
                                 </div>
                               </div>
@@ -390,20 +395,20 @@ export default function Profile() {
                                         <div className="flex items-center justify-between mb-2">
                                           <h5 className="font-semibold text-amber-800 flex items-center gap-1">
                                             <span className="text-sm">
-                                              {i === 0 ? '🌅' : i === 1 ? '☀️' : i === 2 ? '🌅' : '🌙'}
+                                              {i === 0 ? <Sunrise size={14} className="text-amber-500" /> : i === 1 ? <Sun size={14} className="text-yellow-500" /> : i === 2 ? <Sunrise size={14} className="text-orange-400" /> : <Moon size={14} className="text-indigo-400" />}
                                             </span>
                                             {meal.name}
                                           </h5>
                                           {meal.calories && (
-                                            <span className="bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-bold px-2 py-1 rounded-full border border-orange-200">
-                                              🔥 {meal.calories}
+                                            <span className="bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-bold px-2 py-1 rounded-full border border-orange-200 flex items-center gap-1">
+                                              <Flame size={10} /> {meal.calories}
                                             </span>
                                           )}
                                         </div>
                                         
                                         <div className="space-y-2">
                                           <div>
-                                            <p className="text-xs font-semibold text-amber-700 mb-1">🥬 Ingredients:</p>
+                                            <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><Leaf size={11} /> Ingredients:</p>
                                             <div className="flex flex-wrap gap-1">
                                               {meal.ingredients.slice(0, 3).map((ingredient, idx) => (
                                                 <span key={idx} className="text-xs bg-white/70 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200/50">
@@ -419,7 +424,7 @@ export default function Profile() {
                                           </div>
                                           
                                           <div>
-                                            <p className="text-xs font-semibold text-amber-700 mb-1">👨‍🍳 Instructions:</p>
+                                            <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><ChefHat size={11} /> Instructions:</p>
                                             <p className="text-xs text-amber-800 bg-white/50 p-2 rounded border border-amber-100 line-clamp-2">
                                               {meal.instructions.length > 100 
                                                 ? `${meal.instructions.substring(0, 100)}...` 
@@ -450,7 +455,7 @@ export default function Profile() {
                   onClick={handleLogout}
                   className="bg-gradient-to-r from-red-500 via-pink-500 to-red-500 hover:from-red-600 hover:via-pink-600 hover:to-red-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 text-lg flex items-center justify-center gap-3 mx-auto"
                 >
-                  🚪 Logout
+                  <LogOut size={20} /> Logout
                 </button>
               </div>
             )}

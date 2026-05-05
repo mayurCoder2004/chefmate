@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, ChefHat, Home, Salad, Search, Sparkles, Utensils } from "lucide-react";
 
 export default function ErrorPage() {
   const navigate = useNavigate();
@@ -27,8 +28,8 @@ export default function ErrorPage() {
         
         <div className="relative z-10">
           {/* Animated Chef Icon */}
-          <div className="text-8xl mb-6 animate-bounce">
-            👨‍🍳
+          <div className="mb-6 flex justify-center animate-bounce">
+            <ChefHat size={20} className="text-orange-500" />
           </div>
 
           {/* 404 Number with gradient */}
@@ -43,22 +44,29 @@ export default function ErrorPage() {
             <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
               Oops! Recipe Not Found
             </span>
-            <span className="text-2xl ml-2 inline-block animate-bounce">🍽️</span>
+            <span className="text-2xl ml-2 inline-flex items-center gap-2 animate-bounce">
+              <Utensils size={18} className="text-orange-500" />
+            </span>
           </h2>
 
           <p className="text-xl text-orange-700/80 font-medium mb-8 leading-relaxed">
-            Looks like this page got lost in the kitchen! 🔍<br />
+            <span className="inline-flex items-center gap-2">
+              Looks like this page got lost in the kitchen! <Search size={18} className="text-orange-600" />
+            </span>
+            <br />
             <span className="text-lg">The recipe you're looking for might have been moved or doesn't exist.</span>
           </p>
 
           {/* Fun cooking-related message */}
           <div className="bg-gradient-to-r from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200/50 mb-8">
-            <div className="text-4xl mb-3">🧑‍🍳</div>
+            <div className="mb-3 flex justify-center">
+              <ChefHat size={20} className="text-amber-600" />
+            </div>
             <p className="text-amber-700 font-semibold text-lg">
               "Even the best chefs sometimes can't find their ingredients!"
             </p>
-            <p className="text-amber-600 text-sm mt-2">
-              Let's get you back to cooking up something amazing! ✨
+            <p className="text-amber-600 text-sm mt-2 flex items-center justify-center gap-2">
+              Let's get you back to cooking up something amazing! <Sparkles size={18} />
             </p>
           </div>
 
@@ -69,7 +77,7 @@ export default function ErrorPage() {
               className="relative bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-500 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 text-lg flex items-center justify-center gap-3 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-3">
-                🏠 Go to Home
+                <Home size={18} /> Go to Home
               </span>
             </button>
 
@@ -78,7 +86,7 @@ export default function ErrorPage() {
               className="relative bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 hover:from-blue-600 hover:via-indigo-600 hover:to-blue-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 text-lg flex items-center justify-center gap-3 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-3">
-                ↩️ Go Back
+                <ArrowLeft size={18} /> Go Back
               </span>
             </button>
           </div>
@@ -88,11 +96,11 @@ export default function ErrorPage() {
       {/* Additional decorative elements */}
       <div className="mt-8 text-center">
         <div className="flex justify-center gap-4 text-4xl animate-pulse">
-          <span style={{ animationDelay: "0s" }}>🍕</span>
-          <span style={{ animationDelay: "0.5s" }}>🍔</span>
-          <span style={{ animationDelay: "1s" }}>🍝</span>
-          <span style={{ animationDelay: "1.5s" }}>🥗</span>
-          <span style={{ animationDelay: "2s" }}>🍰</span>
+          <span style={{ animationDelay: "0s" }} className="inline-flex"><Utensils size={20} /></span>
+          <span style={{ animationDelay: "0.5s" }} className="inline-flex"><ChefHat size={20} /></span>
+          <span style={{ animationDelay: "1s" }} className="inline-flex"><Utensils size={20} /></span>
+          <span style={{ animationDelay: "1.5s" }} className="inline-flex"><Salad size={20} /></span>
+          <span style={{ animationDelay: "2s" }} className="inline-flex"><Sparkles size={20} /></span>
         </div>
       </div>
 

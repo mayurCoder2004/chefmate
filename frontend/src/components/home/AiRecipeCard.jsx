@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Bot, Lock } from "lucide-react";
 
 const AiRecipeCard = () => {
   const navigate = useNavigate();
@@ -10,8 +11,9 @@ const AiRecipeCard = () => {
     const token = localStorage.getItem("token");
     
     if (!token) {
-      toast.error('Please log in to access Smart Recipe! 🔐', {
+      toast.error('Please log in to access Smart Recipe!', {
         duration: 4000,
+        icon: <Lock size={18} />,
         style: {
           background: 'linear-gradient(135deg, #fee2e2, #fecaca)',
           color: '#991b1b',
@@ -85,7 +87,9 @@ const AiRecipeCard = () => {
           <br />
           <span className="relative">
             AI Recipe
-            <span className="text-2xl ml-2 inline-block animate-bounce">🤖</span>
+            <span className="text-2xl ml-2 inline-flex items-center gap-2 animate-bounce">
+              <Bot size={20} className="text-orange-500" />
+            </span>
           </span>
         </h2>
 

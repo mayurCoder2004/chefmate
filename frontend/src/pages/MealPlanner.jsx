@@ -17,7 +17,7 @@ export default function MealPlanner() {
     setError("");
     setMealPlan([]);
 
-    toast.loading('AI Nutritionist is planning your perfect meals... 🧠', {
+    toast.loading('AI Nutritionist is planning your perfect meals...', {
       id: 'meal-loading',
       duration: 4000,
     });
@@ -40,14 +40,14 @@ export default function MealPlanner() {
 
       setMealPlan(data.mealPlan);
       toast.dismiss('meal-loading');
-      toast.success(`Perfect ${days}-day meal plan created! 🎉`, {
-        icon: '📅',
+      toast.success(`Perfect ${days}-day meal plan created!`, {
+        icon: null,
         duration: 3000,
       });
     } catch (err) {
       setError(err.message);
       toast.dismiss('meal-loading');
-      toast.error(`Oops! ${err.message} 😞`, {
+      toast.error(`Oops! ${err.message}`, {
         duration: 4000,
       });
     } finally {
@@ -61,7 +61,7 @@ export default function MealPlanner() {
 
     setSaving(true);
     
-    toast.loading('Saving your amazing meal plan... 💾', {
+    toast.loading('Saving your amazing meal plan...', {
       id: 'meal-saving',
     });
 
@@ -81,13 +81,13 @@ export default function MealPlanner() {
       if (!res.ok) throw new Error(data.error || "Failed to save meal plan");
 
       toast.dismiss('meal-saving');
-      toast.success('Meal plan saved successfully! 🎉✨', {
-        icon: '💾',
+      toast.success('Meal plan saved successfully!', {
+        icon: null,
         duration: 3000,
       });
     } catch (err) {
       toast.dismiss('meal-saving');
-      toast.error(`Failed to save meal plan: ${err.message} 😞`, {
+      toast.error(`Failed to save meal plan: ${err.message}`, {
         duration: 4000,
       });
     } finally {

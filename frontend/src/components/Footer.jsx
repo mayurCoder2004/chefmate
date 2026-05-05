@@ -1,4 +1,5 @@
 import React from "react";
+import { Heart } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -132,7 +133,9 @@ const Footer = () => {
           <p className="text-lg font-medium">
             © {new Date().getFullYear()} <span className="text-yellow-200 font-bold">ChefMate</span>. All rights reserved.
           </p>
-          <p className="text-orange-200 mt-2">Made with ❤️ for food lovers everywhere</p>
+          <p className="text-orange-200 mt-2 flex items-center justify-center gap-2">
+            Made with <Heart size={18} className="text-orange-200" /> for food lovers everywhere
+          </p>
         </div>
 
         <style jsx>{`

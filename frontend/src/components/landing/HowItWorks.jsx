@@ -4,19 +4,19 @@ import { sharedStyles } from './landingStyles'
 const steps = [
   {
     num: '01',
-    icon: '🛒',
+    Icon: '🛒',
     title: 'Tap what you have',
     desc: "Select ingredients from your kitchen in one tap — dal, chawal, onion, tomato, whatever's there. No typing needed.",
   },
   {
     num: '02',
-    icon: '🤖',
+    Icon: '🤖',
     title: 'AI builds your recipe',
     desc: "ChefMate's AI generates a recipe using exactly what you have — filtered for single burner, under 20 minutes, and under ₹50.",
   },
   {
     num: '03',
-    icon: '🍳',
+    Icon: '🔍',
     title: 'Cook it, share it',
     desc: 'Follow the step-by-step guide and cook. Share on WhatsApp in one tap. Save your favorites for next time.',
   },
@@ -63,7 +63,7 @@ const HowItWorks = () => (
       {steps.map(s => (
         <div key={s.num} style={styles.stepCard} className="step-card-hover">
           <div style={styles.stepNum}>{s.num}</div>
-          <div style={styles.stepIcon}>{s.icon}</div>
+          <div style={styles.stepIcon}>{s.Icon}</div>
           <div style={styles.stepTitle}>{s.title}</div>
           <div style={styles.stepDesc}>{s.desc}</div>
         </div>
