@@ -69,7 +69,14 @@ function extractJSON(str) {
   const lastArr = str.lastIndexOf("]");
   if (firstArr !== -1 && lastArr !== -1 && lastArr > firstArr) {
     const candidate = str.slice(firstArr, lastArr + 1);
-    try { return JSON.parse(candidate); } catch {}
+    try { 
+      const parsed = JSON.parse(candidate);
+      // If it's an array, try to find a recipe object in it
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed[0]; // Return first item if array
+      }
+      return parsed;
+    } catch {}
   }
 
   return null;
@@ -87,27 +94,61 @@ function toArray(value) {
 }
 
 function normalizeRecipe(raw) {
+  // Handle array responses - take first item
+  if (Array.isArray(raw)) {
+    if (raw.length === 0) {
+      console.warn("[normalizeRecipe] Received empty array");
+      return null;
+    }
+    console.log("[normalizeRecipe] Received array, using first item");
+    raw = raw[0];
+  }
+
+  // Handle null/undefined
+  if (!raw || typeof raw !== "object") {
+    console.warn("[normalizeRecipe] Invalid input:", typeof raw);
+    return null;
+  }
+
   const r = raw?.recipe && typeof raw.recipe === "object" ? raw.recipe : raw || {};
-  const steps = toArray(r.cookingSteps || r.steps || r.instructions);
-  const usedIngredients = toArray(r.usedIngredients || r.ingredients);
-  const optionalIngredients = toArray(r.optionalIngredients || r.pantryItems);
-  const healthBenefits = toArray(r.healthBenefits || r.benefits);
+  
+  const steps = toArray(r.cookingSteps || r.steps || r.instructions || r.directions || r.method);
+  const usedIngredients = toArray(r.usedIngredients || r.ingredients || r.mainIngredients);
+  const optionalIngredients = toArray(r.optionalIngredients || r.pantryItems || r.optional);
+  const healthBenefits = toArray(r.healthBenefits || r.benefits || r.nutrition);
+  
   const estimatedTime =
     typeof r.estimatedTime === "number"
       ? r.estimatedTime
-      : Number(String(r.estimatedTime || r.time || "").match(/\d+/)?.[0] || 0);
+      : Number(String(r.estimatedTime || r.time || r.cookTime || r.totalTime || "").match(/\d+/)?.[0] || 0);
+  
   const servings =
     typeof r.servings === "number"
       ? r.servings
-      : Number(String(r.servings || "").match(/\d+/)?.[0] || 0);
+      : Number(String(r.servings || r.serves || r.yield || "").match(/\d+/)?.[0] || 0);
+
+  // Validate minimum required fields
+  const hasTitle = Boolean(r.title || r.name || r.recipeName);
+  const hasSteps = steps.length > 0;
+  const hasIngredients = usedIngredients.length > 0;
+
+  if (!hasTitle || !hasSteps || !hasIngredients) {
+    console.warn("[normalizeRecipe] Missing required fields:", {
+      hasTitle,
+      hasSteps,
+      hasIngredients,
+      rawKeys: Object.keys(r)
+    });
+    return null;
+  }
 
   return {
-    title: String(r.title || r.name || "Smart Recipe"),
+    title: String(r.title || r.name || r.recipeName || "Smart Recipe"),
     usedIngredients,
     optionalIngredients,
     healthBenefits,
     cookingSteps: steps,
-    estimatedTime,
+    estimatedTime: estimatedTime || 25,
     servings: servings || undefined,
     notes: typeof r.notes === "string" ? r.notes : ""
   };
@@ -157,17 +198,40 @@ function extractStructuredJSONFromChoice(choice) {
   const visited = new Set();
   let bestCandidate = null;
   let bestScore = 0;
+  
   const walk = (node) => {
     if (node == null) return null;
-    if (typeof node === "string") return extractJSON(node);
+    if (typeof node === "string") {
+      const parsed = extractJSON(node);
+      // If parsed is an array, take first item
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed[0];
+      }
+      return parsed;
+    }
     if (typeof node !== "object") return null;
     if (visited.has(node)) return null;
     visited.add(node);
 
     if (Array.isArray(node)) {
+      // If it's an array, check each item
       for (const item of node) {
+        if (item && typeof item === "object" && !Array.isArray(item)) {
+          const score = scoreRecipeCandidate(item);
+          if (score > bestScore) {
+            bestScore = score;
+            bestCandidate = item;
+          }
+          if (score >= 8) {
+            return item; // Found a good recipe object
+          }
+        }
         const found = walk(item);
         if (found) return found;
+      }
+      // Return best candidate from array if found
+      if (bestCandidate && bestScore >= 5) {
+        return bestCandidate;
       }
       return null;
     }
@@ -187,7 +251,13 @@ function extractStructuredJSONFromChoice(choice) {
       const value = node[key];
       if (typeof value === "string") {
         const parsed = extractJSON(value);
-        if (parsed) return parsed;
+        if (parsed) {
+          // If parsed is an array, take first item
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed[0];
+          }
+          return parsed;
+        }
       } else {
         const found = walk(value);
         if (found) return found;
@@ -242,56 +312,79 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
     });
 
     const firstChoice = response?.data?.choices?.[0] || null;
-    const extracted = extractJSON(text) || extractStructuredJSONFromChoice(firstChoice);
+    let extracted = extractJSON(text) || extractStructuredJSONFromChoice(firstChoice);
+    
+    // Handle array responses - take first item
+    if (Array.isArray(extracted) && extracted.length > 0) {
+      console.log("[smart-recipe] Received array response, using first item");
+      extracted = extracted[0];
+    }
+    
     const recipe = normalizeRecipe(extracted);
-    if ((!recipe.estimatedTime || recipe.estimatedTime <= 0) && prefs?.maxTime) {
-      recipe.estimatedTime = prefs.maxTime;
-    }
-    if (!recipe.estimatedTime || recipe.estimatedTime <= 0) {
-      recipe.estimatedTime = 25;
-    }
-    if ((!recipe.cookingSteps || recipe.cookingSteps.length === 0) && recipe.usedIngredients.length > 0) {
-      recipe.cookingSteps = [
-        `Wash and prep ${recipe.usedIngredients.slice(0, 3).join(", ")}.`,
-        "Cook rice with tomatoes and basic pantry spices over medium heat until tender.",
-        "Taste, adjust seasoning lightly, and serve warm."
-      ];
-    }
-
-    if (!extracted) {
-      console.error("[smart-recipe] JSON parse failed", {
+    
+    // If normalization failed, use fallback
+    if (!recipe) {
+      console.error("[smart-recipe] Normalization failed, using fallback", {
         model,
-        finishReason: firstChoice?.finish_reason || null,
-        hasMessage: Boolean(firstChoice?.message),
-        contentType: Array.isArray(firstChoice?.message?.content)
-          ? "array"
-          : typeof firstChoice?.message?.content,
-        messageKeys: firstChoice?.message && typeof firstChoice.message === "object" ? Object.keys(firstChoice.message) : [],
-        contentKeys: firstChoice?.message?.content && typeof firstChoice.message.content === "object" && !Array.isArray(firstChoice.message.content)
-          ? Object.keys(firstChoice.message.content)
-          : [],
-        textPreview: typeof text === "string" ? text.slice(0, 300) : "",
-        choicePreview: firstChoice ? JSON.stringify(firstChoice).slice(0, 1200) : ""
+        extractedType: Array.isArray(extracted) ? "array" : typeof extracted,
+        extractedKeys: extracted && typeof extracted === "object" && !Array.isArray(extracted) ? Object.keys(extracted) : [],
+        textPreview: typeof text === "string" ? text.slice(0, 300) : ""
       });
-      return res.status(502).json({ error: 'AI returned invalid JSON', rawText: text });
+      
+      const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+      return res.status(200).json({
+        modelUsed: "local-fallback",
+        fallback: true,
+        ...fallbackRecipe
+      });
+    }
+    
+    // Ensure estimatedTime is set
+    if (!recipe.estimatedTime || recipe.estimatedTime <= 0) {
+      recipe.estimatedTime = prefs?.maxTime || 25;
+    }
+    
+    // Ensure cookingSteps exist
+    if (!recipe.cookingSteps || recipe.cookingSteps.length === 0) {
+      if (recipe.usedIngredients.length > 0) {
+        recipe.cookingSteps = [
+          `Wash and prep ${recipe.usedIngredients.slice(0, 3).join(", ")}.`,
+          "Cook with basic pantry spices over medium heat until tender.",
+          "Taste, adjust seasoning lightly, and serve warm."
+        ];
+      } else {
+        // If no ingredients either, use fallback
+        const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+        return res.status(200).json({
+          modelUsed: "local-fallback",
+          fallback: true,
+          ...fallbackRecipe
+        });
+      }
     }
 
-    const ok =
+    // Final validation
+    const isValid =
       typeof recipe.title === 'string' &&
       recipe.title.length > 0 &&
       Array.isArray(recipe.cookingSteps) &&
       recipe.cookingSteps.length > 0 &&
+      Array.isArray(recipe.usedIngredients) &&
+      recipe.usedIngredients.length > 0 &&
       Number.isFinite(recipe.estimatedTime) &&
       recipe.estimatedTime > 0;
 
-    if (!ok) {
-      console.error("[smart-recipe] JSON missing required fields", {
+    if (!isValid) {
+      console.error("[smart-recipe] Final validation failed, using fallback", {
         model,
-        extractedType: Array.isArray(extracted) ? "array" : typeof extracted,
-        extractedKeys: extracted && typeof extracted === "object" && !Array.isArray(extracted) ? Object.keys(extracted) : [],
-        normalized: recipe
+        recipe
       });
-      return res.status(502).json({ error: 'AI JSON missing required fields', raw: recipe });
+      const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+      return res.status(200).json({
+        modelUsed: "local-fallback",
+        fallback: true,
+        ...fallbackRecipe
+      });
     }
 
     res.json({
