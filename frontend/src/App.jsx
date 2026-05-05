@@ -13,6 +13,7 @@ import Recipes from './pages/Recipe'
 import SmartRecipe from './pages/SmartRecipe'
 import AiRecipePage from './pages/AiRecipePage'
 import MealPlanner from './pages/MealPlanner'
+import CookMode from './pages/CookMode'
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
@@ -41,6 +42,7 @@ const App = () => {
       <Route path="/app" element={<SmartRecipe />} />
       <Route path="/ai-recipe/:id" element={<AiRecipePage />} />
       <Route path='/meal-planner' element={<MealPlanner />} />
+      <Route path='/cook' element={<CookMode />} />
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<ErrorPage />} />
