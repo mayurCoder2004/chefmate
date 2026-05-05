@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
@@ -17,11 +17,22 @@ import MealPlanner from './pages/MealPlanner'
 import CookMode from './pages/CookMode'
 import More from './pages/More'
 import SharedRecipe from './pages/SharedRecipe'
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast"
+import { initGA, trackPageView } from './analytics'
 
 const App = () => {
   const location = useLocation()
   const hideChrome = ['/', '/login', '/signup', '/cook'].includes(location.pathname)
+
+  // Initialize Google Analytics on mount
+  useEffect(() => {
+    initGA()
+  }, [])
+
+  // Track page views on route change
+  useEffect(() => {
+    trackPageView(location.pathname)
+  }, [location])
 
   return (
     <>
