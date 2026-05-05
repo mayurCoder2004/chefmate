@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast, { Toaster } from 'react-hot-toast';
+import { Calendar, Salad, Flame, Sparkles, Settings, ChefHat, ShoppingCart, Bookmark, XCircle, Brain, Utensils, Sunrise, Sun, Moon } from 'lucide-react';
 
 export default function MealPlanner() {
   const [days, setDays] = useState(3);
@@ -118,10 +119,10 @@ export default function MealPlanner() {
             <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
               AI Meal Planner
             </span>
-            <span className="text-4xl ml-3 inline-block animate-bounce">📅🍽️</span>
+            <Calendar size={38} className="text-orange-500 animate-bounce" />
           </h1>
-          <p className="text-xl text-orange-700/80 font-medium">
-            Let our AI nutritionist plan your perfect meals! ✨
+          <p className="text-xl text-orange-700/80 font-medium flex items-center justify-center gap-2">
+            <Sparkles size={18} className="text-amber-500" /> Let our AI nutritionist plan your perfect meals!
           </p>
         </div>
 
@@ -132,13 +133,13 @@ export default function MealPlanner() {
           
           <div className="relative z-10">
             <h2 className="text-2xl font-bold text-orange-700 mb-6 flex items-center gap-2">
-              ⚙️ Plan Your Meals
+              <Settings size={20} /> Plan Your Meals
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  📅 Number of Days
+                  <Calendar size={16} /> Number of Days
                 </label>
                 <input
                   type="number"
@@ -153,7 +154,7 @@ export default function MealPlanner() {
 
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  🥗 Diet Preference
+                  <Salad size={16} /> Diet Preference
                 </label>
                 <select 
                   value={diet} 
@@ -170,7 +171,7 @@ export default function MealPlanner() {
 
               <div>
                 <label className="block text-sm font-bold text-orange-700 mb-2 flex items-center gap-2">
-                  🔥 Calories/Day
+                  <Flame size={16} /> Calories/Day
                 </label>
                 <input
                   type="number"
@@ -197,7 +198,7 @@ export default function MealPlanner() {
                       Planning...
                     </>
                   ) : (
-                    "✨ Generate Plan"
+                    <span className="flex items-center gap-2"><Sparkles size={18} /> Generate Plan</span>
                   )}
                 </button>
               </div>
@@ -206,7 +207,7 @@ export default function MealPlanner() {
             {error && (
               <div className="p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl">
                 <p className="text-red-700 font-semibold flex items-center gap-2">
-                  ❌ {error}
+                  <XCircle size={18} /> {error}
                 </p>
               </div>
             )}
@@ -218,8 +219,8 @@ export default function MealPlanner() {
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-orange-200/50 space-y-4 mb-8">
             <div className="text-center mb-6">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
-              <p className="text-xl text-orange-700 font-semibold">
-                🧠 AI Nutritionist is planning your perfect meals...
+              <p className="text-xl text-orange-700 font-semibold flex items-center justify-center gap-2">
+                <Brain size={20} /> AI Nutritionist is planning your perfect meals...
               </p>
             </div>
             <div className="space-y-3">
@@ -238,7 +239,7 @@ export default function MealPlanner() {
                 <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                   Your Perfect Meal Plan
                 </span>
-                <span className="text-2xl ml-2 inline-block animate-bounce">🎯</span>
+                <Utensils size={26} className="text-orange-500 animate-bounce" />
               </h2>
               <p className="text-orange-700/80 font-medium mt-2">
                 {days} days of delicious, balanced meals just for you! 
@@ -266,14 +267,14 @@ export default function MealPlanner() {
                       <div key={idx} className="bg-gradient-to-br from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-5 border border-amber-200/50 shadow-sm hover:shadow-lg transition-all duration-300">
                         <div className="flex items-center gap-2 mb-3">
                           <span className="text-2xl">
-                            {idx === 0 ? '🌅' : idx === 1 ? '☀️' : idx === 2 ? '🌅' : '🌙'}
+                            {idx === 0 ? <Sunrise size={22} className="text-amber-500" /> : idx === 1 ? <Sun size={22} className="text-yellow-500" /> : idx === 2 ? <Sunrise size={22} className="text-orange-400" /> : <Moon size={22} className="text-indigo-400" />}
                           </span>
                           <h3 className="font-bold text-amber-700 text-lg">
                             {meal.name}
                           </h3>
                           {meal.calories && (
-                            <span className="ml-auto bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full border border-orange-200">
-                              🔥 {meal.calories} cal
+                            <span className="ml-auto bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full border border-orange-200 flex items-center gap-1">
+                              <Flame size={12} /> {meal.calories} cal
                             </span>
                           )}
                         </div>
@@ -281,7 +282,7 @@ export default function MealPlanner() {
                         <div className="space-y-3">
                           <div>
                             <h4 className="font-semibold text-amber-700 mb-2 flex items-center gap-2">
-                              🥬 Ingredients:
+                              <ShoppingCart size={15} /> Ingredients:
                             </h4>
                             <div className="flex flex-wrap gap-1">
                               {meal.ingredients.map((ingredient, i) => (
@@ -294,7 +295,7 @@ export default function MealPlanner() {
 
                           <div>
                             <h4 className="font-semibold text-amber-700 mb-2 flex items-center gap-2">
-                              👨‍🍳 Instructions:
+                              <ChefHat size={15} /> Instructions:
                             </h4>
                             <p className="text-amber-800 text-sm leading-relaxed bg-white/50 p-3 rounded-xl border border-amber-100">
                               {meal.instructions}
@@ -322,9 +323,7 @@ export default function MealPlanner() {
                       Saving Plan...
                     </>
                   ) : (
-                    <>
-                      💾 Save Meal Plan
-                    </>
+                    <><Bookmark size={20} /> Save Meal Plan</>
                   )}
                 </span>
               </button>

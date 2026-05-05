@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Utensils, Timer, Users, Heart, ShoppingCart, Package, ChefHat, FileText, Bot, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function AiRecipePage() {
   const { id } = useParams();
@@ -68,8 +69,8 @@ export default function AiRecipePage() {
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-orange-200/50 space-y-4">
             <div className="text-center mb-6">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
-              <p className="text-xl text-orange-700 font-semibold">
-                🍽️ Loading your delicious recipe...
+              <p className="text-xl text-orange-700 font-semibold flex items-center justify-center gap-2">
+                <Utensils size={20} /> Loading your delicious recipe...
               </p>
             </div>
             <div className="space-y-3">
@@ -88,14 +89,14 @@ export default function AiRecipePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8 px-4 mt-20 flex items-center justify-center">
         <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-orange-200/50 text-center">
-          <div className="text-6xl mb-4">😞</div>
+          <div className="flex justify-center mb-4"><AlertCircle size={56} className="text-red-400" /></div>
           <h2 className="text-2xl font-bold text-red-600 mb-4">Oops! Something went wrong</h2>
           <p className="text-red-700 mb-6 font-medium">{error}</p>
           <button 
             onClick={() => navigate(-1)}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
           >
-            ← Go Back
+            <ArrowLeft size={18} /> Go Back
           </button>
         </div>
       </div>
@@ -126,7 +127,7 @@ export default function AiRecipePage() {
             onClick={() => navigate(-1)}
             className="bg-gradient-to-r from-gray-100/80 to-gray-200/80 hover:from-gray-200/80 hover:to-gray-300/80 text-gray-700 font-bold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
           >
-            ← Back to Recipes
+            <ArrowLeft size={18} /> Back to Recipes
           </button>
         </div>
 
@@ -142,16 +143,17 @@ export default function AiRecipePage() {
                 <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                   {recipe.title}
                 </span>
-                <span className="text-3xl ml-2 inline-block animate-bounce">🍽️</span>
+                <Utensils size={32} className="text-orange-500 animate-bounce" />
               </h1>
               
               <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
                 <div className="flex items-center gap-2 bg-gradient-to-r from-orange-100/80 to-amber-100/80 backdrop-blur-sm border border-orange-200/50 px-4 py-2 rounded-full shadow-sm">
-                  <span className="text-orange-700 font-bold">⏱️ {recipe.estimatedTime} min</span>
+                  <Timer size={16} className="text-orange-600" />
+                  <span className="text-orange-700 font-bold">{recipe.estimatedTime} min</span>
                 </div>
                 {recipe.servings && (
                   <div className="flex items-center gap-2 bg-gradient-to-r from-amber-100/80 to-yellow-100/80 backdrop-blur-sm border border-amber-200/50 px-4 py-2 rounded-full shadow-sm">
-                    <span className="text-amber-700 font-bold">👥 {recipe.servings} servings</span>
+                    <Users size={16} className="text-amber-600" /><span className="text-amber-700 font-bold">{recipe.servings} servings</span>
                   </div>
                 )}
               </div>
@@ -161,7 +163,7 @@ export default function AiRecipePage() {
             {recipe.healthBenefits && (
               <div className="mb-8 p-6 bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm border-2 border-green-200/50 rounded-2xl">
                 <h3 className="text-xl font-bold text-green-700 mb-3 flex items-center gap-2">
-                  💚 Health Benefits
+                  <Heart size={20} className="text-green-600" /> Health Benefits
                 </h3>
                 <p className="text-green-800 font-medium leading-relaxed">
                   {Array.isArray(recipe.healthBenefits) ? recipe.healthBenefits.join(', ') : recipe.healthBenefits}
@@ -175,7 +177,7 @@ export default function AiRecipePage() {
                 {/* Used Ingredients */}
                 <div className="bg-gradient-to-br from-orange-50/80 to-amber-50/80 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/50">
                   <h3 className="text-2xl font-bold text-orange-700 mb-4 flex items-center gap-2">
-                    🥬 Main Ingredients
+                    <ShoppingCart size={20} /> Main Ingredients
                   </h3>
                   <ul className="space-y-3">
                     {recipe.usedIngredients.map((ingredient, i) => (
@@ -191,7 +193,7 @@ export default function AiRecipePage() {
                 {recipe.optionalIngredients?.length > 0 && (
                   <div className="bg-gradient-to-br from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200/50">
                     <h3 className="text-2xl font-bold text-amber-700 mb-4 flex items-center gap-2">
-                      🧂 Optional / Pantry Items
+                      <Package size={20} /> Optional / Pantry Items
                     </h3>
                     <ul className="space-y-3">
                       {recipe.optionalIngredients.map((ingredient, i) => (
@@ -208,7 +210,7 @@ export default function AiRecipePage() {
               {/* Instructions Section */}
               <div className="bg-gradient-to-br from-yellow-50/80 to-orange-50/80 backdrop-blur-sm rounded-2xl p-6 border border-yellow-200/50">
                 <h3 className="text-2xl font-bold text-yellow-700 mb-6 flex items-center gap-2">
-                  👨‍🍳 Cooking Instructions
+                  <ChefHat size={20} /> Cooking Instructions
                 </h3>
                 {recipe.cookingSteps?.length > 0 ? (
                   <ol className="space-y-4">
@@ -231,7 +233,7 @@ export default function AiRecipePage() {
                 {recipe.notes && (
                   <div className="mt-6 pt-6 border-t border-yellow-200/50">
                     <h4 className="text-lg font-bold text-yellow-700 mb-3 flex items-center gap-2">
-                      📝 Chef's Notes
+                      <FileText size={18} /> Chef's Notes
                     </h4>
                     <div className="bg-white/50 rounded-xl px-4 py-3 border border-yellow-100">
                       <p className="text-yellow-800 font-medium leading-relaxed">{recipe.notes}</p>
@@ -243,8 +245,8 @@ export default function AiRecipePage() {
 
             {/* Recipe Footer */}
             <div className="mt-8 pt-6 border-t border-orange-200/50 text-center">
-              <p className="text-orange-600/80 font-medium text-sm">
-                🤖 Recipe created by AI Chef • Saved on {new Date(recipe.createdAt || Date.now()).toLocaleDateString()}
+              <p className="text-orange-600/80 font-medium text-sm flex items-center justify-center gap-2">
+                <Bot size={16} /> Recipe created by AI Chef • Saved on {new Date(recipe.createdAt || Date.now()).toLocaleDateString()}
               </p>
             </div>
           </div>

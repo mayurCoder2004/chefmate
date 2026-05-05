@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import {
+  ChefHat, ArrowLeft, ArrowRight, ShoppingCart, Timer,
+  Share2, Utensils, Salad, Sparkles, Flame, PauseCircle, PlayCircle, Check
+} from 'lucide-react'
 
 const CookMode = () => {
   const { state } = useLocation()
@@ -67,12 +72,17 @@ const CookMode = () => {
 
   if (!recipe) {
     return (
-      <div style={styles.errorWrap}>
-        <div style={styles.errorBox}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🍳</div>
-          <h2 style={styles.errorTitle}>No recipe found</h2>
-          <p style={styles.errorSub}>Go back and select a recipe to cook.</p>
-          <button style={styles.btnPrimary} onClick={() => navigate('/app')}>← Back to recipes</button>
+      <div className="min-h-screen flex items-center justify-center bg-orange-50 p-4 font-sans">
+        <div className="text-center bg-white p-10 rounded-3xl shadow-xl max-w-sm w-full border border-orange-100">
+          <div className="flex justify-center mb-4"><ChefHat size={56} className="text-orange-400" /></div>
+          <h2 className="text-2xl font-bold text-stone-800 mb-2">No recipe found</h2>
+          <p className="text-stone-600 mb-8 text-sm">Go back and select a recipe to cook.</p>
+          <button 
+            className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 px-6 rounded-2xl w-full transition-colors shadow-md flex items-center justify-center gap-2"
+            onClick={() => navigate('/app')}
+          >
+            <ArrowLeft size={18} /> Back to recipes
+          </button>
         </div>
       </div>
     )
@@ -80,21 +90,59 @@ const CookMode = () => {
 
   if (done) {
     return (
-      <div style={styles.doneWrap}>
-        <div style={styles.doneBox}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
-          <h2 style={styles.doneTitle}>You did it!</h2>
-          {/* FIX 2: Use recipe.title instead of recipe.name */}
-          <p style={styles.doneSub}>You just cooked <strong>{recipe.title}</strong>. How did it turn out?</p>
-          <div style={styles.doneActions}>
-            <button style={styles.btnPrimary} onClick={shareOnWhatsApp}>📲 Share on WhatsApp</button>
-            <button style={styles.btnGhost} onClick={() => navigate('/app')}>Cook another →</button>
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 p-4 pt-24 font-sans">
+          <div className="bg-white text-center p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-orange-100">
+            <div className="flex justify-center mb-4 animate-bounce"><Sparkles size={56} className="text-orange-400" /></div>
+            <h2 className="text-3xl font-extrabold text-stone-800 mb-3">You did it!</h2>
+            {/* FIX 2: Use recipe.title instead of recipe.name */}
+            <p className="text-stone-600 mb-6 leading-relaxed text-sm">
+              You just cooked <strong className="text-stone-800">{recipe.title}</strong>. How did it turn out?
+            </p>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                onClick={shareOnWhatsApp}
+              >
+                <Share2 size={18} /> Share on WhatsApp
+              </button>
+            </div>
+            
+            {recipe.calories && (
+              <div className="mt-6 inline-block bg-orange-50 text-orange-600 font-medium text-sm py-1.5 px-4 rounded-full border border-orange-100">
+                <Flame size={14} className="inline mr-1" /> {recipe.calories} calories per serving
+              </div>
+            )}
+
+            {/* What next section */}
+            <div className="mt-8 pt-6 border-t border-stone-100">
+              <p className="text-sm font-bold text-stone-700 mb-4">What next?</p>
+              <div className="flex flex-col gap-3">
+                <button 
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 px-6 rounded-2xl transition-colors shadow-md"
+                  onClick={() => navigate('/app')}
+                >
+                  <ChefHat size={18} /> Cook Another
+                </button>
+                <button 
+                  className="bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium py-3.5 px-6 rounded-2xl border border-stone-200 transition-colors"
+                  onClick={() => navigate('/recipes')}
+                >
+                  <Utensils size={18} /> Explore Recipes
+                </button>
+                <button 
+                  className="bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium py-3.5 px-6 rounded-2xl border border-stone-200 transition-colors"
+                  onClick={() => navigate('/meal-planner')}
+                >
+                  <Salad size={18} /> Plan Meals
+                </button>
+              </div>
+            </div>
           </div>
-          {recipe.calories && (
-            <div style={styles.caloriePill}>🔥 {recipe.calories} calories per serving</div>
-          )}
         </div>
-      </div>
+      </>
     )
   }
 
@@ -102,151 +150,152 @@ const CookMode = () => {
   const progress = ((currentStep + 1) / steps.length) * 100
 
   return (
-    <div style={styles.root}>
-      {/* Header */}
-      <div style={styles.header}>
-        <button style={styles.backBtn} onClick={() => navigate(-1)}>← Back</button>
-        {/* FIX 2: Use recipe.title instead of recipe.name */}
-        <div style={styles.headerTitle}>{recipe.title}</div>
-        <button style={styles.ingredientsToggle} onClick={() => setShowIngredients(!showIngredients)}>
-          {showIngredients ? 'Hide' : 'Ingredients'}
-        </button>
-      </div>
+    <div className="min-h-screen bg-orange-50 py-6 font-sans">
+      <div className="max-w-2xl mx-auto p-4 space-y-4">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-stone-100 sticky top-4 z-10">
+          <button 
+            className="text-orange-500 font-medium text-sm hover:text-orange-600 transition-colors px-2 flex items-center gap-1"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
+          {/* FIX 2: Use recipe.title instead of recipe.name */}
+          <div className="text-base font-semibold text-stone-800 max-w-[150px] sm:max-w-[250px] truncate">
+            {recipe.title}
+          </div>
+          <button 
+            className="border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-600 text-xs font-medium py-1.5 px-3 rounded-full transition-colors"
+            onClick={() => setShowIngredients(!showIngredients)}
+          >
+            {showIngredients ? 'Hide' : 'Ingredients'}
+          </button>
+        </div>
 
-      {/* Progress bar */}
-      <div style={styles.progressTrack}>
-        <div style={{ ...styles.progressFill, width: `${progress}%` }} />
-      </div>
-      <div style={styles.progressLabel}>Step {currentStep + 1} of {steps.length}</div>
-
-      {/* Ingredients panel */}
-      {showIngredients && (
-        <div style={styles.ingredientsPanel}>
-          <div style={styles.ingredientsPanelTitle}>🛒 Ingredients needed</div>
-          <div style={styles.ingredientsList}>
-            {ingredients.map((ing, i) => (
-              <div key={i} style={styles.ingredientRow}>
-                <span style={styles.ingredientDot}>•</span>
-                <span style={styles.ingredientText}>{ing}</span>
-              </div>
-            ))}
+        {/* Progress bar */}
+        <div className="px-2 pt-2">
+          <div className="h-1.5 w-full bg-orange-200/50 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-orange-500 rounded-full transition-all duration-500 ease-out" 
+              style={{ width: `${progress}%` }} 
+            />
+          </div>
+          <div className="text-center text-xs font-medium text-stone-500 mt-2">
+            Step {currentStep + 1} of {steps.length}
           </div>
         </div>
-      )}
 
-      {/* Step card */}
-      <div style={styles.stepCard}>
-        <div style={styles.stepBadge}>Step {currentStep + 1}</div>
-        <p style={styles.stepText}>{steps[currentStep]}</p>
-
-        {/* Completed steps */}
-        {completedSteps.length > 0 && (
-          <div style={styles.completedWrap}>
-            {completedSteps.map(i => (
-              <div key={i} style={styles.completedChip}>✓ Step {i + 1} done</div>
-            ))}
+        {/* Ingredients panel */}
+        {showIngredients && (
+          <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100 transition-all">
+            <h3 className="text-sm font-bold text-stone-800 mb-3 flex items-center gap-2">
+              <ShoppingCart size={16} className="text-orange-500" /> Ingredients needed
+            </h3>
+            <ul className="space-y-2">
+              {ingredients.map((ing, i) => (
+                <li key={i} className="flex items-start gap-2 text-stone-600 text-sm">
+                  <span className="text-orange-500 font-bold mt-0.5">•</span>
+                  <span className="leading-relaxed">{ing}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
-      </div>
 
-      {/* Timer section */}
-      <div style={styles.timerSection}>
-        <div style={styles.timerLabel}>⏱ Need a timer?</div>
-        <div style={styles.timerBtns}>
-          {[1, 2, 5, 10, 15].map(min => (
-            <button key={min} style={styles.timerChip} onClick={() => startTimer(min)}>
-              {min}m
-            </button>
+        {/* Step card (Main Focus) */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-orange-100 min-h-[200px] flex flex-col justify-center relative">
+          <div className="absolute top-6 left-6">
+            <span className="bg-orange-100 text-orange-600 text-xs font-bold py-1.5 px-3 rounded-full">
+              Step {currentStep + 1}
+            </span>
+          </div>
+          
+          <p className="text-lg sm:text-xl font-medium text-stone-800 leading-relaxed mt-8">
+            {steps[currentStep]}
+          </p>
+
+          {/* Completed steps tags */}
+          {completedSteps.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-6">
+              {completedSteps.map(i => (
+                <span key={i} className="bg-green-50 border border-green-100 text-green-700 text-xs font-medium py-1 px-2.5 rounded-full flex items-center gap-1">
+                  <Check size={12} /> Step {i + 1} done
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Timer section */}
+        <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
+          <h3 className="text-sm font-bold text-stone-700 mb-3 flex items-center gap-2">
+            <Timer size={16} className="text-orange-500" /> Need a timer?
+          </h3>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {[1, 2, 5, 10, 15].map(min => (
+              <button 
+                key={min} 
+                className="bg-orange-50 hover:bg-orange-100 border border-orange-200/50 text-orange-600 text-sm font-medium py-1.5 px-4 rounded-full transition-colors"
+                onClick={() => startTimer(min)}
+              >
+                {min}m
+              </button>
+            ))}
+          </div>
+          
+          {timeLeft > 0 && (
+            <div className="flex items-center gap-4 bg-stone-50 p-3 rounded-xl border border-stone-100">
+              <span className="text-3xl font-bold text-stone-800 tracking-tight font-mono w-24 text-center">
+                {formatTime(timeLeft)}
+              </span>
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-5 rounded-full shadow-sm transition-colors flex-1"
+                onClick={() => setTimerRunning(r => !r)}
+              >
+                {timerRunning ? <><PauseCircle size={16} /> Pause</> : <><PlayCircle size={16} /> Resume</>}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation buttons */}
+        <div className="flex gap-3 pt-2">
+          <button
+            className={`flex-1 py-3.5 rounded-xl text-sm font-medium transition-all ${
+              currentStep === 0 
+                ? 'bg-stone-100 text-stone-400 cursor-not-allowed' 
+                : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 active:scale-95'
+            }`}
+            onClick={handlePrev}
+            disabled={currentStep === 0}
+          >
+            <ArrowLeft size={16} /> Prev
+          </button>
+          <button 
+            className="flex-1 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+            onClick={handleNext}
+          >
+            {currentStep === steps.length - 1 ? <><Sparkles size={16} /> Done!</> : <>Next step <ArrowRight size={16} /></>}
+          </button>
+        </div>
+
+        {/* Step dots (Progress indicator) */}
+        <div className="flex justify-center gap-2 mt-4 pb-4">
+          {steps.map((_, i) => (
+            <div
+              key={i}
+              className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${
+                i === currentStep ? 'bg-orange-500'
+                  : completedSteps.includes(i) ? 'bg-green-500'
+                  : 'bg-stone-300'
+              }`}
+            />
           ))}
         </div>
-        {timeLeft > 0 && (
-          <div style={styles.timerDisplay}>
-            <span style={styles.timerCount}>{formatTime(timeLeft)}</span>
-            <button
-              style={styles.timerControl}
-              onClick={() => setTimerRunning(r => !r)}
-            >
-              {timerRunning ? '⏸ Pause' : '▶ Resume'}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation buttons */}
-      <div style={styles.navBtns}>
-        <button
-          style={currentStep === 0 ? styles.btnDisabled : styles.btnGhost}
-          onClick={handlePrev}
-          disabled={currentStep === 0}
-        >
-          ← Prev
-        </button>
-        <button style={styles.btnPrimary} onClick={handleNext}>
-          {currentStep === steps.length - 1 ? '🎉 Done!' : 'Next step →'}
-        </button>
-      </div>
-
-      {/* Step dots */}
-      <div style={styles.dotsWrap}>
-        {steps.map((_, i) => (
-          <div
-            key={i}
-            style={{
-              ...styles.dot,
-              background: i === currentStep ? '#E8521A'
-                : completedSteps.includes(i) ? '#639922'
-                : '#e0d8d0'
-            }}
-          />
-        ))}
       </div>
     </div>
   )
-}
-
-const styles = {
-  root: { minHeight: '100vh', background: '#FDF6EE', padding: '0 0 40px', fontFamily: "'DM Sans', sans-serif" },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: '#fff', borderBottom: '1px solid rgba(44,24,16,0.1)', position: 'sticky', top: 0, zIndex: 10 },
-  backBtn: { background: 'transparent', border: 'none', fontSize: 14, color: '#E8521A', cursor: 'pointer', fontWeight: 500 },
-  headerTitle: { fontSize: 15, fontWeight: 600, color: '#2C1810', maxWidth: 180, textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  ingredientsToggle: { background: 'transparent', border: '1px solid rgba(44,24,16,0.15)', borderRadius: 20, padding: '4px 12px', fontSize: 12, color: '#5C3D2E', cursor: 'pointer' },
-  progressTrack: { height: 4, background: '#f0e8e0', width: '100%' },
-  progressFill: { height: '100%', background: '#E8521A', borderRadius: '0 2px 2px 0', transition: 'width 0.4s ease' },
-  progressLabel: { textAlign: 'center', fontSize: 12, color: '#5C3D2E', padding: '8px 0 0' },
-  ingredientsPanel: { margin: '16px 20px', background: '#fff', borderRadius: 16, padding: '14px 16px', border: '1px solid rgba(44,24,16,0.08)' },
-  ingredientsPanelTitle: { fontSize: 13, fontWeight: 600, color: '#2C1810', marginBottom: 10 },
-  ingredientsList: { display: 'flex', flexDirection: 'column', gap: 6 },
-  ingredientRow: { display: 'flex', gap: 8, alignItems: 'flex-start' },
-  ingredientDot: { color: '#E8521A', fontWeight: 700, flexShrink: 0 },
-  ingredientText: { fontSize: 13, color: '#5C3D2E', lineHeight: 1.5 },
-  stepCard: { margin: '16px 20px', background: '#fff', borderRadius: 20, padding: '24px 20px', border: '1px solid rgba(44,24,16,0.08)', boxShadow: '0 4px 20px rgba(44,24,16,0.06)', minHeight: 160 },
-  stepBadge: { display: 'inline-block', background: '#FFF0E8', color: '#E8521A', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, marginBottom: 14 },
-  stepText: { fontSize: 17, color: '#2C1810', lineHeight: 1.75, fontWeight: 400 },
-  completedWrap: { display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 16 },
-  completedChip: { fontSize: 11, background: '#EAF3DE', color: '#27500A', padding: '3px 8px', borderRadius: 20 },
-  timerSection: { margin: '0 20px 16px', background: '#fff', borderRadius: 16, padding: '14px 16px', border: '1px solid rgba(44,24,16,0.08)' },
-  timerLabel: { fontSize: 12, fontWeight: 500, color: '#5C3D2E', marginBottom: 10 },
-  timerBtns: { display: 'flex', gap: 8, flexWrap: 'wrap' },
-  timerChip: { background: '#FFF0E8', border: '1px solid rgba(232,82,26,0.2)', color: '#E8521A', borderRadius: 20, padding: '5px 12px', fontSize: 12, fontWeight: 500, cursor: 'pointer' },
-  timerDisplay: { marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 },
-  timerCount: { fontSize: 28, fontWeight: 700, color: '#2C1810', fontVariantNumeric: 'tabular-nums' },
-  timerControl: { background: '#E8521A', color: '#fff', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, cursor: 'pointer' },
-  navBtns: { display: 'flex', gap: 12, margin: '0 20px 16px' },
-  btnPrimary: { flex: 1, background: '#E8521A', color: '#fff', border: 'none', borderRadius: 100, padding: '14px', fontSize: 15, fontWeight: 500, cursor: 'pointer' },
-  btnGhost: { flex: 1, background: 'transparent', color: '#2C1810', border: '1.5px solid rgba(44,24,16,0.15)', borderRadius: 100, padding: '14px', fontSize: 14, fontWeight: 500, cursor: 'pointer' },
-  btnDisabled: { flex: 1, background: '#f5f0ec', color: '#c0b8b0', border: '1.5px solid #f0e8e0', borderRadius: 100, padding: '14px', fontSize: 14, cursor: 'not-allowed' },
-  dotsWrap: { display: 'flex', justifyContent: 'center', gap: 6, marginTop: 8 },
-  dot: { width: 8, height: 8, borderRadius: '50%', transition: 'background 0.3s' },
-  errorWrap: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FDF6EE' },
-  errorBox: { textAlign: 'center', padding: 40 },
-  errorTitle: { fontSize: 20, fontWeight: 600, color: '#2C1810', marginBottom: 8 },
-  errorSub: { fontSize: 14, color: '#5C3D2E', marginBottom: 24 },
-  doneWrap: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #FFF0E8, #FDF6EE)' },
-  doneBox: { textAlign: 'center', padding: '40px 32px', background: '#fff', borderRadius: 24, boxShadow: '0 8px 40px rgba(44,24,16,0.1)', maxWidth: 360, margin: '0 20px' },
-  doneTitle: { fontFamily: 'sans-serif', fontSize: 28, fontWeight: 700, color: '#2C1810', marginBottom: 10 },
-  doneSub: { fontSize: 14, color: '#5C3D2E', lineHeight: 1.6, marginBottom: 24 },
-  doneActions: { display: 'flex', flexDirection: 'column', gap: 10 },
-  caloriePill: { marginTop: 20, display: 'inline-block', background: '#FFF0E8', color: '#E8521A', fontSize: 13, padding: '6px 16px', borderRadius: 20 },
 }
 
 export default CookMode

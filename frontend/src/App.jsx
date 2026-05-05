@@ -14,15 +14,16 @@ import SmartRecipe from './pages/SmartRecipe'
 import AiRecipePage from './pages/AiRecipePage'
 import MealPlanner from './pages/MealPlanner'
 import CookMode from './pages/CookMode'
+import More from './pages/More'
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const location = useLocation()
-  const isLanding = location.pathname === '/'
+  const hideChrome = ['/', '/login', '/signup', '/cook'].includes(location.pathname)
 
   return (
     <>
-    {!isLanding && <Navbar />}
+    {!hideChrome && <Navbar />}
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
@@ -43,11 +44,12 @@ const App = () => {
       <Route path="/ai-recipe/:id" element={<AiRecipePage />} />
       <Route path='/meal-planner' element={<MealPlanner />} />
       <Route path='/cook' element={<CookMode />} />
+      <Route path='/more' element={<More />} />
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
-    {!isLanding && <Footer />}
+    {!hideChrome && <Footer />}
     <Toaster
         position="top-right"
         reverseOrder={false}

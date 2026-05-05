@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import toast from "react-hot-toast";
-import { AuthContext } from "../contexts/AuthContext"; // adjust path if needed
+import { AuthContext } from "../contexts/AuthContext";
+import { Utensils, Bookmark } from 'lucide-react';
 
 export default function RecipePage() {
   const { id } = useParams();
@@ -133,9 +134,7 @@ export default function RecipePage() {
                 <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                   {recipe.strMeal}
                 </span>
-                <span className="text-3xl ml-2 inline-block animate-bounce">
-                  🍽️
-                </span>
+                <Utensils size={30} className="text-orange-500 animate-bounce" />
               </h1>
 
               {/* Tags */}

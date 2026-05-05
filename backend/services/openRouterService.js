@@ -4,16 +4,17 @@ const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const FALLBACK_MODELS = (process.env.OPENROUTER_MODELS
   ? process.env.OPENROUTER_MODELS.split(",")
   : [
-      "openrouter/free",
+      "google/gemini-2.0-flash-exp:free",
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "mistralai/mistral-7b-instruct:free",
       "qwen/qwen3-coder:free",
-      "meta-llama/llama-3.3-70b-instruct:free"
     ]
 )
   .map((m) => m.trim())
   .filter(Boolean);
 const MAX_RETRIES_PER_MODEL = Number(process.env.OPENROUTER_MAX_RETRIES ?? 1);
 const REQUEST_TIMEOUT_MS = Number(process.env.OPENROUTER_TIMEOUT_MS ?? 15000);
-const MAX_OUTPUT_TOKENS = Number(process.env.OPENROUTER_MAX_TOKENS ?? 450);
+const MAX_OUTPUT_TOKENS = Number(process.env.OPENROUTER_MAX_TOKENS ?? 1200);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -93,9 +94,20 @@ export async function callOpenRouterWithFallback({
         );
 
         const text = parseContent(response.data?.choices?.[0] || null);
+        const finishReason = response?.data?.choices?.[0]?.finish_reason
+          || response?.data?.choices?.[0]?.native_finish_reason
+          || null;
+
+        // If the model was cut off mid-output, treat it as a failure so we
+        // can try the next fallback model instead of returning broken JSON.
+        if (finishReason === 'length') {
+          const err = new Error(`Model output truncated (finish_reason=length) — JSON will be incomplete`);
+          err.status = 502;
+          throw err;
+        }
+
         if (!hasUsableOutput(response, text)) {
-          const finishReason = response?.data?.choices?.[0]?.finish_reason || null;
-          const err = new Error(`Empty/invalid model output (finish_reason=${finishReason || "unknown"})`);
+          const err = new Error(`Empty/invalid model output (finish_reason=${finishReason || 'unknown'})`);
           err.status = 502;
           throw err;
         }
