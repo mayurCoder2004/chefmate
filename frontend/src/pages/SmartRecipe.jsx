@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -40,6 +41,7 @@ const PREDEFINED_INGREDIENTS = [
 ];
 
 export default function SmartRecipe() {
+  const navigate = useNavigate();
   // ── State ──────────────────────────────────────────────────────────────────
   const [customInput, setCustomInput] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState([]);
@@ -476,9 +478,9 @@ export default function SmartRecipe() {
 
                 {/* Steps */}
                 <div className="bg-gradient-to-br from-yellow-50/80 to-orange-50/80 backdrop-blur-sm rounded-2xl p-6 border border-yellow-200/50">
-                  <h3 className="text-2xl font-bold text-yellow-700 mb-4">👨‍🍳 Steps</h3>
+                  <h3 className="text-2xl font-bold text-yellow-700 mb-4">👨‍🍳 Steps (Preview)</h3>
                   <ol className="space-y-3">
-                    {recipe.cookingSteps?.map((s, i) => (
+                    {recipe.cookingSteps?.slice(0, 2).map((s, i) => (
                       <li key={i} className="flex gap-4">
                         <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-full flex items-center justify-center font-bold text-sm">
                           {i + 1}
@@ -504,7 +506,16 @@ export default function SmartRecipe() {
               </div>
 
               {/* Save button */}
-              <div className="mt-8 text-center">
+              <div className="mt-8 text-center space-y-3">
+                <button
+                  onClick={() => navigate('/cook', { state: { recipe } })}
+                  className="relative bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden text-lg w-full sm:w-auto"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-3">
+                    🍳 Start Cooking
+                  </span>
+                </button>
+                <br />
                 <button
                   onClick={saveRecipe}
                   disabled={saving}
