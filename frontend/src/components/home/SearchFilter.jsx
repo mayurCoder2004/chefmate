@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import RecipeCard from "../RecipeCard";
 import { filterMealsByCategory, searchMeals, filterMealsByRegion } from "../../services/mealdb";
-import { ChefHat } from "lucide-react";
+import { ChefHat, Search } from "lucide-react";
 
 export default function SearchFilter() {
   const [search, setSearch] = useState("");
@@ -10,20 +10,19 @@ export default function SearchFilter() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch recipes whenever search, category or region changes
   useEffect(() => {
     const fetchRecipes = async () => {
       setLoading(true);
       let data;
 
       if (search) {
-        data = await searchMeals(search); // search API
+        data = await searchMeals(search);
       } else if (category !== "all") {
-        data = await filterMealsByCategory(category); // category API
+        data = await filterMealsByCategory(category);
       } else if (region !== "all") {
-        data = await filterMealsByRegion(region); // region API
+        data = await filterMealsByRegion(region);
       } else {
-        data = { meals: [] }; // default empty
+        data = { meals: [] };
       }
 
       setRecipes(data.meals || []);
@@ -34,21 +33,22 @@ export default function SearchFilter() {
   }, [search, category, region]);
 
   return (
-    <div>
+    <div className="space-y-5">
       {/* Search + Filter controls */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search recipes..."
-          className="border rounded-lg px-4 py-2 w-full sm:w-1/3"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-orange-200 focus:border-orange-400 outline-none transition-all"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-        {/* Category Filter */}
         <select
-          className="border rounded-lg px-4 py-2 w-full sm:w-1/4"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:ring-2 focus:ring-orange-200 focus:border-orange-400 outline-none transition-all sm:w-40"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
@@ -59,9 +59,8 @@ export default function SearchFilter() {
           <option value="Seafood">Seafood</option>
         </select>
 
-        {/* Region Filter */}
         <select
-          className="border rounded-lg px-4 py-2 w-full sm:w-1/4"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:ring-2 focus:ring-orange-200 focus:border-orange-400 outline-none transition-all sm:w-40"
           value={region}
           onChange={(e) => setRegion(e.target.value)}
         >
@@ -74,22 +73,24 @@ export default function SearchFilter() {
           <option value="Italian">Italian</option>
           <option value="Mexican">Mexican</option>
           <option value="Thai">Thai</option>
-          {/* add more if needed */}
         </select>
       </div>
 
       {/* Recipe List */}
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <div className="text-center py-10">
+          <div className="inline-block animate-spin rounded-full h-7 w-7 border-4 border-orange-200 border-t-orange-500 mb-2" />
+          <p className="text-sm text-gray-500">Loading...</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {recipes.length > 0 ? (
             recipes.map((recipe) => (
               <RecipeCard key={recipe.idMeal} recipe={recipe} />
             ))
           ) : (
-            <p className="text-center text-gray-500 flex items-center justify-center gap-2">
-              No recipes found <ChefHat size={18} />
+            <p className="col-span-full text-center text-sm text-gray-500 flex items-center justify-center gap-2 py-10">
+              <ChefHat size={18} className="text-orange-400" /> No recipes found
             </p>
           )}
         </div>

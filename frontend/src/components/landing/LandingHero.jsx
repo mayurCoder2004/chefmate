@@ -1,166 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { sharedStyles } from './landingStyles'
-import { Sparkles, Utensils, Share2, Flame } from 'lucide-react'
+import { Sparkles, Utensils, Share2, Check } from 'lucide-react'
 
 const chips = ['Dal', 'Chawal', 'Aata', 'Tomato', 'Egg', 'Onion', 'Bread', 'Paneer']
 
-const styles = {
-  heroSection: { padding: '70px 5% 60px', maxWidth: 1100, margin: '0 auto' },
-  heroGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 60,
-    alignItems: 'center',
-  },
-  badge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 6,
-    background: '#FFF0E8',
-    border: '1px solid rgba(232,82,26,0.2)',
-    color: '#E8521A',
-    fontSize: 12,
-    fontWeight: 500,
-    padding: '5px 14px',
-    borderRadius: 100,
-    marginBottom: 18,
-  },
-  h1: {
-    fontFamily: "'Syne', sans-serif",
-    fontSize: 'clamp(34px,5vw,54px)',
-    fontWeight: 800,
-    lineHeight: 1.05,
-    color: '#2C1810',
-    marginBottom: 18,
-  },
-  accent: { color: '#E8521A' },
-  heroSub: {
-    fontSize: 15,
-    color: '#5C3D2E',
-    lineHeight: 1.75,
-    marginBottom: 30,
-    maxWidth: 440,
-  },
-  actions: { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' },
-  trustLine: {
-    marginTop: 20,
-    fontSize: 12,
-    color: '#5C3D2E',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-  },
-  // Phone mockup
-  mockupWrap: {
-    display: 'flex',
-    justifyContent: 'center',
-    animation: 'float 4s ease-in-out infinite',
-  },
-  phone: {
-    width: 250,
-    background: '#fff',
-    borderRadius: 32,
-    border: '2px solid rgba(44,24,16,0.1)',
-    boxShadow: '0 24px 60px rgba(44,24,16,0.15)',
-    overflow: 'hidden',
-  },
-  phoneTop: { background: '#E8521A', padding: '14px 16px 20px' },
-  phoneBar: { display: 'flex', justifyContent: 'space-between', marginBottom: 10 },
-  phoneAppName: { fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 800, color: '#fff' },
-  phoneTime: { fontSize: 10, color: 'rgba(255,255,255,0.7)' },
-  phoneHeadline: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: '#fff',
-    fontFamily: "'Syne', sans-serif",
-    lineHeight: 1.3,
-    marginBottom: 3,
-  },
-  phoneSub: { fontSize: 10, color: 'rgba(255,255,255,0.8)' },
-  phoneBody: { padding: 14 },
-  chipLabel: {
-    fontSize: 9,
-    fontWeight: 500,
-    color: '#5C3D2E',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    marginBottom: 8,
-  },
-  chipsWrap: { display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 12 },
-  chipOn: {
-    fontSize: 10,
-    padding: '4px 8px',
-    borderRadius: 20,
-    border: '1px solid #E8521A',
-    background: '#FFF0E8',
-    color: '#E8521A',
-    fontWeight: 500,
-    cursor: 'pointer',
-    fontFamily: "'DM Sans', sans-serif",
-  },
-  chipOff: {
-    fontSize: 10,
-    padding: '4px 8px',
-    borderRadius: 20,
-    border: '1px solid #e0e0e0',
-    background: '#f5f5f5',
-    color: '#888',
-    cursor: 'pointer',
-    fontFamily: "'DM Sans', sans-serif",
-  },
-  genBtn: {
-    width: '100%',
-    background: '#E8521A',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    padding: 9,
-    fontSize: 11,
-    fontWeight: 500,
-    cursor: 'pointer',
-    marginBottom: 12,
-    fontFamily: "'DM Sans', sans-serif",
-  },
-  recipeCard: { border: '1px solid #f0e8e0', borderRadius: 10, overflow: 'hidden' },
-  recipeTop: {
-    background: '#FFF0E8',
-    padding: '10px 12px',
-    display: 'flex',
-    gap: 8,
-    alignItems: 'center',
-  },
-  recipeEmoji: { fontSize: 26 },
-  recipeName: { fontSize: 11, fontWeight: 600, color: '#2C1810' },
-  recipeTags: { display: 'flex', gap: 4, marginTop: 3 },
-  tagGreen: { fontSize: 9, padding: '1px 6px', borderRadius: 20, background: '#d1fae5', color: '#065f46' },
-  tagAmber: { fontSize: 9, padding: '1px 6px', borderRadius: 20, background: '#fef3c7', color: '#92400e' },
-  recipeBottom: { padding: '8px 12px', display: 'flex', gap: 6 },
-  miniBtn: {
-    flex: 1,
-    fontSize: 9,
-    padding: 5,
-    borderRadius: 6,
-    border: '1px solid #e0d8d0',
-    background: 'transparent',
-    color: '#888',
-    cursor: 'pointer',
-    textAlign: 'center',
-  },
-  miniBtnPrimary: {
-    flex: 1,
-    fontSize: 9,
-    padding: 5,
-    borderRadius: 6,
-    border: '1px solid #E8521A',
-    background: '#E8521A',
-    color: '#fff',
-    cursor: 'pointer',
-    textAlign: 'center',
-  },
-}
-
-/** Phone mockup shown in hero — interactive ingredient chips */
+/** Interactive phone mockup shown in hero */
 const PhoneMockup = () => {
   const [activeChips, setActiveChips] = useState(['Dal', 'Chawal', 'Tomato', 'Onion'])
 
@@ -170,49 +14,59 @@ const PhoneMockup = () => {
     )
 
   return (
-    <div style={styles.mockupWrap} className="mockup-wrap">
-      <div style={styles.phone}>
-        <div style={styles.phoneTop}>
-          <div style={styles.phoneBar}>
-            <span style={styles.phoneAppName}>ChefMate</span>
-            <span style={styles.phoneTime}>9:41</span>
+    <div className="flex justify-center">
+      <div className="w-56 bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+        {/* Phone top bar */}
+        <div className="bg-orange-500 px-4 py-3">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-white text-xs font-bold">ChefMate</span>
+            <span className="text-white/70 text-xs">9:41</span>
           </div>
-          <div style={styles.phoneHeadline}>What's in your kitchen?</div>
-          <div style={styles.phoneSub}>Tap what you have → get a recipe</div>
+          <div className="text-white text-sm font-semibold leading-snug">What's in your kitchen?</div>
+          <div className="text-white/80 text-xs mt-0.5">Tap what you have → get a recipe</div>
         </div>
 
-        <div style={styles.phoneBody}>
-          <div style={styles.chipLabel}>Tap your ingredients</div>
-          <div style={styles.chipsWrap}>
+        {/* Phone body */}
+        <div className="p-3">
+          <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">Tap your ingredients</div>
+          <div className="flex flex-wrap gap-1.5 mb-3">
             {chips.map(chip => (
               <button
                 key={chip}
-                style={activeChips.includes(chip) ? styles.chipOn : styles.chipOff}
                 onClick={() => toggleChip(chip)}
+                className={`text-xs px-2 py-1 rounded-full border transition-colors ${
+                  activeChips.includes(chip)
+                    ? 'bg-orange-50 border-orange-400 text-orange-600 font-medium'
+                    : 'bg-gray-50 border-gray-200 text-gray-500'
+                }`}
               >
                 {chip}
               </button>
             ))}
           </div>
 
-          <button style={styles.genBtn} className="flex items-center justify-center gap-1"><Sparkles size={11} /> Find my recipe</button>
+          <button className="w-full bg-orange-500 text-white text-xs font-medium py-2 rounded-lg mb-3 flex items-center justify-center gap-1">
+            <Sparkles size={10} /> Find my recipe
+          </button>
 
-          <div style={styles.recipeCard}>
-              <div style={styles.recipeTop}>
-              <div style={styles.recipeEmoji}><Utensils size={26} color="#E8521A" /></div>
+          {/* Recipe card preview */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-orange-50 px-3 py-2 flex gap-2 items-center">
+              <Utensils size={18} className="text-orange-500 flex-shrink-0" />
               <div>
-                <div style={styles.recipeName}>Dal Tadka + Chawal</div>
-                <div style={styles.recipeTags}>
-                  <span style={styles.tagGreen}>12 min</span>
-                  <span style={styles.tagAmber}>₹22 est.</span>
-                  <span style={styles.tagGreen}>1 burner</span>
+                <div className="text-xs font-semibold text-gray-800">Dal Tadka + Chawal</div>
+                <div className="flex gap-1.5 mt-1">
+                  <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">12 min</span>
+                  <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">₹22 est.</span>
                 </div>
               </div>
             </div>
-            <div style={styles.recipeBottom}>
-              <div style={styles.miniBtn}>Save</div>
-              <div style={styles.miniBtn} className="flex items-center justify-center gap-1"><Share2 size={9} /> Share</div>
-              <div style={styles.miniBtnPrimary}>Cook this</div>
+            <div className="px-3 py-2 flex gap-1.5">
+              <div className="flex-1 text-center text-xs py-1 border border-gray-200 rounded text-gray-500">Save</div>
+              <div className="flex-1 text-center text-xs py-1 border border-gray-200 rounded text-gray-500 flex items-center justify-center gap-0.5">
+                <Share2 size={9} /> Share
+              </div>
+              <div className="flex-1 text-center text-xs py-1 bg-orange-500 text-white rounded">Cook</div>
             </div>
           </div>
         </div>
@@ -221,40 +75,48 @@ const PhoneMockup = () => {
   )
 }
 
-/** Full hero section with copy + phone mockup */
+/** Full hero section */
 const LandingHero = () => {
   const navigate = useNavigate()
 
   return (
-    <section style={styles.heroSection}>
-      <div style={styles.heroGrid} className="hero-grid">
+    <section className="py-16 px-6 bg-white border-b border-gray-100">
+      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Left: copy */}
         <div>
-          <div className="hero-child" style={styles.badge}>
-            <Flame size={12} /> Made for Indian bachelor life
+          <div className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-medium px-3 py-1.5 rounded-full mb-5">
+            Made for Indian bachelor life
           </div>
-          <h1 className="hero-child" style={styles.h1}>
+
+          <h1 className="text-3xl md:text-4xl font-semibold text-gray-800 leading-tight mb-4">
             1 burner.<br />
-            <span style={styles.accent}>5 ingredients.</span><br />
+            <span className="text-orange-500">5 ingredients.</span><br />
             Real food tonight.
           </h1>
-          <p className="hero-child" style={styles.heroSub}>
+
+          <p className="text-sm text-gray-600 leading-relaxed mb-6 max-w-md">
             Tell ChefMate what's in your PG kitchen — dal, chawal, whatever's left — and get a
             real recipe in seconds. No oven. No grinding. No Swiggy bill.
           </p>
-          <div className="hero-child" style={styles.actions}>
-            <button style={sharedStyles.btnPrimary} onClick={() => navigate('/app')}>
+
+          <div className="flex gap-3 flex-wrap mb-5">
+            <button
+              className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors"
+              onClick={() => navigate('/app')}
+            >
               Find my recipe →
             </button>
             <button
-              style={sharedStyles.btnGhost}
-              onClick={() => document.getElementById('how').scrollIntoView({ behavior: 'smooth' })}
+              className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+              onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}
             >
               See how it works
             </button>
           </div>
-          <p className="hero-child" style={styles.trustLine}>
-            ✓ Free to use. No credit card. Works on any phone.
+
+          <p className="text-xs text-gray-400 flex items-center gap-1.5">
+            <Check size={13} className="text-orange-500" />
+            Free to use. No credit card. Works on any phone.
           </p>
         </div>
 

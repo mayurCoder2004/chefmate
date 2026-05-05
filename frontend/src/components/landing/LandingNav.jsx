@@ -1,53 +1,19 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const styles = {
-  nav: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '18px 5%',
-    borderBottom: '1px solid rgba(44,24,16,0.1)',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    boxSizing: 'border-box',
-    background: 'rgba(253,246,238,0.95)',
-    backdropFilter: 'blur(8px)',
-    zIndex: 100,
-  },
-  logo: {
-    fontFamily: "'Syne', sans-serif",
-    fontSize: 22,
-    fontWeight: 800,
-    color: '#E8521A',
-  },
-  logoSpan: { color: '#2C1810' },
-  navCta: {
-    background: '#E8521A',
-    color: '#fff',
-    border: 'none',
-    padding: '10px 22px',
-    borderRadius: 100,
-    fontSize: 13,
-    fontWeight: 500,
-    cursor: 'pointer',
-    fontFamily: "'DM Sans', sans-serif",
-    transition: 'all 0.15s',
-  },
-}
-
 const LandingNav = () => {
   const navigate = useNavigate()
 
   return (
-    <nav style={styles.nav}>
-      <div style={styles.logo}>
-        Chef<span style={styles.logoSpan}>Mate</span>
+    <nav className="flex justify-between items-center px-6 py-4 bg-white border-b border-gray-200 fixed top-0 left-0 w-full z-50">
+      <div className="text-lg font-semibold text-orange-500">
+        Chef<span className="text-gray-800">Mate</span>
       </div>
-      <button style={styles.navCta} onClick={() => navigate('/app')}>
-        Try for free →
+      <button
+        className="px-5 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+        onClick={() => navigate('/app')}
+      >
+        Try for free
       </button>
     </nav>
   )

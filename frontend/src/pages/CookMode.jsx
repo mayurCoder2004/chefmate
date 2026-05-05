@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import toast, { Toaster } from 'react-hot-toast'
 import Navbar from '../components/Navbar'
 import {
   ChefHat, ArrowLeft, ArrowRight, ShoppingCart, Timer,
@@ -9,9 +10,8 @@ import {
 const CookMode = () => {
   const { state } = useLocation()
   const navigate = useNavigate()
-  const recipe = state?.recipe // passed via navigate('/cook', { state: { recipe } })
+  const recipe = state?.recipe
 
-  // FIX 1: Use cookingSteps and usedIngredients from the backend payload
   const steps = recipe?.cookingSteps || []
   const ingredients = recipe?.usedIngredients || []
 
@@ -23,7 +23,6 @@ const CookMode = () => {
   const [showIngredients, setShowIngredients] = useState(true)
   const [done, setDone] = useState(false)
 
-  // Timer logic
   useEffect(() => {
     let interval
     if (timerRunning && timeLeft > 0) {
@@ -64,21 +63,94 @@ const CookMode = () => {
     }
   }
 
-  const shareOnWhatsApp = () => {
-    // FIX 2: Use recipe.title instead of recipe.name
-    const text = `Just cooked ${recipe?.title || 'an amazing dish'} using ChefMate! Try it free: https://chefmate-frontend.vercel.app`
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`)
+  const shareOnWhatsApp = async () => {
+    toast.loading('Creating shareable link...', { id: 'whatsapp-loading' });
+    
+    try {
+      // Create shareable recipe
+      const res = await fetch(
+        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/share-recipe`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(recipe)
+        }
+      );
+      
+      if (!res.ok) {
+        throw new Error('Failed to create shareable link');
+      }
+      
+      const data = await res.json();
+      const shareUrl = `${window.location.origin}/recipe/share/${data.shareId}`;
+      const shareText = `I just made ${recipe?.title || 'an amazing dish'} 🍳\n\nCheck the full recipe here: ${shareUrl}`;
+      
+      toast.dismiss('whatsapp-loading');
+      
+      // Open WhatsApp with the shareable link
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      window.open(whatsappUrl, '_blank');
+      toast.success('Opening WhatsApp...', { duration: 2000 });
+    } catch (err) {
+      toast.dismiss('whatsapp-loading');
+      toast.error('Failed to create share link', { duration: 3000 });
+    }
+  }
+
+  const shareRecipe = async () => {
+    toast.loading('Creating shareable link...', { id: 'share-loading' });
+    
+    try {
+      // Create shareable recipe
+      const res = await fetch(
+        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/share-recipe`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(recipe)
+        }
+      );
+      
+      if (!res.ok) {
+        throw new Error('Failed to create shareable link');
+      }
+      
+      const data = await res.json();
+      const shareUrl = `${window.location.origin}/recipe/share/${data.shareId}`;
+      const shareText = `I just made ${recipe?.title || 'an amazing dish'} 🍳\n\nCheck the full recipe here: ${shareUrl}`;
+      
+      toast.dismiss('share-loading');
+      
+      // Use Web Share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: recipe?.title || 'Amazing Recipe',
+          text: shareText,
+          url: shareUrl
+        });
+        toast.success('Recipe shared!', { duration: 2000 });
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Link copied to clipboard!', { duration: 3000 });
+      }
+    } catch (err) {
+      toast.dismiss('share-loading');
+      if (err.name !== 'AbortError') {
+        toast.error('Failed to share recipe', { duration: 3000 });
+      }
+    }
   }
 
   if (!recipe) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-orange-50 p-4 font-sans">
-        <div className="text-center bg-white p-10 rounded-3xl shadow-xl max-w-sm w-full border border-orange-100">
-          <div className="flex justify-center mb-4"><ChefHat size={56} className="text-orange-400" /></div>
-          <h2 className="text-2xl font-bold text-stone-800 mb-2">No recipe found</h2>
-          <p className="text-stone-600 mb-8 text-sm">Go back and select a recipe to cook.</p>
-          <button 
-            className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 px-6 rounded-2xl w-full transition-colors shadow-md flex items-center justify-center gap-2"
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4">
+        <div className="text-center bg-white border border-gray-200 rounded-xl p-6 max-w-sm w-full shadow-md">
+          <ChefHat size={40} className="text-orange-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">No recipe found</h2>
+          <p className="text-sm text-gray-600 mb-5">Go back and select a recipe to cook.</p>
+          <button
+            className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 w-full"
             onClick={() => navigate('/app')}
           >
             <ArrowLeft size={18} /> Back to recipes
@@ -92,48 +164,52 @@ const CookMode = () => {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 p-4 pt-24 font-sans">
-          <div className="bg-white text-center p-8 rounded-3xl shadow-2xl max-w-sm w-full border border-orange-100">
-            <div className="flex justify-center mb-4 animate-bounce"><Sparkles size={56} className="text-orange-400" /></div>
-            <h2 className="text-3xl font-extrabold text-stone-800 mb-3">You did it!</h2>
-            {/* FIX 2: Use recipe.title instead of recipe.name */}
-            <p className="text-stone-600 mb-6 leading-relaxed text-sm">
-              You just cooked <strong className="text-stone-800">{recipe.title}</strong>. How did it turn out?
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4 pt-24">
+          <div className="bg-white border border-orange-100 rounded-xl text-center p-8 max-w-sm w-full shadow-lg">
+            <Sparkles size={48} className="text-orange-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">You did it!</h2>
+            <p className="text-sm text-gray-600 mb-5 leading-relaxed">
+              You just cooked <strong className="text-gray-800">{recipe.title}</strong>. How did it turn out?
             </p>
-            
-            <div className="flex flex-col gap-3">
-              <button 
-                className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+
+            <div className="flex flex-col gap-2">
+              <button
+                className="px-5 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
                 onClick={shareOnWhatsApp}
               >
                 <Share2 size={18} /> Share on WhatsApp
               </button>
+              <button
+                className="px-5 py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+                onClick={shareRecipe}
+              >
+                <Share2 size={18} /> Share Recipe
+              </button>
             </div>
-            
+
             {recipe.calories && (
-              <div className="mt-6 inline-block bg-orange-50 text-orange-600 font-medium text-sm py-1.5 px-4 rounded-full border border-orange-100">
-                <Flame size={14} className="inline mr-1" /> {recipe.calories} calories per serving
+              <div className="mt-4 inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-sm py-1.5 px-3 rounded-lg">
+                <Flame size={14} /> {recipe.calories} calories per serving
               </div>
             )}
 
-            {/* What next section */}
-            <div className="mt-8 pt-6 border-t border-stone-100">
-              <p className="text-sm font-bold text-stone-700 mb-4">What next?</p>
-              <div className="flex flex-col gap-3">
-                <button 
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3.5 px-6 rounded-2xl transition-colors shadow-md"
+            <div className="mt-6 pt-5 border-t border-gray-100">
+              <p className="text-sm font-medium text-gray-700 mb-3">What next?</p>
+              <div className="flex flex-col gap-2">
+                <button
+                  className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
                   onClick={() => navigate('/app')}
                 >
                   <ChefHat size={18} /> Cook Another
                 </button>
-                <button 
-                  className="bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium py-3.5 px-6 rounded-2xl border border-stone-200 transition-colors"
+                <button
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition duration-200 flex items-center justify-center gap-2"
                   onClick={() => navigate('/recipes')}
                 >
                   <Utensils size={18} /> Explore Recipes
                 </button>
-                <button 
-                  className="bg-stone-50 hover:bg-stone-100 text-stone-700 font-medium py-3.5 px-6 rounded-2xl border border-stone-200 transition-colors"
+                <button
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition duration-200 flex items-center justify-center gap-2"
                   onClick={() => navigate('/meal-planner')}
                 >
                   <Salad size={18} /> Plan Meals
@@ -146,27 +222,25 @@ const CookMode = () => {
     )
   }
 
-  // FIX 3: Progress calculation — currentStep + 1 so step 1 of 5 shows 20%, not 0%
   const progress = ((currentStep + 1) / steps.length) * 100
 
   return (
-    <div className="min-h-screen bg-orange-50 py-6 font-sans">
-      <div className="max-w-2xl mx-auto p-4 space-y-4">
-        
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6">
+      <div className="max-w-2xl mx-auto px-4 space-y-4">
+
         {/* Header */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-stone-100 sticky top-4 z-10">
-          <button 
-            className="text-orange-500 font-medium text-sm hover:text-orange-600 transition-colors px-2 flex items-center gap-1"
+        <div className="flex justify-between items-center bg-white border border-gray-200 rounded-xl p-4 sticky top-4 z-10 shadow-md">
+          <button
+            className="text-orange-600 font-medium hover:text-orange-700 transition flex items-center gap-1"
             onClick={() => navigate(-1)}
           >
             <ArrowLeft size={16} /> Back
           </button>
-          {/* FIX 2: Use recipe.title instead of recipe.name */}
-          <div className="text-base font-semibold text-stone-800 max-w-[150px] sm:max-w-[250px] truncate">
+          <div className="text-sm font-semibold text-gray-800 max-w-[150px] sm:max-w-[250px] truncate">
             {recipe.title}
           </div>
-          <button 
-            className="border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-600 text-xs font-medium py-1.5 px-3 rounded-full transition-colors"
+          <button
+            className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-xs font-medium py-1.5 px-3 rounded-lg transition duration-200"
             onClick={() => setShowIngredients(!showIngredients)}
           >
             {showIngredients ? 'Hide' : 'Ingredients'}
@@ -174,52 +248,49 @@ const CookMode = () => {
         </div>
 
         {/* Progress bar */}
-        <div className="px-2 pt-2">
-          <div className="h-1.5 w-full bg-orange-200/50 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-orange-500 rounded-full transition-all duration-500 ease-out" 
-              style={{ width: `${progress}%` }} 
+        <div className="px-1">
+          <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="text-center text-xs font-medium text-stone-500 mt-2">
+          <div className="text-center text-xs text-gray-500 mt-1.5">
             Step {currentStep + 1} of {steps.length}
           </div>
         </div>
 
         {/* Ingredients panel */}
         {showIngredients && (
-          <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100 transition-all">
-            <h3 className="text-sm font-bold text-stone-800 mb-3 flex items-center gap-2">
-              <ShoppingCart size={16} className="text-orange-500" /> Ingredients needed
+          <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-md">
+            <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <ShoppingCart size={16} className="text-orange-600" /> Ingredients needed
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1.5">
               {ingredients.map((ing, i) => (
-                <li key={i} className="flex items-start gap-2 text-stone-600 text-sm">
-                  <span className="text-orange-500 font-bold mt-0.5">•</span>
-                  <span className="leading-relaxed">{ing}</span>
+                <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
+                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5 flex-shrink-0" />
+                  <span>{ing}</span>
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Step card (Main Focus) */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-orange-100 min-h-[200px] flex flex-col justify-center relative">
-          <div className="absolute top-6 left-6">
-            <span className="bg-orange-100 text-orange-600 text-xs font-bold py-1.5 px-3 rounded-full">
-              Step {currentStep + 1}
-            </span>
-          </div>
-          
-          <p className="text-lg sm:text-xl font-medium text-stone-800 leading-relaxed mt-8">
+        {/* Step card */}
+        <div className="bg-white border border-orange-100 rounded-xl p-5 min-h-[200px] flex flex-col justify-center relative shadow-md hover:shadow-lg transition duration-200">
+          <span className="absolute top-3 left-3 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-medium py-1 px-2.5 rounded-lg">
+            Step {currentStep + 1}
+          </span>
+
+          <p className="text-base font-medium text-gray-800 leading-relaxed mt-6">
             {steps[currentStep]}
           </p>
 
-          {/* Completed steps tags */}
           {completedSteps.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-6">
+            <div className="flex flex-wrap gap-2 mt-4">
               {completedSteps.map(i => (
-                <span key={i} className="bg-green-50 border border-green-100 text-green-700 text-xs font-medium py-1 px-2.5 rounded-full flex items-center gap-1">
+                <span key={i} className="bg-green-50 border border-green-200 text-green-700 text-xs font-medium py-1 px-2.5 rounded-lg flex items-center gap-1">
                   <Check size={12} /> Step {i + 1} done
                 </span>
               ))}
@@ -228,29 +299,29 @@ const CookMode = () => {
         </div>
 
         {/* Timer section */}
-        <div className="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
-          <h3 className="text-sm font-bold text-stone-700 mb-3 flex items-center gap-2">
-            <Timer size={16} className="text-orange-500" /> Need a timer?
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-md">
+          <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+            <Timer size={16} className="text-orange-600" /> Need a timer?
           </h3>
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-3">
             {[1, 2, 5, 10, 15].map(min => (
-              <button 
-                key={min} 
-                className="bg-orange-50 hover:bg-orange-100 border border-orange-200/50 text-orange-600 text-sm font-medium py-1.5 px-4 rounded-full transition-colors"
+              <button
+                key={min}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 px-4 rounded-lg transition duration-200 hover:scale-[1.02]"
                 onClick={() => startTimer(min)}
               >
                 {min}m
               </button>
             ))}
           </div>
-          
+
           {timeLeft > 0 && (
-            <div className="flex items-center gap-4 bg-stone-50 p-3 rounded-xl border border-stone-100">
-              <span className="text-3xl font-bold text-stone-800 tracking-tight font-mono w-24 text-center">
+            <div className="flex items-center gap-4 bg-orange-50 border border-orange-100 p-3 rounded-lg">
+              <span className="text-2xl font-bold text-gray-800 tracking-tight font-mono w-20 text-center">
                 {formatTime(timeLeft)}
               </span>
               <button
-                className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-5 rounded-full shadow-sm transition-colors flex-1"
+                className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex-1 flex items-center justify-center gap-2"
                 onClick={() => setTimerRunning(r => !r)}
               >
                 {timerRunning ? <><PauseCircle size={16} /> Pause</> : <><PlayCircle size={16} /> Resume</>}
@@ -260,40 +331,47 @@ const CookMode = () => {
         </div>
 
         {/* Navigation buttons */}
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3">
           <button
-            className={`flex-1 py-3.5 rounded-xl text-sm font-medium transition-all ${
-              currentStep === 0 
-                ? 'bg-stone-100 text-stone-400 cursor-not-allowed' 
-                : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 active:scale-95'
+            className={`flex-1 py-2.5 rounded-lg font-medium transition duration-200 flex items-center justify-center gap-2 ${
+              currentStep === 0
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-[1.01]'
             }`}
             onClick={handlePrev}
             disabled={currentStep === 0}
           >
             <ArrowLeft size={16} /> Prev
           </button>
-          <button 
-            className="flex-1 py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+          <button
+            className="flex-1 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
             onClick={handleNext}
           >
             {currentStep === steps.length - 1 ? <><Sparkles size={16} /> Done!</> : <>Next step <ArrowRight size={16} /></>}
           </button>
         </div>
 
-        {/* Step dots (Progress indicator) */}
-        <div className="flex justify-center gap-2 mt-4 pb-4">
+        {/* Step dots */}
+        <div className="flex justify-center gap-2 pb-4">
           {steps.map((_, i) => (
             <div
               key={i}
-              className={`w-2.5 h-2.5 rounded-full transition-colors duration-300 ${
+              className={`w-2 h-2 rounded-full transition-colors duration-300 ${
                 i === currentStep ? 'bg-orange-500'
                   : completedSteps.includes(i) ? 'bg-green-500'
-                  : 'bg-stone-300'
+                  : 'bg-gray-300'
               }`}
             />
           ))}
         </div>
       </div>
+      
+      <Toaster position="top-right" gutter={8} toastOptions={{
+        duration: 3000,
+        style: { background: '#fff', color: '#374151', fontWeight: '500', fontSize: '14px', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.07)', maxWidth: '380px' },
+        success: { iconTheme: { primary: '#f97316', secondary: '#ffffff' } },
+        error: { iconTheme: { primary: '#ef4444', secondary: '#ffffff' } },
+      }} />
     </div>
   )
 }

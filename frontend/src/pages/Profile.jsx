@@ -181,7 +181,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8 px-4 mt-20">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 mt-20">
       {/* Toast Notification */}
       {toast && (
         <Toast 
@@ -199,56 +199,33 @@ export default function Profile() {
         recipeName={confirmModal.recipeName}
       />
 
-      {/* Background decorative elements */}
-      <div className="fixed top-0 left-0 w-80 h-80 bg-gradient-to-br from-orange-300/10 to-amber-300/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-yellow-300/10 to-orange-300/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
-
-      {/* Floating elements */}
-      <div className="fixed top-20 right-20 w-4 h-4 bg-orange-400/40 rounded-full animate-float"></div>
-      <div 
-        className="fixed bottom-32 left-16 w-6 h-6 bg-amber-400/40 rounded-full animate-float"
-        style={{ animationDelay: "2s" }}
-      ></div>
-      <div 
-        className="fixed top-1/2 left-10 w-3 h-3 bg-yellow-400/40 rounded-full animate-float"
-        style={{ animationDelay: "1s" }}
-      ></div>
-
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl sm:text-6xl font-extrabold mb-4 drop-shadow-lg leading-tight">
-            <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
-              My Profile
-            </span>
-            <ChefHat size={40} className="text-orange-500 animate-bounce ml-3" />
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-semibold text-gray-800 mb-2 flex items-center justify-center gap-2">
+            <ChefHat size={32} className="text-orange-600" />
+            My Profile
           </h1>
-          <p className="text-xl text-orange-700/80 font-medium flex items-center justify-center gap-2">
-            <Sparkles size={18} className="text-amber-500" /> Welcome back, {user?.name}!
-          </p>
+          <p className="text-lg text-gray-600">Welcome back, {user?.name}!</p>
         </div>
 
         {/* Main Content Container */}
-        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-orange-200/50 group hover:shadow-3xl transition-all duration-500 overflow-hidden">
-          {/* Pattern overlay */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.03%22%3E%3Cpath d=%22m0 40l40-40h-40v40zm40 0v-40h-40l40 40z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
-          
-          <div className="relative z-10">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition duration-200 space-y-6">
             {/* Loading State */}
             {loading && (
               <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
-                <p className="text-xl text-orange-700 font-semibold">
-                  <Search size={20} className="inline mr-2" /> Loading your culinary collection...
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
+                <p className="text-lg font-medium text-orange-600 flex items-center justify-center gap-2">
+                  <Search size={18} /> Loading your culinary collection...
                 </p>
               </div>
             )}
 
             {/* Error State */}
             {error && (
-              <div className="p-6 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl mb-8">
-                <p className="text-red-700 font-semibold flex items-center gap-2 text-center justify-center">
-                  <XCircle size={18} /> {error}
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 font-medium flex items-center gap-2 text-center justify-center">
+                  <XCircle size={16} /> {error}
                 </p>
               </div>
             )}
@@ -257,68 +234,60 @@ export default function Profile() {
             {!loading && (
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-                    <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
-                      Your Saved Recipes
-                    </span>
-                    <BookOpen size={24} className="text-orange-500" />
-                    <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-200 to-transparent"></div>
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <BookOpen size={22} className="text-orange-600" />
+                    Your Saved Recipes
                   </h2>
 
                   {savedRecipes.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="flex justify-center mb-4"><Utensils size={56} className="text-orange-300" /></div>
-                      <p className="text-xl text-orange-600 font-medium flex items-center justify-center gap-2">
-                        <Sparkles size={18} /> No saved recipes yet. Start cooking up some magic!
+                    <div className="text-center py-12 bg-orange-50 border border-orange-100 rounded-lg">
+                      <Utensils size={48} className="text-orange-400 mx-auto mb-3" />
+                      <p className="text-lg font-medium text-orange-600">
+                        No saved recipes yet. Start cooking up some magic!
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {savedRecipes.map((recipe, idx) => (
                         <div 
                           key={recipe._id || idx} 
-                          className="relative bg-gradient-to-br from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200/50 shadow-sm hover:shadow-xl transition-all duration-300 group/card overflow-hidden"
+                          className="bg-white border border-orange-100 rounded-xl p-4 shadow-sm hover:shadow-md transition duration-200 hover:scale-[1.01]"
                         >
-                          {/* Card pattern overlay */}
-                          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2220%22 height=%2220%22 viewBox=%220 0 20 20%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.02%22%3E%3Cpath d=%22m0 20l20-20h-20v20zm20 0v-20h-20l20 20z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
-                          
-                          <div className="relative z-10">
-                            <div className="flex items-start justify-between mb-3">
-                              <h3 className="font-bold text-amber-700 text-lg group-hover/card:text-amber-800 transition-colors">
-                                {recipe.title}
-                              </h3>
-                              <ChefHat size={22} className="text-amber-500" />
-                            </div>
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className="font-semibold text-gray-800 text-base">
+                              {recipe.title}
+                            </h3>
+                            <ChefHat size={20} className="text-orange-600 flex-shrink-0" />
+                          </div>
 
-                            <div className="flex items-center gap-4 mb-4">
-                              <div className="flex items-center gap-1 bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
-                                <ClipboardList size={12} className="text-amber-600" />
-                                <span className="text-sm font-medium text-amber-700">
-                                  {recipe.cookingSteps?.length ? `${recipe.cookingSteps.length} steps` : "No steps"}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 bg-white/70 px-3 py-1 rounded-full border border-amber-200/50">
-                                <Timer size={12} className="text-amber-600" />
-                                <span className="text-sm font-medium text-amber-700">
-                                  {recipe.estimatedTime ? `${recipe.estimatedTime} min` : "Time N/A"}
-                                </span>
-                              </div>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg">
+                              <ClipboardList size={12} className="text-gray-600" />
+                              <span className="text-xs font-medium text-gray-700">
+                                {recipe.cookingSteps?.length ? `${recipe.cookingSteps.length} steps` : "No steps"}
+                              </span>
                             </div>
+                            <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg">
+                              <Timer size={12} className="text-gray-600" />
+                              <span className="text-xs font-medium text-gray-700">
+                                {recipe.estimatedTime ? `${recipe.estimatedTime} min` : "Time N/A"}
+                              </span>
+                            </div>
+                          </div>
 
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => navigate(`/ai-recipe/${recipe._id}`)}
-                                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-                              >
-                                <Eye size={14} /> View Details
-                              </button>
-                              <button
-                                onClick={() => openConfirmModal(recipe._id, recipe.title)}
-                                className="bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => navigate(`/ai-recipe/${recipe._id}`)}
+                              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-3 rounded-lg transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-1.5"
+                            >
+                              <Eye size={14} /> View
+                            </button>
+                            <button
+                              onClick={() => openConfirmModal(recipe._id, recipe.title)}
+                              className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-3 rounded-lg transition duration-200 hover:scale-[1.02] flex items-center justify-center"
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -328,32 +297,25 @@ export default function Profile() {
 
                 {/* Saved Meal Plans Section */}
                 <div>
-                  <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-                    <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
-                      Your Saved Meal Plans
-                    </span>
-                    <Calendar size={24} className="text-orange-500" />
-                    <div className="flex-1 h-0.5 bg-gradient-to-r from-orange-200 to-transparent"></div>
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <Calendar size={22} className="text-orange-600" />
+                    Your Saved Meal Plans
                   </h2>
 
                   {savedMealPlans.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="flex justify-center mb-4"><ClipboardList size={56} className="text-orange-300" /></div>
-                      <p className="text-xl text-orange-600 font-medium flex items-center justify-center gap-2">
-                        <Calendar size={18} /> No saved meal plans yet. Plan your perfect week!
+                    <div className="text-center py-12 bg-orange-50 border border-orange-100 rounded-lg">
+                      <ClipboardList size={48} className="text-orange-400 mx-auto mb-3" />
+                      <p className="text-lg font-medium text-orange-600">
+                        No saved meal plans yet. Plan your perfect week!
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                       {savedMealPlans.map((plan, idx) => (
                         <div 
                           key={idx} 
-                          className="relative bg-gradient-to-br from-amber-50/80 to-yellow-50/80 backdrop-blur-sm rounded-2xl p-6 border border-amber-200/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                          className="bg-white border border-orange-100 rounded-xl p-5 shadow-sm hover:shadow-md transition"
                         >
-                          {/* Pattern overlay */}
-                          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2220%22 height=%2220%22 viewBox=%220 0 20 20%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.02%22%3E%3Cpath d=%22m0 20l20-20h-20v20zm20 0v-20h-20l20 20z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
-                          
-                          <div className="relative z-10">
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center text-white font-bold">
@@ -439,7 +401,6 @@ export default function Profile() {
                                 </div>
                               ))}
                             </div>
-                          </div>
                         </div>
                       ))}
                     </div>
@@ -450,28 +411,19 @@ export default function Profile() {
 
             {/* Logout Button */}
             {!loading && (
-              <div className="text-center mt-12 pt-8 border-t border-orange-200/50">
+              <div className="text-center mt-8 pt-6 border-t border-gray-200">
                 <button
                   onClick={handleLogout}
-                  className="bg-gradient-to-r from-red-500 via-pink-500 to-red-500 hover:from-red-600 hover:via-pink-600 hover:to-red-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 text-lg flex items-center justify-center gap-3 mx-auto"
+                  className="px-5 py-2.5 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 mx-auto"
                 >
-                  <LogOut size={20} /> Logout
+                  <LogOut size={18} /> Logout
                 </button>
               </div>
             )}
-          </div>
         </div>
       </div>
 
       <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-15px) rotate(180deg);
-          }
-        }
         @keyframes slide-in {
           from {
             transform: translateX(100%) translateY(-50px);
@@ -499,9 +451,6 @@ export default function Profile() {
             transform: scale(1);
             opacity: 1;
           }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
         }
         .animate-slide-in {
           animation: slide-in 0.4s ease-out forwards;

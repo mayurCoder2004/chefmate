@@ -1,74 +1,52 @@
 import React from 'react'
-import { sharedStyles } from './landingStyles'
+import { Home, Briefcase, GraduationCap, Moon } from 'lucide-react'
 
 const whoCards = [
   {
-    Icon: '🏠',
+    icon: Home,
     title: 'PG & hostel residents',
     desc: 'One burner, shared kitchen, random leftovers. ChefMate works with exactly what you have.',
   },
   {
-    Icon: '💼',
+    icon: Briefcase,
     title: 'Working professionals',
     desc: 'Too tired to think about dinner. Open ChefMate, tap 4 things, eat in 15 minutes.',
   },
   {
-    Icon: '🎓',
+    icon: GraduationCap,
     title: 'College students',
     desc: "Budget is tight. Swiggy adds up. Cook real food for ₹20–40 with what's already in your room.",
   },
   {
-    Icon: '🌙',
+    icon: Moon,
     title: 'Late night hunger',
     desc: "Nothing's open, you have eggs and bread. ChefMate turns that into something decent in 10 minutes.",
   },
 ]
 
-const styles = {
-  forWhoSection: { background: '#2C1810', padding: '80px 5%' },
-  forWhoInner: { maxWidth: 1100, margin: '0 auto' },
-  sectionHead: { textAlign: 'center', marginBottom: 0 },
-  sectionLabel: {
-    ...sharedStyles.sectionLabel,
-    background: 'rgba(232,82,26,0.2)',
-    color: '#FF7043',
-  },
-  sectionTitle: { ...sharedStyles.sectionTitle, color: '#fff' },
-  whoGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2,1fr)',
-    gap: 14,
-    marginTop: 40,
-  },
-  whoCard: {
-    background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 16,
-    padding: '18px 20px',
-    display: 'flex',
-    gap: 14,
-    alignItems: 'flex-start',
-  },
-  whoIcon: { flexShrink: 0, color: '#FF7043', display: 'flex', alignItems: 'center' },
-  whoTitle: { fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 4 },
-  whoDesc: { fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 },
-}
-
 const ForWho = () => (
-  <section style={styles.forWhoSection}>
-    <div style={styles.forWhoInner}>
-      <div style={styles.sectionHead}>
-        <div style={styles.sectionLabel}>Who it's for</div>
-        <div style={styles.sectionTitle}>Built for real Indian kitchen situations</div>
+  <section className="py-16 px-4 bg-gray-800">
+    <div className="max-w-4xl mx-auto">
+      {/* Section header */}
+      <div className="text-center mb-10">
+        <span className="inline-block text-xs font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-full mb-3">
+          Who it's for
+        </span>
+        <h2 className="text-xl font-semibold text-white">
+          Built for real Indian kitchen situations
+        </h2>
       </div>
 
-      <div style={styles.whoGrid} className="who-grid">
-        {whoCards.map(w => (
-          <div key={w.title} style={styles.whoCard}>
-            <div style={styles.whoIcon}>{w.Icon}</div>
+      {/* Cards grid */}
+      <div className="grid sm:grid-cols-2 gap-3">
+        {whoCards.map((w) => (
+          <div key={w.title} className="flex gap-3 bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="flex-shrink-0 mt-0.5">
+              <w.icon size={18} className="text-orange-400" />
+            </div>
             <div>
-              <div style={styles.whoTitle}>{w.title}</div>
-              <div style={styles.whoDesc}>{w.desc}</div>
+              <h3 className="text-sm font-semibold text-white mb-1">{w.title}</h3>
+              <p className="text-xs text-gray-400 leading-relaxed">{w.desc}</p>
             </div>
           </div>
         ))}

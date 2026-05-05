@@ -8,6 +8,7 @@ import PrivateRoute from './components/PrivateRoute'
 import RecipePage from './pages/RecipePage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import ErrorPage from './pages/ErrorPage'
 import Recipes from './pages/Recipe'
 import SmartRecipe from './pages/SmartRecipe'
@@ -15,6 +16,7 @@ import AiRecipePage from './pages/AiRecipePage'
 import MealPlanner from './pages/MealPlanner'
 import CookMode from './pages/CookMode'
 import More from './pages/More'
+import SharedRecipe from './pages/SharedRecipe'
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
@@ -23,6 +25,7 @@ const App = () => {
 
   return (
     <>
+    <ScrollToTop />
     {!hideChrome && <Navbar />}
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -39,6 +42,7 @@ const App = () => {
             }
           />
       <Route path="/recipe/:id" element={<RecipePage />} />
+      <Route path="/recipe/share/:id" element={<SharedRecipe />} />
       <Route path='/recipes' element={<Recipes />} />
       <Route path="/app" element={<SmartRecipe />} />
       <Route path="/ai-recipe/:id" element={<AiRecipePage />} />

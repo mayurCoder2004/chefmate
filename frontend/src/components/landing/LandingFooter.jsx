@@ -1,26 +1,9 @@
 import React from 'react'
 
-const styles = {
-  footer: {
-    background: '#2C1810',
-    padding: '28px 5%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  footerLogo: {
-    fontFamily: "'Syne', sans-serif",
-    fontSize: 18,
-    fontWeight: 800,
-    color: '#E8521A',
-  },
-  footerCopy: { fontSize: 12, color: 'rgba(255,255,255,0.35)' },
-}
-
 const LandingFooter = () => (
-  <footer style={styles.footer} className="footer-inner">
-    <div style={styles.footerLogo}>ChefMate</div>
-    <div style={styles.footerCopy}>Built with ❤️ by Mayur Pawar</div>
+  <footer className="bg-gray-900 px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+    <div className="text-base font-semibold text-orange-500">ChefMate</div>
+    <div className="text-xs text-gray-500">Built with ❤️ by Mayur Pawar</div>
   </footer>
 )
 

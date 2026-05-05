@@ -126,8 +126,9 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // ------------------------
 // 1️⃣ Generate AI Meal Plan — one day at a time, sequentially
+// Made public - authentication optional
 // ------------------------
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", async (req, res) => {
   const parsed = MealPlanBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Invalid input', details: parsed.error.flatten() });
 

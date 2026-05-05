@@ -74,10 +74,10 @@ export default function RecipePage() {
 
   if (!recipe) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mb-4"></div>
-          <p className="text-xl text-orange-700 font-semibold">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-orange-50 border border-orange-100 p-6 rounded-lg text-center max-w-sm">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mb-4"></div>
+          <p className="text-lg font-medium text-orange-600">
             Loading delicious recipe...
           </p>
         </div>
@@ -91,61 +91,36 @@ export default function RecipePage() {
   ).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8 px-4 mt-20">
-      {/* Background decorative elements */}
-      <div className="fixed top-0 left-0 w-80 h-80 bg-gradient-to-br from-orange-300/10 to-amber-300/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-yellow-300/10 to-orange-300/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
-
-      {/* Floating elements */}
-      <div className="fixed top-20 right-20 w-4 h-4 bg-orange-400/40 rounded-full animate-float"></div>
-      <div
-        className="fixed bottom-32 left-16 w-6 h-6 bg-amber-400/40 rounded-full animate-float"
-        style={{ animationDelay: "2s" }}
-      ></div>
-      <div
-        className="fixed top-1/2 left-10 w-3 h-3 bg-yellow-400/40 rounded-full animate-float"
-        style={{ animationDelay: "1s" }}
-      ></div>
-
-      <div className="max-w-4xl mx-auto relative z-10">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 mt-20">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header Section */}
-        <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 mb-8 shadow-2xl border border-orange-200/50 overflow-hidden group hover:shadow-3xl transition-all duration-500">
-          {/* Pattern overlay */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22%23f97316%22 fill-opacity=%220.03%22%3E%3Cpath d=%22m0 40l40-40h-40v40zm40 0v-40h-40l40 40z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
-
-          <div className="relative z-10 flex flex-col lg:flex-row gap-8 items-start">
+        <div className="bg-white border border-orange-100 rounded-xl p-6 shadow-md hover:shadow-lg transition duration-200">
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
             {/* Image Section */}
-            <div className="lg:w-1/2 group/image">
-              <div className="relative transform transition-all duration-500 group-hover:scale-105">
-                {/* Image glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-3xl blur-2xl opacity-0 group-hover/image:opacity-20 transition-opacity duration-500"></div>
-
-                <img
-                  src={recipe.strMealThumb}
-                  alt={recipe.strMeal}
-                  className="relative w-full rounded-3xl shadow-2xl border-2 border-orange-200/50 object-cover transform transition-all duration-500 group-hover/image:shadow-3xl group-hover/image:border-orange-300/70"
-                />
-              </div>
+            <div className="lg:w-1/2">
+              <img
+                src={recipe.strMealThumb}
+                alt={recipe.strMeal}
+                className="w-full rounded-xl shadow-sm object-cover"
+              />
             </div>
 
             {/* Title and Details */}
-            <div className="lg:w-1/2 space-y-6">
-              <h1 className="text-4xl lg:text-5xl font-extrabold drop-shadow-lg leading-tight">
-                <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
-                  {recipe.strMeal}
-                </span>
-                <Utensils size={30} className="text-orange-500 animate-bounce" />
+            <div className="lg:w-1/2 space-y-5">
+              <h1 className="text-3xl lg:text-4xl font-semibold text-gray-800 leading-tight flex items-center gap-2">
+                {recipe.strMeal}
+                <Utensils size={28} className="text-orange-600" />
               </h1>
 
               {/* Tags */}
-              <div className="flex flex-wrap gap-3">
-                <div className="flex items-center gap-2 bg-orange-100/80 backdrop-blur-sm text-orange-700 px-4 py-2 rounded-full text-sm font-semibold shadow-sm border border-orange-200/50">
+              <div className="flex flex-wrap gap-2">
+                <div className="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-2 rounded-lg text-sm font-medium">
                   {recipe.strCategory}
                 </div>
-                <div className="flex items-center gap-2 bg-amber-100/80 backdrop-blur-sm text-amber-700 px-4 py-2 rounded-full text-sm font-semibold shadow-sm border border-amber-200/50">
+                <div className="bg-gray-100 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                   {recipe.strArea}
                 </div>
-                <div className="flex items-center gap-2 bg-yellow-100/80 backdrop-blur-sm text-yellow-700 px-4 py-2 rounded-full text-sm font-semibold shadow-sm border border-yellow-200/50">
+                <div className="bg-gray-100 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
                   {ingredients.length * 5} min
                 </div>
               </div>
@@ -154,40 +129,38 @@ export default function RecipePage() {
               <button
                 onClick={handleSaveRecipe}
                 disabled={saving}
-                className={`group/btn relative bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden ${
+                className={`px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex items-center gap-2 ${
                   saving ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
-                <span className="relative z-10 flex items-center gap-3">
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Saving Recipe...
-                    </>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <Bookmark size={18} /> Save Recipe
-                    </span>
-                  )}
-                </span>
+                {saving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Saving Recipe...
+                  </>
+                ) : (
+                  <>
+                    <Bookmark size={18} /> Save Recipe
+                  </>
+                )}
               </button>
             </div>
           </div>
         </div>
 
         {/* Ingredients & Instructions */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-6">
           {/* Ingredients Section */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold mb-6 text-orange-600">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition duration-200">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Ingredients
             </h2>
             <ul className="space-y-2">
               {ingredients.map((ingredient, index) => (
-                <li key={index}>
-                  <span className="font-semibold">{ingredient}</span>{" "}
+                <li key={index} className="text-gray-700">
+                  <span className="font-medium text-orange-600">{ingredient}</span>{" "}
                   {recipe[`strMeasure${index + 1}`] && (
-                    <span>- {recipe[`strMeasure${index + 1}`]}</span>
+                    <span className="text-gray-600">- {recipe[`strMeasure${index + 1}`]}</span>
                   )}
                 </li>
               ))}
@@ -195,31 +168,16 @@ export default function RecipePage() {
           </div>
 
           {/* Instructions Section */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold mb-6 text-amber-600">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition duration-200">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Instructions
             </h2>
-            <p className="text-gray-700 whitespace-pre-line">
+            <p className="text-gray-700 whitespace-pre-line leading-relaxed">
               {recipe.strInstructions}
             </p>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-15px) rotate(180deg);
-          }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }

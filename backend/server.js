@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import recipeRoutes from "./routes/recipeRoutes.js";
 import mealPlanRoutes from "./routes/mealPlanRoutes.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
+import shareRoutes from "./routes/shareRoutes.js";
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "./services/openRouterService.js";
 
@@ -31,6 +32,9 @@ app.use("/api/recipes", recipeRoutes);
 // Meal Plan Routes
 app.use("/api/meal-plan", mealPlanRoutes);
 app.use("/api/recipe", aiRecipeRoutes);
+
+// Share Routes
+app.use("/api", shareRoutes);
 
 // ------------------------
 // Smart Recipe Route (OpenRouter - Mistral)
