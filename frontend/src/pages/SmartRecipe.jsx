@@ -97,6 +97,12 @@ export default function SmartRecipe() {
       );
       let data;
       try { data = await res.json(); } catch { throw new Error('Server returned invalid JSON'); }
+      
+      // Handle rate limiting
+      if (res.status === 429) {
+        throw new Error('Too many requests. Please wait a bit and try again.');
+      }
+      
       if (!res.ok) throw new Error(data.error || 'Failed');
       const normalized = normalizeRecipePayload(data);
       if (!normalized) throw new Error('Recipe payload is invalid');

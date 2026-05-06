@@ -38,6 +38,12 @@ export default function MealPlanner() {
       });
 
       const data = await res.json();
+      
+      // Handle rate limiting
+      if (res.status === 429) {
+        throw new Error('Too many requests. Please wait a bit and try again.');
+      }
+      
       if (!res.ok) throw new Error(data.error || data.message || "Failed to fetch meal plan");
 
       setMealPlan(data.mealPlan);
