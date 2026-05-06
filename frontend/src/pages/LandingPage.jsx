@@ -5,7 +5,6 @@ import LandingHero from '../components/landing/LandingHero'
 import HowItWorks from '../components/landing/HowItWorks'
 import ForWho from '../components/landing/ForWho'
 import LandingCTA from '../components/landing/LandingCTA'
-import LandingFooter from '../components/landing/LandingFooter'
 
 const pageStyles = {
   background: '#FDF6EE',
@@ -37,7 +36,6 @@ const LandingPage = () => {
       <HowItWorks />
       <ForWho />
       <LandingCTA />
-      <LandingFooter />
     </div>
   )
 }

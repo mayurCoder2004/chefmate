@@ -7,7 +7,7 @@ import Profile from './pages/Profile'
 import PrivateRoute from './components/PrivateRoute'
 import RecipePage from './pages/RecipePage'
 import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+import LandingFooter from './components/landing/LandingFooter'
 import ScrollToTop from './components/ScrollToTop'
 import ErrorPage from './pages/ErrorPage'
 import Recipes from './pages/Recipe'
@@ -64,7 +64,7 @@ const App = () => {
       {/* Catch-all route for 404 */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
-    {!hideChrome && <Footer />}
+    <LandingFooter />
     <Toaster
         position="top-right"
         reverseOrder={false}
