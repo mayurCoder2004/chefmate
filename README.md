@@ -70,31 +70,6 @@
 - **Optimized Performance**: Fast load times and efficient data fetching
 - **Environment Variables**: Secure configuration management
 
----
-
-## 🎬 Demo
-
-### Landing Page
-Beautiful, modern landing page with smooth animations and clear value proposition.
-
-### Smart Recipe Generation
-1. Select ingredients from predefined list or add custom ones
-2. Set dietary preferences and time constraints
-3. AI generates a complete recipe with ingredients, steps, and health benefits
-4. Save, share, or start cooking immediately
-
-### Meal Planner
-1. Choose number of days (1-14)
-2. Set dietary preferences and calorie targets
-3. AI generates complete meal plans with breakfast, lunch, dinner
-4. Save plans to your profile for easy access
-
-### Cook Mode
-- Step-by-step cooking interface
-- Built-in timers (1, 2, 5, 10, 15 minutes)
-- Progress tracking with visual indicators
-- Ingredient list always accessible
-- Share your finished dish on WhatsApp
 
 ---
 
