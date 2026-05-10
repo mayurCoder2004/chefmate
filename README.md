@@ -539,13 +539,11 @@ Response: 200 OK
 ```
 
 ### Rate Limiting
-_________________________________________
-|User Type      |Limit       |	Window  |
------------------------------------------ 
-|Guest	        |3 requests  | 24 hours |
------------------------------------------
-|Registered User|	15 requests| 24 hours |
------------------------------------------
+| User Type       |       Limit | Window   |
+| --------------- | ----------: | -------- |
+| Guest           |  3 requests | 24 hours |
+| Registered User | 15 requests | 24 hours |
+
 
 ---
 
