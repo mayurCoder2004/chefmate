@@ -539,12 +539,13 @@ Response: 200 OK
 ```
 
 ### Rate Limiting
-
-| Endpoint | Limit | Window |
-|----------|-------|--------|
-| `/api/smart-recipe` | 15 requests | 15 minutes |
-| `/api/meal-plan` | 10 requests | 15 minutes |
-| `/api/recipe` (AI) | 20 requests | 15 minutes |
+_________________________________________
+|User Type      |Limit       |	Window  |
+----------------------------------------- 
+|Guest	        |3 requests  | 24 hours |
+-----------------------------------------
+|Registered User|	15 requests| 24 hours |
+-----------------------------------------
 
 ---
 
