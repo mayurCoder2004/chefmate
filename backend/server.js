@@ -10,6 +10,13 @@ import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
 import shareRoutes from "./routes/shareRoutes.js";
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "./services/openRouterService.js";
+import {
+  recipeLimiter,
+  mealPlanLimiter,
+  smartRecipeLimiter
+} from "./middlewares/rateLimit.js";
+import { authOptional } from "./middlewares/auth.js";
+
 
 dotenv.config();
 
@@ -18,43 +25,6 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
-
-// ------------------------
-// Rate Limiting Configuration
-// ------------------------
-// AI Recipe Generation Limiter - 20 requests per 15 minutes per IP
-const aiRecipeLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // limit each IP to 20 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: {
-    error: "Too many recipe requests. Please try again later."
-  }
-});
-
-// Meal Plan Generation Limiter - 10 requests per 15 minutes per IP (more expensive)
-const mealPlanLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // limit each IP to 10 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: "Too many meal plan requests. Please try again later."
-  }
-});
-
-// Smart Recipe Limiter - 15 requests per 15 minutes per IP
-const smartRecipeLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 15, // limit each IP to 15 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: "Too many smart recipe requests. Please try again later."
-  }
-});
-
 // ------------------------
 // Routes
 // ------------------------
@@ -67,10 +37,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
 
 // Meal Plan Routes (with rate limiting for AI generation)
-app.use("/api/meal-plan", mealPlanLimiter, mealPlanRoutes);
+app.use("/api/meal-plan", mealPlanRoutes);
 
 // AI Recipe Routes (with rate limiting)
-app.use("/api/recipe", aiRecipeLimiter, aiRecipeRoutes);
+app.use("/api/recipe", aiRecipeRoutes);
 
 // Share Routes
 app.use("/api", shareRoutes);
@@ -320,7 +290,7 @@ function extractStructuredJSONFromChoice(choice) {
   return bestScore > 0 ? bestCandidate : null;
 }
 
-app.post('/api/smart-recipe', smartRecipeLimiter, async (req, res) => {
+app.post('/api/smart-recipe',authOptional, smartRecipeLimiter, async (req, res) => {
   const parsed = IngredientsBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Invalid input', details: parsed.error.flatten() });
 

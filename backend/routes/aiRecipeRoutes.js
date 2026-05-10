@@ -1,6 +1,10 @@
 import express from "express";
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "../services/openRouterService.js";
+import { recipeLimiter } from "../middlewares/rateLimit.js";
+import { authOptional } from "../middlewares/auth.js";
+
+
 
 const router = express.Router();
 
@@ -65,7 +69,7 @@ function isValidRecipe(obj) {
   return true;
 }
 
-router.post("/", async (req, res) => {
+router.post("/",authOptional,recipeLimiter, async (req, res) => {
   const parsed = RecipeBody.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });

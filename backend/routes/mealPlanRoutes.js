@@ -3,6 +3,8 @@ import { verifyToken } from "../middlewares/auth.js";
 import User from "../models/User.js";
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "../services/openRouterService.js";
+import { mealPlanLimiter } from "../middlewares/rateLimit.js";
+import { authOptional } from "../middlewares/auth.js";
 
 const router = express.Router();
 
@@ -128,7 +130,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 // 1️⃣ Generate AI Meal Plan — one day at a time, sequentially
 // Made public - authentication optional
 // ------------------------
-router.post("/", async (req, res) => {
+router.post("/",authOptional,mealPlanLimiter, async (req, res) => {
   const parsed = MealPlanBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Invalid input', details: parsed.error.flatten() });
 
