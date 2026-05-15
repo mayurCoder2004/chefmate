@@ -17,9 +17,19 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/auth/signup`, form);
-      login(res.data.user, res.data.token);
-      navigate("/profile");
+          const res = await axios.post("/api/auth/signup", form);
+          const userId = res.data.user.id;
+
+          login(res.data.user, res.data.token);
+
+          // Initialize authenticated usage
+          localStorage.setItem(`chefmate_usage_${userId}`, "0");
+          localStorage.setItem(
+            `chefmate_usage_date_${userId}`,
+            new Date().toDateString()
+          );
+
+          navigate("/profile");
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
