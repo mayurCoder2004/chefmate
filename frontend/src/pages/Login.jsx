@@ -17,7 +17,20 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/auth/login`, form);
+      const res = await axios.post("/api/auth/login", form);
+      const userId = res.data.user.id;
+      const today = new Date().toDateString();
+
+      const dateKey = `chefmate_usage_date_${userId}`;
+      const usageKey = `chefmate_usage_${userId}`;
+
+      const savedDate = localStorage.getItem(dateKey);
+
+      if (savedDate !== today) {
+        localStorage.setItem(usageKey, "0");
+        localStorage.setItem(dateKey, today);
+      }
+
       login(res.data.user, res.data.token);
       navigate("/profile");
     } catch (err) {
