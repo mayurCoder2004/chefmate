@@ -1,24 +1,88 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   ChefHat, Search, RotateCcw, Salad, Timer, Share2, Bookmark,
   Utensils, Leaf, ShoppingCart, Package, Users, FileText,
-  Heart, XCircle, Check
+  Heart, XCircle, Check, ChevronDown, ChevronUp, Wheat, Carrot,
+  Milk, Flame, Drumstick, Soup
 } from 'lucide-react';
+import { AuthContext } from '../contexts/AuthContext';
+import { authenticatedFetch, apiFetch } from '../utils/apiClient';
 
-const PREDEFINED_INGREDIENTS = [
-  "onion","tomato","potato","green chili","garlic","ginger",
-  "rice","atta","roti","bread","maggi","poha",
-  "egg","paneer","milk","curd",
-  "salt","turmeric","red chili powder","garam masala",
-  "oil","butter","ghee",
-  "ketchup","peanut butter"
-];
+const CATEGORIZED_INGREDIENTS = {
+  "Grains & Bread": {
+    icon: Wheat,
+    items: [
+      "chawal",
+      "aata",
+      "bread",
+      "poha",
+      "oats",
+      "maggi",
+      "suji",
+      "roti"
+    ]
+  },
+  "Vegetables": {
+    icon: Carrot,
+    items: [
+      "onion",
+      "tomato",
+      "potato",
+      "green chili",
+      "garlic",
+      "ginger"
+    ]
+  },
+  "Dairy & Eggs": {
+    icon: Milk,
+    items: [
+      "egg",
+      "milk",
+      "curd",
+      "paneer",
+      "butter",
+      "ghee"
+    ]
+  },
+  "Spices": {
+    icon: Flame,
+    items: [
+      "salt",
+      "turmeric",
+      "jeera",
+      "garam masala",
+      "red chili powder"
+    ]
+  },
+  "Protein & Dal": {
+    icon: Drumstick,
+    items: [
+      "dal",
+      "besan",
+      "chicken"
+    ]
+  },
+  "Extras": {
+    icon: Soup,
+    items: [
+      "oil",
+      "ketchup",
+      "peanut butter",
+      "lemon",
+      "maggi masala"
+    ]
+  }
+};
+
+// Flatten for custom chip detection
+const PREDEFINED_INGREDIENTS = Object.values(CATEGORIZED_INGREDIENTS).flatMap(cat => cat.items);
 
 export default function SmartRecipe() {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const [customInput, setCustomInput] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [diet, setDiet] = useState('none');
@@ -30,9 +94,47 @@ export default function SmartRecipe() {
   const recipeRef = useRef(null);
   const ingredients = selectedIngredients;
 
+  // Accordion state - all categories expanded by default
+  const [expandedCategories, setExpandedCategories] = useState(
+    Object.keys(CATEGORIZED_INGREDIENTS).reduce((acc, category) => {
+      acc[category] = true;
+      return acc;
+    }, {})
+  );
+
+  // Daily usage tracking
+  const [dailyUsage, setDailyUsage] = useState(0);
+  const [hasGeneratedRecipe, setHasGeneratedRecipe] = useState(false);
+  const MAX_DAILY_RECIPES = 3;
+
+  // Initialize daily usage from localStorage
+  useEffect(() => {
+    const today = new Date().toDateString();
+    const storedDate = localStorage.getItem('chefmate_usage_date');
+    const storedUsage = parseInt(localStorage.getItem('chefmate_daily_usage') || '0', 10);
+
+    if (storedDate === today) {
+      setDailyUsage(storedUsage);
+      setHasGeneratedRecipe(storedUsage > 0);
+    } else {
+      // Reset usage for new day
+      localStorage.setItem('chefmate_usage_date', today);
+      localStorage.setItem('chefmate_daily_usage', '0');
+      setDailyUsage(0);
+      setHasGeneratedRecipe(false);
+    }
+  }, []);
+
+  const toggleCategory = (category) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
   const canSubmit = useMemo(
-    () => selectedIngredients.length > 0 && !loading,
-    [selectedIngredients, loading]
+    () => selectedIngredients.length > 0 && !loading && dailyUsage < MAX_DAILY_RECIPES,
+    [selectedIngredients, loading, dailyUsage]
   );
 
   function toArray(value) {
@@ -107,6 +209,13 @@ export default function SmartRecipe() {
       const normalized = normalizeRecipePayload(data);
       if (!normalized) throw new Error('Recipe payload is invalid');
       setRecipe(normalized);
+      
+      // Update daily usage
+      const newUsage = dailyUsage + 1;
+      setDailyUsage(newUsage);
+      setHasGeneratedRecipe(true);
+      localStorage.setItem('chefmate_daily_usage', String(newUsage));
+      
       toast.dismiss('recipe-loading');
       toast.success('Perfect recipe created!', { duration: 3000 });
       setTimeout(() => { recipeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
@@ -126,10 +235,11 @@ export default function SmartRecipe() {
       if (!token) throw new Error('Please login first to save recipes');
       
       // Check if recipe already exists
-      const checkRes = await fetch(
-        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/recipes/saved`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const checkRes = await authenticatedFetch('/api/recipes/saved', {}, () => {
+        logout();
+        navigate('/login');
+      });
+      
       const checkData = await checkRes.json();
       
       if (checkRes.ok && checkData.savedRecipes) {
@@ -145,11 +255,14 @@ export default function SmartRecipe() {
         }
       }
       
-      const res = await fetch(
-        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/recipes/save`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(recipe) }
-      );
+      const res = await authenticatedFetch('/api/recipes/save', {
+        method: 'POST',
+        body: JSON.stringify(recipe)
+      }, () => {
+        logout();
+        navigate('/login');
+      });
+      
       let data;
       try { data = await res.json(); } catch { throw new Error('Server returned invalid JSON'); }
       if (!res.ok) throw new Error(data.error || 'Failed to save recipe');
@@ -157,7 +270,12 @@ export default function SmartRecipe() {
       toast.success('Saved! You can cook this anytime', { duration: 3000 });
     } catch (err) {
       toast.dismiss('recipe-saving');
-      toast.error(`Failed to save recipe: ${err.message}`, { duration: 4000 });
+      if (err.message === 'Session expired. Please login again.') {
+        toast.error('Session expired. Please login again.', { duration: 4000 });
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast.error(`Failed to save recipe: ${err.message}`, { duration: 4000 });
+      }
     } finally { setSaving(false); }
   }
 
@@ -168,14 +286,10 @@ export default function SmartRecipe() {
     
     try {
       // Create shareable recipe
-      const res = await fetch(
-        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/share-recipe`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(recipe)
-        }
-      );
+      const res = await apiFetch('/api/share-recipe', {
+        method: 'POST',
+        body: JSON.stringify(recipe)
+      });
       
       if (!res.ok) {
         throw new Error('Failed to create shareable link');
@@ -215,14 +329,10 @@ export default function SmartRecipe() {
     
     try {
       // Create shareable recipe
-      const res = await fetch(
-        `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/share-recipe`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(recipe)
-        }
-      );
+      const res = await apiFetch('/api/share-recipe', {
+        method: 'POST',
+        body: JSON.stringify(recipe)
+      });
       
       if (!res.ok) {
         throw new Error('Failed to create shareable link');
@@ -261,25 +371,57 @@ export default function SmartRecipe() {
         {/* Input card */}
         <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5 shadow-sm hover:shadow-md transition duration-200">
 
-          {/* Predefined chips */}
+          {/* Categorized ingredient chips */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
               <Leaf size={16} className="text-green-600" /> Pick Your Ingredients
             </label>
-            <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto pr-1">
-              {PREDEFINED_INGREDIENTS.map((name) => {
-                const selected = selectedIngredients.includes(name);
-                return (
-                  <button key={name} onClick={() => toggleIngredient(name)}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 select-none',
-                      selected ? 'bg-orange-500 border-orange-500 text-white'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-orange-400'
-                    )}>
-                    <span className="flex items-center gap-1">{selected && <Check size={12} />}{name}</span>
+            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+              {Object.entries(CATEGORIZED_INGREDIENTS).map(([category, { icon: Icon, items }]) => (
+                <div key={category} className="border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Category header - accordion toggle */}
+                  <button
+                    onClick={() => toggleCategory(category)}
+                    className="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between text-left"
+                  >
+                    <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <Icon size={16} className="text-orange-500" />
+                      {category}
+                    </span>
+                    {expandedCategories[category] ? (
+                      <ChevronUp size={16} className="text-gray-500" />
+                    ) : (
+                      <ChevronDown size={16} className="text-gray-500" />
+                    )}
                   </button>
-                );
-              })}
+                  
+                  {/* Category ingredients */}
+                  {expandedCategories[category] && (
+                    <div className="p-3 bg-white flex flex-wrap gap-2">
+                      {items.map((name) => {
+                        const selected = selectedIngredients.includes(name);
+                        return (
+                          <button
+                            key={name}
+                            onClick={() => toggleIngredient(name)}
+                            className={clsx(
+                              'px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 select-none',
+                              selected
+                                ? 'bg-orange-500 border-orange-500 text-white'
+                                : 'bg-white border-gray-200 text-gray-600 hover:border-orange-400'
+                            )}
+                          >
+                            <span className="flex items-center gap-1">
+                              {selected && <Check size={12} />}
+                              {name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -348,6 +490,36 @@ export default function SmartRecipe() {
               <RotateCcw size={16} /> Reset
             </button>
           </div>
+
+          {/* Daily usage indicator */}
+          {hasGeneratedRecipe && (
+            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Timer size={16} className="text-orange-600" />
+                  {dailyUsage} of {MAX_DAILY_RECIPES} free recipes used today
+                </span>
+              </div>
+              
+              {/* Progress bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="h-full transition-all duration-500 ease-out rounded-full"
+                  style={{
+                    width: `${(dailyUsage / MAX_DAILY_RECIPES) * 100}%`,
+                    backgroundColor: '#E8521A'
+                  }}
+                />
+              </div>
+              
+              {dailyUsage >= MAX_DAILY_RECIPES && (
+                <p className="text-sm text-orange-700 font-medium flex items-center gap-2">
+                  <XCircle size={16} />
+                  Daily limit reached. Come back tomorrow!
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Error */}
           {error && (
