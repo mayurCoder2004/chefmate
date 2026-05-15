@@ -17,7 +17,8 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("/api/auth/login", form);
+      const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, form);
       const userId = res.data.user.id;
       const today = new Date().toDateString();
 
