@@ -8,6 +8,7 @@ import recipeRoutes from "./routes/recipeRoutes.js";
 import mealPlanRoutes from "./routes/mealPlanRoutes.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
 import shareRoutes from "./routes/shareRoutes.js";
+import emailRoutes from "./routes/emailRoutes.js";
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "./services/openRouterService.js";
 import {
@@ -44,6 +45,9 @@ app.use("/api/recipe", aiRecipeRoutes);
 
 // Share Routes
 app.use("/api", shareRoutes);
+
+// Email Capture Routes
+app.use("/api/email", emailRoutes);
 
 // ------------------------
 // Smart Recipe Route (OpenRouter - Mistral)
