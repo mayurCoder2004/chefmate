@@ -12,19 +12,109 @@ import { AuthContext } from '../contexts/AuthContext';
 import { authenticatedFetch, apiFetch } from '../utils/apiClient';
 
 const CATEGORIZED_INGREDIENTS = {
-  "Grains & Bread": { icon: Wheat, items: ["chawal", "aata", "bread", "poha", "oats", "maggi", "suji", "roti"] },
-  "Vegetables": { icon: Carrot, items: ["onion", "tomato", "potato", "green chili", "garlic", "ginger"] },
-  "Dairy & Eggs": { icon: Milk, items: ["egg", "milk", "curd", "paneer", "butter", "ghee"] },
-  "Spices": { icon: Flame, items: ["salt", "turmeric", "jeera", "garam masala", "red chili powder"] },
-  "Protein & Dal": { icon: Drumstick, items: ["dal", "besan", "chicken"] },
-  "Extras": { icon: Soup, items: ["oil", "ketchup", "peanut butter", "lemon", "maggi masala"] }
+  "Grains & Bread": {
+    icon: Wheat,
+    items: [
+      "chawal",
+      "aata",
+      "bread",
+      "poha",
+      "oats",
+      "maggi",
+      "suji",
+      "roti",
+      "vermicelli",
+      "maida",
+      "cornflour"
+    ]
+  },
+  "Vegetables": {
+    icon: Carrot,
+    items: [
+      "onion",
+      "tomato",
+      "potato",
+      "green chili",
+      "garlic",
+      "ginger",
+      "capsicum",
+      "carrot",
+      "spinach",
+      "corn",
+      "peas",
+      "mushroom",
+      "brinjal",
+      "cabbage"
+    ]
+  },
+  "Dairy & Eggs": {
+    icon: Milk,
+    items: [
+      "egg",
+      "milk",
+      "curd",
+      "paneer",
+      "butter",
+      "ghee",
+      "cheese",
+      "cream"
+    ]
+  },
+  "Spices": {
+    icon: Flame,
+    items: [
+      "salt",
+      "turmeric",
+      "jeera",
+      "garam masala",
+      "red chili powder"
+    ]
+  },
+  "Protein & Dal": {
+    icon: Drumstick,
+    items: [
+      "dal",
+      "besan",
+      "chicken",
+      "rajma",
+      "chana",
+      "tofu",
+      "soya chunks",
+      "fish",
+      "mutton"
+    ]
+  },
+  "Extras": {
+    icon: Soup,
+    items: [
+      "oil",
+      "ketchup",
+      "peanut butter",
+      "lemon",
+      "maggi masala",
+      "soy sauce",
+      "vinegar",
+      "mayonnaise",
+      "chaat masala",
+      "hing"
+    ]
+  },
+  "Fruits & Fresh": {
+    icon: Leaf,
+    items: [
+      "banana",
+      "apple",
+      "coconut",
+      "lemon juice"
+    ]
+  }
 };
 
 const PREDEFINED_INGREDIENTS = Object.values(CATEGORIZED_INGREDIENTS).flatMap(cat => cat.items);
 
 export default function SmartRecipe() {
   const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext); // Added user to destructuring
+  const { user, logout } = useContext(AuthContext);
   const [customInput, setCustomInput] = useState('');
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [diet, setDiet] = useState('none');
@@ -35,6 +125,12 @@ export default function SmartRecipe() {
   const [saving, setSaving] = useState(false);
   const recipeRef = useRef(null);
   const ingredients = selectedIngredients;
+  
+  // Feedback state
+  const [feedbackState, setFeedbackState] = useState({
+    selected: null, // 'helpful' | 'not_helpful' | null
+    submitted: false
+  });
 
   const [expandedCategories, setExpandedCategories] = useState(
     Object.keys(CATEGORIZED_INGREDIENTS).reduce((acc, category) => {
@@ -43,7 +139,7 @@ export default function SmartRecipe() {
     }, {})
   );
 
-  // Daily usage tracking - Logic updated for User/Guest separation
+  // Daily usage tracking - different limits for authenticated vs guest users
   const [dailyUsage, setDailyUsage] = useState(0);
   const [hasGeneratedRecipe, setHasGeneratedRecipe] = useState(false);
   const MAX_DAILY_RECIPES = user ? 15 : 3;
@@ -51,10 +147,13 @@ export default function SmartRecipe() {
   useEffect(() => {
     // Determine specific keys based on authentication status
     const userId = user?.id || user?._id || 'guest';
-    const usageKey = `chefmate_usage_${userId}`;
-    const dateKey = `chefmate_usage_date_${userId}`;
 
     const today = new Date().toDateString();
+    
+    // Use user-specific keys if authenticated, otherwise use guest keys
+    const dateKey = user ? `chefmate_usage_date_${user.id}` : 'chefmate_usage_date';
+    const usageKey = user ? `chefmate_usage_${user.id}` : 'chefmate_daily_usage';
+    
     const storedDate = localStorage.getItem(dateKey);
     const storedUsage = parseInt(localStorage.getItem(usageKey) || '0', 10);
 
@@ -62,12 +161,13 @@ export default function SmartRecipe() {
       setDailyUsage(storedUsage);
       setHasGeneratedRecipe(storedUsage > 0);
     } else {
+      // Reset usage for new day
       localStorage.setItem(dateKey, today);
       localStorage.setItem(usageKey, '0');
       setDailyUsage(0);
       setHasGeneratedRecipe(false);
     }
-  }, [user]); // Re-run when user changes (login/logout)
+  }, [user]);
 
   const toggleCategory = (category) => {
     setExpandedCategories(prev => ({
@@ -132,8 +232,34 @@ export default function SmartRecipe() {
     toast.success(`Removed "${name}"`, { duration: 1500 });
   }
 
+  const handleFeedback = async (rating) => {
+    if (feedbackState.submitted || feedbackState.selected || !recipe) return;
+
+    // Immediately update UI
+    setFeedbackState({ selected: rating, submitted: true });
+
+    // Send feedback to backend (fire and forget)
+    try {
+      await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/feedback/recipe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipeName: recipe.title,
+          ingredients: recipe.usedIngredients || selectedIngredients,
+          rating,
+          timestamp: new Date()
+        })
+      });
+    } catch (err) {
+      // Silently fail - user already sees success message
+      console.error("Failed to submit feedback:", err);
+    }
+  };
+
   async function fetchSmartRecipe() {
     setLoading(true); setError(''); setRecipe(null);
+    // Reset feedback when generating new recipe
+    setFeedbackState({ selected: null, submitted: false });
     toast.loading('AI Chef is analyzing your ingredients...', { id: 'recipe-loading', duration: 4000 });
     try {
       const token = localStorage.getItem('token');
@@ -157,11 +283,13 @@ export default function SmartRecipe() {
       
       // Update usage logic with user-specific keys
       const userId = user?.id || user?._id || 'guest';
-      const usageKey = `chefmate_usage_${userId}`;
+      // Update daily usage with user-specific keys
       const newUsage = dailyUsage + 1;
 
       setDailyUsage(newUsage);
       setHasGeneratedRecipe(true);
+      
+      const usageKey = user ? `chefmate_usage_${user.id}` : 'chefmate_daily_usage';
       localStorage.setItem(usageKey, String(newUsage));
       
       toast.dismiss('recipe-loading');
@@ -379,7 +507,7 @@ export default function SmartRecipe() {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Timer size={16} className="text-orange-600" />
-                  {dailyUsage} of {MAX_DAILY_RECIPES} free recipes used today
+                  {dailyUsage} of {MAX_DAILY_RECIPES} {user ? 'recipes' : 'free recipes'} used today
                 </span>
               </div>
               
@@ -396,7 +524,7 @@ export default function SmartRecipe() {
               {dailyUsage >= MAX_DAILY_RECIPES && (
                 <p className="text-sm text-orange-700 font-medium flex items-center gap-2">
                   <XCircle size={16} />
-                  Daily limit reached. Come back tomorrow!
+                  {user ? 'Daily limit reached. Come back tomorrow!' : 'Free limit reached. Sign in for 15 recipes/day!'}
                 </p>
               )}
             </div>
@@ -513,6 +641,59 @@ export default function SmartRecipe() {
                   {saving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" /> Saving…</>)
                     : (<><Bookmark size={18} /> Save Recipe</>)}
                 </button>
+              </div>
+              <p className="text-xs text-gray-400">Access saved recipes anytime from your profile.</p>
+
+              {/* Feedback Section */}
+              <div className="pt-4 border-t border-gray-100">
+                {!feedbackState.submitted ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="text-sm text-gray-600">Was this recipe helpful?</span>
+                    <button
+                      onClick={() => handleFeedback('helpful')}
+                      className="text-2xl hover:scale-110 transition-transform duration-200 focus:outline-none"
+                      aria-label="Helpful"
+                      style={{
+                        filter: feedbackState.selected === 'helpful' ? 'none' : 'grayscale(0.3)',
+                        opacity: feedbackState.selected === 'helpful' ? 1 : 0.7
+                      }}
+                    >
+                      👍
+                    </button>
+                    <button
+                      onClick={() => handleFeedback('not_helpful')}
+                      className="text-2xl hover:scale-110 transition-transform duration-200 focus:outline-none"
+                      aria-label="Not helpful"
+                      style={{
+                        filter: feedbackState.selected === 'not_helpful' ? 'none' : 'grayscale(0.3)',
+                        opacity: feedbackState.selected === 'not_helpful' ? 1 : 0.7
+                      }}
+                    >
+                      👎
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
+                      Thanks for your feedback! 🙏
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* What next */}
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-sm font-medium text-gray-700 mb-3">What do you want to do next?</p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button onClick={() => navigate('/recipes')}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition duration-200 hover:scale-[1.01]">
+                    <Utensils size={16} /> Explore More Recipes
+                  </button>
+                  <button onClick={() => navigate('/meal-planner')}
+                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition duration-200 hover:scale-[1.01]">
+                    <Salad size={16} /> Plan My Meals
+                  </button>
+                </div>
               </div>
             </div>
           )}

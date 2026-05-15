@@ -16,9 +16,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
     try {
-      const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, form);
+      const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+      const res = await axios.post(`${baseUrl}/api/auth/login`, form);
       const userId = res.data.user.id;
       const today = new Date().toDateString();
 

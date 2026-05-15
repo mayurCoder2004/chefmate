@@ -1,25 +1,21 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Utensils, Timer, Users, Heart, ShoppingCart, Package,
-  ChefHat, FileText, Bot, ArrowLeft, AlertCircle, Mail, X
+  ChefHat, FileText, Bot, ArrowLeft, AlertCircle
 } from 'lucide-react';
-import { AuthContext } from '../contexts/AuthContext';
 
 export default function AiRecipePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
-
-  // Email capture state
-  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
-  const [email, setEmail] = useState("");
-  const [emailSubmitting, setEmailSubmitting] = useState(false);
-  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [feedbackState, setFeedbackState] = useState({
+    selected: null, // 'helpful' | 'not_helpful' | null
+    submitted: false
+  });
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -33,12 +29,6 @@ export default function AiRecipePage() {
         const found = data.savedRecipes.find(r => r._id === id);
         if (!found) throw new Error("Recipe not found");
         setRecipe(found);
-
-        // Show email prompt only if user is not logged in and hasn't dismissed it
-        const isDismissed = localStorage.getItem('chefmate_email_dismissed') === 'true';
-        if (!user && !isDismissed) {
-          setShowEmailPrompt(true);
-        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -46,7 +36,7 @@ export default function AiRecipePage() {
       }
     };
     fetchRecipe();
-  }, [id, user]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this recipe?")) return;
@@ -68,42 +58,27 @@ export default function AiRecipePage() {
 
   const handlePrint = () => { window.print(); };
 
-  const handleEmailDismiss = () => {
-    setShowEmailPrompt(false);
-    localStorage.setItem('chefmate_email_dismissed', 'true');
-  };
+  const handleFeedback = async (rating) => {
+    if (feedbackState.submitted || feedbackState.selected) return;
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) {
-      alert('Please enter a valid email address');
-      return;
-    }
+    // Immediately update UI
+    setFeedbackState({ selected: rating, submitted: true });
 
-    setEmailSubmitting(true);
+    // Send feedback to backend (fire and forget)
     try {
-      const res = await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/email/capture`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch(`${import.meta.env.VITE_BASE_URL || "http://localhost:5000"}/api/feedback/recipe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email,
-          recipeName: recipe?.title || 'Unknown Recipe'
+          recipeName: recipe.title,
+          ingredients: recipe.usedIngredients || [],
+          rating,
+          timestamp: new Date()
         })
       });
-
-      if (res.ok) {
-        setEmailSuccess(true);
-        setTimeout(() => {
-          setShowEmailPrompt(false);
-          localStorage.setItem('chefmate_email_dismissed', 'true');
-        }, 2000);
-      } else {
-        throw new Error('Failed to save email');
-      }
     } catch (err) {
-      alert('Failed to save email. Please try again.');
-    } finally {
-      setEmailSubmitting(false);
+      // Silently fail - user already sees success message
+      console.error("Failed to submit feedback:", err);
     }
   };
 
@@ -264,82 +239,44 @@ export default function AiRecipePage() {
               <Bot size={14} /> Recipe created by AI Chef · Saved on {new Date(recipe.createdAt || Date.now()).toLocaleDateString()}
             </p>
           </div>
-        </div>
 
-        {/* Email Capture Prompt - Only for non-logged-in users */}
-        {showEmailPrompt && !user && recipe && (
-          <div className="bg-white border-2 border-orange-200 shadow-lg mt-6 max-w-md mx-auto" style={{ borderRadius: '12px', padding: '24px' }}>
-            <button
-              onClick={handleEmailDismiss}
-              className="float-right text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label="Close"
-            >
-              <X size={20} />
-            </button>
-            
-            {emailSuccess ? (
-              <div className="text-center py-4">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
-                  <Mail size={24} className="text-green-600" />
-                </div>
-                <p className="text-lg font-medium text-gray-800">Got it! Check your inbox 🎉</p>
+          {/* Feedback Section */}
+          <div className="pt-4 border-t border-gray-100">
+            {!feedbackState.submitted ? (
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-sm text-gray-600">Was this recipe helpful?</span>
+                <button
+                  onClick={() => handleFeedback('helpful')}
+                  className="text-2xl hover:scale-110 transition-transform duration-200 focus:outline-none"
+                  aria-label="Helpful"
+                  style={{
+                    filter: feedbackState.selected === 'helpful' ? 'none' : 'grayscale(0.3)',
+                    opacity: feedbackState.selected === 'helpful' ? 1 : 0.7
+                  }}
+                >
+                  👍
+                </button>
+                <button
+                  onClick={() => handleFeedback('not_helpful')}
+                  className="text-2xl hover:scale-110 transition-transform duration-200 focus:outline-none"
+                  aria-label="Not helpful"
+                  style={{
+                    filter: feedbackState.selected === 'not_helpful' ? 'none' : 'grayscale(0.3)',
+                    opacity: feedbackState.selected === 'not_helpful' ? 1 : 0.7
+                  }}
+                >
+                  👎
+                </button>
               </div>
             ) : (
-              <>
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                    <Mail size={20} className="text-orange-500" />
-                    Get this recipe in your inbox
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    We'll also send you 3 new Indian recipes every week — free.
-                  </p>
-                </div>
-
-                <form onSubmit={handleEmailSubmit} className="space-y-3">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="w-full border border-gray-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all bg-white text-gray-700 placeholder-gray-400 text-sm"
-                    style={{ borderRadius: '12px' }}
-                    required
-                    disabled={emailSubmitting}
-                  />
-                  
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={emailSubmitting}
-                      className="flex-1 px-5 py-2.5 font-medium text-sm text-white transition duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ backgroundColor: '#E8521A', borderRadius: '12px' }}
-                    >
-                      {emailSubmitting ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                          Saving...
-                        </span>
-                      ) : (
-                        'Save to my email'
-                      )}
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={handleEmailDismiss}
-                      disabled={emailSubmitting}
-                      className="px-5 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ borderRadius: '12px' }}
-                    >
-                      No thanks
-                    </button>
-                  </div>
-                </form>
-              </>
+              <div className="text-center">
+                <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
+                  Thanks for your feedback! 🙏
+                </p>
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
 
       <style>{`

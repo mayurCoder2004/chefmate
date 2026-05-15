@@ -8,7 +8,7 @@ import recipeRoutes from "./routes/recipeRoutes.js";
 import mealPlanRoutes from "./routes/mealPlanRoutes.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
 import shareRoutes from "./routes/shareRoutes.js";
-import emailRoutes from "./routes/emailRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "./services/openRouterService.js";
 import {
@@ -22,10 +22,38 @@ import { authOptional } from "./middlewares/auth.js";
 dotenv.config();
 
 const app = express();
+
+// CORS configuration - allow both localhost and production
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5174',
+  'https://chefmate-frontend.vercel.app',
+  process.env.FRONTEND_URL // Allow custom frontend URL from env
+].filter(Boolean); // Remove undefined values
+
 app.use(cors({
-  origin: "https://chefmate-frontend.vercel.app", // Your exact Vercel URL
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow all localhost origins
+    if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 connectDB();
@@ -49,10 +77,10 @@ app.use("/api/recipe", aiRecipeRoutes);
 // Share Routes
 app.use("/api", shareRoutes);
 
-// Email Capture Routes
-app.use("/api/email", emailRoutes);
+// Feedback Routes
+app.use("/api/feedback", feedbackRoutes);
 
-// ------------------------
+// ------------------------// ------------------------
 // Smart Recipe Route (OpenRouter - Mistral)
 // ------------------------
 const IngredientsBody = z.object({
