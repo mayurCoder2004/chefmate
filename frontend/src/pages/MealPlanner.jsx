@@ -27,12 +27,16 @@ export default function MealPlanner() {
     });
 
     try {
+      const token = localStorage.getItem("token");
       const body = { days: Number(days), diet, calories: calories ? Number(calories) : undefined };
 
       const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:5000'}/api/meal-plan`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          ...(token && {
+        Authorization: `Bearer ${token}`
+         })
         },
         body: JSON.stringify(body)
       });
