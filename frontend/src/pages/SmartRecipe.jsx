@@ -192,9 +192,16 @@ export default function SmartRecipe() {
     setLoading(true); setError(''); setRecipe(null);
     toast.loading('AI Chef is analyzing your ingredients...', { id: 'recipe-loading', duration: 4000 });
     try {
+      const token = localStorage.getItem('token');
+
       const res = await fetch(
         `${import.meta.env?.VITE_BASE_URL || 'http://localhost:5000'}/api/smart-recipe`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        { method: 'POST', headers: { 'Content-Type': 'application/json',
+          ...(token && {
+        Authorization: `Bearer ${token}`
+         })
+
+        },
           body: JSON.stringify({ ingredients, prefs: { diet, ...(maxTime ? { maxTime: Number(maxTime) } : {}) } }) }
       );
       let data;
