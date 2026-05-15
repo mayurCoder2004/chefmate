@@ -22,7 +22,10 @@ import { authOptional } from "./middlewares/auth.js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "https://chefmate-frontend.vercel.app", // Your exact Vercel URL
+  credentials: true
+}));
 app.use(express.json());
 
 connectDB();

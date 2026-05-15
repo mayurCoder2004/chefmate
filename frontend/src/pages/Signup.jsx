@@ -14,10 +14,13 @@ export default function Signup() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     setLoading(true);
     try {
-          const res = await axios.post("/api/auth/signup", form);
+        
+          const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+          const res = await axios.post(`${API_BASE_URL}/api/auth/signup`, form);
           const userId = res.data.user.id;
 
           login(res.data.user, res.data.token);
