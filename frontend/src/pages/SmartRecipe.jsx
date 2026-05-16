@@ -564,9 +564,23 @@ export default function SmartRecipe() {
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                   <Utensils size={20} className="text-orange-500 flex-shrink-0" />{recipe.title}
                 </h2>
-                <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg flex-shrink-0">
-                  <Timer size={14} className="text-orange-600" />
-                  <span className="text-orange-700 font-medium text-sm">{recipe.estimatedTime} min</span>
+                <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg">
+                    <Timer size={14} className="text-orange-600" />
+                    <span className="text-orange-700 font-medium text-sm">{recipe.estimatedTime} min</span>
+                  </div>
+                  {recipe.estimatedCost && (
+                    <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                      <span>💰</span>
+                      <span>{recipe.estimatedCost}</span>
+                    </div>
+                  )}
+                  {recipe.cookingEquipment && (
+                    <div className="flex items-center gap-2 text-sm text-orange-600 font-medium">
+                      <span>🍳</span>
+                      <span>{recipe.cookingEquipment}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
