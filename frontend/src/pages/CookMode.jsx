@@ -22,6 +22,15 @@ const CookMode = () => {
   const [timerRunning, setTimerRunning] = useState(false)
   const [showIngredients, setShowIngredients] = useState(true)
   const [done, setDone] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate brief loading for recipe parsing
+    if (recipe) {
+      const timer = setTimeout(() => setIsLoading(false), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [recipe])
 
   useEffect(() => {
     let interval
@@ -224,9 +233,31 @@ const CookMode = () => {
 
   const progress = ((currentStep + 1) / steps.length) * 100
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6">
+        <div className="max-w-2xl mx-auto px-4 space-y-4">
+          <div className="p-5 space-y-4">
+            <div className="skeleton-line h-4 w-2/5"></div>
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
+              <div className="skeleton-line h-3 w-1/4"></div>
+              <div className="skeleton-line h-5 w-full"></div>
+              <div className="skeleton-line h-5 w-4/5"></div>
+              <div className="skeleton-line h-5 w-3/5"></div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <div className="skeleton-line h-12 flex-1" style={{borderRadius: '100px'}}></div>
+              <div className="skeleton-line h-12 flex-1" style={{borderRadius: '100px'}}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6">
-      <div className="max-w-2xl mx-auto px-4 space-y-4">
+      <div className="recipe-reveal max-w-2xl mx-auto px-4 space-y-4">
 
         {/* Header */}
         <div className="flex justify-between items-center bg-white border border-gray-200 rounded-xl p-4 sticky top-4 z-10 shadow-md">

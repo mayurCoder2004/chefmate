@@ -213,11 +213,23 @@ export default function Profile() {
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition duration-200 space-y-6">
             {/* Loading State */}
             {loading && (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
-                <p className="text-lg font-medium text-orange-600 flex items-center justify-center gap-2">
-                  <Search size={18} /> Loading your culinary collection...
-                </p>
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <BookOpen size={22} className="text-orange-600" />
+                    Your Saved Recipes
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
+                        <div className="skeleton-line h-4 w-3/4"></div>
+                        <div className="skeleton-line h-3 w-1/2"></div>
+                        <div className="skeleton-line h-3 w-2/3"></div>
+                        <div className="skeleton-line h-9 w-full mt-2" style={{borderRadius: '10px'}}></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 

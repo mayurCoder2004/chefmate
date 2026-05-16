@@ -556,14 +556,10 @@ export default function SmartRecipe() {
           )}
 
           {recipe && !loading && (
-<<<<<<< HEAD
-            <div className="bg-white border border-orange-100 rounded-xl p-5 space-y-5 shadow-md hover:shadow-lg transition duration-200">
-=======
             <div 
               className="recipe-reveal bg-white border border-orange-100 rounded-xl p-5 space-y-5 shadow-md hover:shadow-lg transition duration-200"
             >
               {/* Title row */}
->>>>>>> 0a60158 (Added skeleton loader across various pages)
               <div className="flex items-start justify-between gap-4">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                   <Utensils size={20} className="text-orange-500 flex-shrink-0" />{recipe.title}
