@@ -415,9 +415,9 @@ export default function SmartRecipe() {
                             key={name}
                             onClick={() => toggleIngredient(name)}
                             className={clsx(
-                              'px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 select-none',
+                              'px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ease-in-out select-none',
                               selected
-                                ? 'bg-orange-500 border-orange-500 text-white'
+                                ? 'bg-orange-500 border-orange-500 text-white scale-105'
                                 : 'bg-white border-gray-200 text-gray-600 hover:border-orange-400'
                             )}
                           >
@@ -541,16 +541,29 @@ export default function SmartRecipe() {
         {/* Output */}
         <div ref={recipeRef}>
           {loading && !recipe && (
-            <div className="bg-orange-50 border border-orange-100 rounded-xl p-6 text-center shadow-sm">
-              <div className="inline-block animate-spin rounded-full h-7 w-7 border-4 border-orange-200 border-t-orange-500 mb-3" />
-              <p className="text-sm text-orange-600 font-medium flex items-center justify-center gap-2">
-                <ChefHat size={16} className="text-orange-500" /> Cooking something for you...
-              </p>
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 mt-4">
+              <div className="skeleton-line h-4 w-3/5"></div>
+              <div className="skeleton-line h-3 w-2/5 mt-1"></div>
+              <div style={{height: '1px', background: '#f0f0f0', margin: '12px 0'}}></div>
+              <div className="skeleton-line h-3 w-full"></div>
+              <div className="skeleton-line h-3 w-4/5"></div>
+              <div className="skeleton-line h-3 w-3/5"></div>
+              <div style={{height: '1px', background: '#f0f0f0', margin: '12px 0'}}></div>
+              <div className="skeleton-line h-3 w-full"></div>
+              <div className="skeleton-line h-3 w-2/3"></div>
+              <div className="skeleton-line h-10 w-full mt-2" style={{borderRadius: '12px'}}></div>
             </div>
           )}
 
           {recipe && !loading && (
+<<<<<<< HEAD
             <div className="bg-white border border-orange-100 rounded-xl p-5 space-y-5 shadow-md hover:shadow-lg transition duration-200">
+=======
+            <div 
+              className="recipe-reveal bg-white border border-orange-100 rounded-xl p-5 space-y-5 shadow-md hover:shadow-lg transition duration-200"
+            >
+              {/* Title row */}
+>>>>>>> 0a60158 (Added skeleton loader across various pages)
               <div className="flex items-start justify-between gap-4">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                   <Utensils size={20} className="text-orange-500 flex-shrink-0" />{recipe.title}

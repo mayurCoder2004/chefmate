@@ -231,6 +231,27 @@ export default function Profile() {
             )}
 
             {/* Saved Recipes Section */}
+            {loading && (
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <BookOpen size={22} className="text-orange-600" />
+                    Your Saved Recipes
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
+                        <div className="skeleton-line h-4 w-3/4"></div>
+                        <div className="skeleton-line h-3 w-1/2"></div>
+                        <div className="skeleton-line h-3 w-2/3"></div>
+                        <div className="skeleton-line h-9 w-full mt-2" style={{borderRadius: '10px'}}></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {!loading && (
               <div className="space-y-8">
                 <div>
@@ -247,7 +268,7 @@ export default function Profile() {
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="recipe-reveal grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {savedRecipes.map((recipe, idx) => (
                         <div 
                           key={recipe._id || idx} 

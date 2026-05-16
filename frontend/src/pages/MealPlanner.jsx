@@ -212,17 +212,25 @@ export default function MealPlanner() {
 
         {/* Loading Animation */}
         {loading && !mealPlan.length && (
-          <div className="bg-orange-50 border border-orange-100 rounded-lg p-6 text-center">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-orange-200 border-t-orange-500 mb-4"></div>
-            <p className="text-lg font-medium text-orange-600 flex items-center justify-center gap-2">
-              <Brain size={18} /> AI Nutritionist is planning your perfect meals...
-            </p>
+          <div className="space-y-4 mt-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="skeleton-line h-8 w-8" style={{borderRadius: '50%'}}></div>
+                  <div className="skeleton-line h-4 w-32"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="skeleton-line h-24 w-full" style={{borderRadius: '12px'}}></div>
+                  <div className="skeleton-line h-24 w-full" style={{borderRadius: '12px'}}></div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
         {/* Meal Plan Display */}
         {mealPlan.length > 0 && (
-          <div className="space-y-6">
+          <div className="recipe-reveal space-y-6">
             <div className="text-center mb-4">
               <h2 className="text-2xl font-semibold text-gray-800 flex items-center justify-center gap-2">
                 <Utensils size={24} className="text-orange-600" />
