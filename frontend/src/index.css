@@ -37,3 +37,41 @@
 ::-webkit-scrollbar{
     display: none;
 }
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.step-enter-next {
+  animation: slideInRight 0.3s ease forwards;
+}
+
+.step-enter-prev {
+  animation: slideInLeft 0.3s ease forwards;
+}
+
+@keyframes checkBounce {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.check-bounce {
+  animation: checkBounce 0.4s ease forwards;
+}
+
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.timer-urgent {
+  animation: timerPulse 1s infinite;
+  color: #E24B4A;
+}

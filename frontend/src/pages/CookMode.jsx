@@ -23,6 +23,8 @@ const CookMode = () => {
   const [showIngredients, setShowIngredients] = useState(true)
   const [done, setDone] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [slideDirection, setSlideDirection] = useState('next')
+  const [animKey, setAnimKey] = useState(0)
 
   useEffect(() => {
     // Simulate brief loading for recipe parsing
@@ -54,6 +56,8 @@ const CookMode = () => {
   }
 
   const handleNext = () => {
+    setSlideDirection('next')
+    setAnimKey(prev => prev + 1)
     setCompletedSteps(prev => [...prev, currentStep])
     setTimerRunning(false)
     setTimeLeft(0)
@@ -65,6 +69,8 @@ const CookMode = () => {
   }
 
   const handlePrev = () => {
+    setSlideDirection('prev')
+    setAnimKey(prev => prev + 1)
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1)
       setTimerRunning(false)
@@ -283,7 +289,7 @@ const CookMode = () => {
           <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${progress}%`, transition: 'width 0.4s ease' }}
             />
           </div>
           <div className="text-center text-xs text-gray-500 mt-1.5">
@@ -309,7 +315,7 @@ const CookMode = () => {
         )}
 
         {/* Step card */}
-        <div className="bg-white border border-orange-100 rounded-xl p-5 min-h-[200px] flex flex-col justify-center relative shadow-md hover:shadow-lg transition duration-200">
+        <div key={animKey} className={`bg-white border border-orange-100 rounded-xl p-5 min-h-[200px] flex flex-col justify-center relative shadow-md hover:shadow-lg transition duration-200 ${slideDirection === 'next' ? 'step-enter-next' : 'step-enter-prev'}`}>
           <span className="absolute top-3 left-3 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-medium py-1 px-2.5 rounded-lg">
             Step {currentStep + 1}
           </span>
@@ -321,7 +327,7 @@ const CookMode = () => {
           {completedSteps.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {completedSteps.map(i => (
-                <span key={i} className="bg-green-50 border border-green-200 text-green-700 text-xs font-medium py-1 px-2.5 rounded-lg flex items-center gap-1">
+                <span key={i} className="check-bounce bg-green-50 border border-green-200 text-green-700 text-xs font-medium py-1 px-2.5 rounded-lg flex items-center gap-1">
                   <Check size={12} /> Step {i + 1} done
                 </span>
               ))}
@@ -348,7 +354,7 @@ const CookMode = () => {
 
           {timeLeft > 0 && (
             <div className="flex items-center gap-4 bg-orange-50 border border-orange-100 p-3 rounded-lg">
-              <span className="text-2xl font-bold text-gray-800 tracking-tight font-mono w-20 text-center">
+              <span className={`text-2xl font-bold text-gray-800 tracking-tight font-mono w-20 text-center ${timeLeft <= 10 && timeLeft > 0 ? 'timer-urgent' : ''}`}>
                 {formatTime(timeLeft)}
               </span>
               <button
