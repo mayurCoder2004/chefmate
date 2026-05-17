@@ -6,10 +6,10 @@ const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // Multiple Groq models for failover
 const GROQ_MODELS = [
-  'llama-3.1-8b-instant',
-  'llama-3.3-70b-versatile',
-  'mixtral-8x7b-32768'
-];
+  'llama-3.3-70b-versatile',   // ← strong model first
+  'llama-3.1-8b-instant',      // ← fast fallback
+  'mixtral-8x7b-32768'         // ← last resort
+]
 
 // Lazy initialization of Groq client
 let groq = null;
