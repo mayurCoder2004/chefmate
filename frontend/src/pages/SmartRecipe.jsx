@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
 import { authenticatedFetch, apiFetch } from '../utils/apiClient';
+import { usePushNotification } from '../hooks/usePushNotification';
 
 const CATEGORIZED_INGREDIENTS = {
   "Grains & Bread": {
@@ -143,6 +144,40 @@ export default function SmartRecipe() {
   const [dailyUsage, setDailyUsage] = useState(0);
   const [hasGeneratedRecipe, setHasGeneratedRecipe] = useState(false);
   const MAX_DAILY_RECIPES = user ? 15 : 3;
+
+  // Push notification state
+  const { subscribe, isSubscribed, isLoading } = usePushNotification();
+  const [promptDismissed, setPromptDismissed] = useState(
+    localStorage.getItem('push_dismissed') === 'true'
+  );
+
+  // Temporary: reset for testing — remove after confirming it works
+  // localStorage.removeItem('push_dismissed');
+
+  const handleSubscribe = async () => {
+    // First explicitly request permission
+    const permission = await Notification.requestPermission();
+    console.log('[push] permission result:', permission);
+    
+    if (permission !== 'granted') {
+      console.log('[push] permission denied or dismissed')
+      return
+    }
+    
+    const success = await subscribe();
+    if (success) {
+      localStorage.setItem('push_dismissed', 'true');
+      setPromptDismissed(true);
+      toast.success('🔔 You\'re all set! We\'ll remind you at 7pm daily', { duration: 4000 });
+    } else {
+      toast.error('Failed to enable notifications. Please try again.', { duration: 3000 });
+    }
+  };
+
+  const handleDismiss = () => {
+    localStorage.setItem('push_dismissed', 'true');
+    setPromptDismissed(true);
+  };
 
   useEffect(() => {
     // Determine specific keys based on authentication status
@@ -703,6 +738,62 @@ export default function SmartRecipe() {
                   </div>
                 )}
               </div>
+
+              {/* Push Notification Prompt */}
+              {recipe && (
+                <div style={{
+                  background: '#FFF0E8',
+                  border: '1px solid rgba(232,82,26,0.2)',
+                  borderRadius: '16px',
+                  padding: '16px 20px',
+                  marginTop: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <p style={{ fontSize: '14px', fontWeight: '600', color: '#2C1810', marginBottom: '4px' }}>
+                      🍳 Want daily recipe ideas at 7pm?
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#5C3D2E' }}>
+                      We'll remind you to cook something real instead of ordering Swiggy
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={handleSubscribe}
+                      disabled={isLoading}
+                      style={{
+                        background: '#E8521A',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '100px',
+                        padding: '8px 16px',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        flex: 1
+                      }}
+                    >
+                      {isLoading ? 'Setting up...' : 'Yes, remind me! 🔔'}
+                    </button>
+                    <button
+                      onClick={handleDismiss}
+                      style={{
+                        background: 'transparent',
+                        color: '#5C3D2E',
+                        border: '1px solid rgba(44,24,16,0.15)',
+                        borderRadius: '100px',
+                        padding: '8px 16px',
+                        fontSize: '13px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      No thanks
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* What next */}
               <div className="pt-4 border-t border-gray-100">

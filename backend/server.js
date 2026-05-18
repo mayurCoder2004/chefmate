@@ -9,6 +9,8 @@ import mealPlanRoutes from "./routes/mealPlanRoutes.js";
 import aiRecipeRoutes from "./routes/aiRecipeRoutes.js";
 import shareRoutes from "./routes/shareRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
+import pushRoutes from './routes/pushRoutes.js';
+import { startDailyNotificationJob } from './jobs/dailyNotification.js';
 import { z } from "zod";
 import { callOpenRouterWithFallback } from "./services/openRouterService.js";
 import {
@@ -79,6 +81,9 @@ app.use("/api", shareRoutes);
 
 // Feedback Routes
 app.use("/api/feedback", feedbackRoutes);
+
+// Push Notification Routes
+app.use('/api/push', pushRoutes);
 
 // ------------------------// ------------------------
 // Smart Recipe Route (OpenRouter - Mistral)
@@ -460,4 +465,7 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
 app.get('/ping', (_req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  startDailyNotificationJob();
+});
