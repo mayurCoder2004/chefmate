@@ -19,47 +19,64 @@ export function usePushNotification() {
 
   const subscribe = async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      alert('Push notifications are not supported in your browser');
-      return false;
+      alert('Push notifications are not supported in your browser')
+      return false
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      // Register service worker and wait for it to be active
+      const registration = await navigator.serviceWorker.register('/sw.js')
 
-      const permission = await Notification.requestPermission();
+      // Wait for service worker to become active
+      await navigator.serviceWorker.ready
+
+      console.log('[push] service worker ready:', registration.active?.state)
+
+      // Request permission
+      const permission = await Notification.requestPermission()
+      console.log('[push] permission result:', permission)
+
       if (permission !== 'granted') {
-        console.log('[push] notification permission denied');
-        setIsLoading(false);
-        return false;
+        console.log('[push] permission denied or dismissed')
+        setIsLoading(false)
+        return false
       }
 
-      const subscription = await registration.pushManager.subscribe({
+      // Get active registration after ready
+      const activeRegistration = await navigator.serviceWorker.ready
+
+      // Subscribe to push
+      const subscription = await activeRegistration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-      });
+      })
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/push/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription })
-      });
+      console.log('[push] subscription created:', subscription.endpoint)
 
-      if (!response.ok) {
-        throw new Error('Failed to save subscription on server');
-      }
+      // Save to backend
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/push/subscribe`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription })
+        }
+      )
 
-      console.log('[push] subscription successful');
-      setIsSubscribed(true);
-      setIsLoading(false);
-      return true;
+      const data = await response.json()
+      console.log('[push] backend response:', data)
+
+      setIsSubscribed(true)
+      setIsLoading(false)
+      return true
     } catch (err) {
-      console.error('[push] subscription failed:', err);
-      setIsLoading(false);
-      return false;
+      console.error('[push] subscription failed:', err)
+      setIsLoading(false)
+      return false
     }
-  };
+  }
 
   return { subscribe, isSubscribed, isLoading };
 }
