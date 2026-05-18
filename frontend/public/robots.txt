@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chefmate-frontend.vercel.app/sitemap.xml
