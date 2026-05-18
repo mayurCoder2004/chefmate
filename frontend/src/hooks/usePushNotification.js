@@ -57,7 +57,7 @@ export function usePushNotification() {
 
       // Save to backend
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/push/subscribe`,
+        `${import.meta.env.VITE_BASE_URL}/api/push/subscribe`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
