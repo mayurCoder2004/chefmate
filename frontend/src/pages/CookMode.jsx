@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
+import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import {
   ChefHat, ArrowLeft, ArrowRight, ShoppingCart, Timer,
-  Share2, Utensils, Salad, Sparkles, Flame, PauseCircle, PlayCircle, Check
+  Share2, Utensils, Salad, Sparkles, Flame, PauseCircle, PlayCircle, Check, X
 } from 'lucide-react'
 
 const CookMode = () => {
@@ -159,18 +160,31 @@ const CookMode = () => {
 
   if (!recipe) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4">
-        <div className="text-center bg-white border border-gray-200 rounded-xl p-6 max-w-sm w-full shadow-md">
-          <ChefHat size={40} className="text-orange-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">No recipe found</h2>
-          <p className="text-sm text-gray-600 mb-5">Go back and select a recipe to cook.</p>
-          <button
-            className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 w-full"
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center bg-white/80 backdrop-blur-sm border border-orange-100 rounded-2xl p-8 max-w-sm w-full shadow-xl"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring" }}
+            className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+          >
+            <ChefHat size={40} className="text-white" />
+          </motion.div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">No recipe found</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">Go back and select a recipe to start cooking.</p>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 w-full"
             onClick={() => navigate('/app')}
           >
             <ArrowLeft size={18} /> Back to recipes
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
     )
   }
@@ -179,59 +193,113 @@ const CookMode = () => {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4 pt-24">
-          <div className="bg-white border border-orange-100 rounded-xl text-center p-8 max-w-sm w-full shadow-lg">
-            <Sparkles size={48} className="text-orange-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">You did it!</h2>
-            <p className="text-sm text-gray-600 mb-5 leading-relaxed">
-              You just cooked <strong className="text-gray-800">{recipe.title}</strong>. How did it turn out?
-            </p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4 pt-24">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/80 backdrop-blur-sm border border-green-100 rounded-3xl text-center p-10 max-w-md w-full shadow-2xl relative overflow-hidden"
+          >
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-emerald-200/30 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-orange-200/30 to-amber-200/30 rounded-full blur-3xl" />
+            
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="relative w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl"
+            >
+              <Sparkles size={48} className="text-white" />
+            </motion.div>
 
-            <div className="flex flex-col gap-2">
-              <button
-                className="px-5 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-bold text-gray-900 mb-3"
+            >
+              You did it!
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-gray-600 mb-6 leading-relaxed"
+            >
+              You just cooked <strong className="text-gray-900 font-semibold">{recipe.title}</strong>. How did it turn out?
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-col gap-3 relative z-10"
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
                 onClick={shareOnWhatsApp}
               >
                 <Share2 size={18} /> Share on WhatsApp
-              </button>
-              <button
-                className="px-5 py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
                 onClick={shareRecipe}
               >
                 <Share2 size={18} /> Share Recipe
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {recipe.calories && (
-              <div className="mt-4 inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-sm py-1.5 px-3 rounded-lg">
-                <Flame size={14} /> {recipe.calories} calories per serving
-              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 }}
+                className="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 text-orange-700 font-medium py-2 px-4 rounded-xl shadow-sm"
+              >
+                <Flame size={16} /> {recipe.calories} calories per serving
+              </motion.div>
             )}
 
-            <div className="mt-6 pt-5 border-t border-gray-100">
-              <p className="text-sm font-medium text-gray-700 mb-3">What next?</p>
-              <div className="flex flex-col gap-2">
-                <button
-                  className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="mt-8 pt-6 border-t border-gray-200 relative z-10"
+            >
+              <p className="text-sm font-semibold text-gray-700 mb-4">What next?</p>
+              <div className="flex flex-col gap-2.5">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
                   onClick={() => navigate('/app')}
                 >
                   <ChefHat size={18} /> Cook Another
-                </button>
-                <button
-                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition duration-200 flex items-center justify-center gap-2"
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2"
                   onClick={() => navigate('/recipes')}
                 >
                   <Utensils size={18} /> Explore Recipes
-                </button>
-                <button
-                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition duration-200 flex items-center justify-center gap-2"
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2"
                   onClick={() => navigate('/meal-planner')}
                 >
                   <Salad size={18} /> Plan Meals
-                </button>
+                </motion.button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </>
     )
@@ -241,174 +309,333 @@ const CookMode = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6">
-        <div className="max-w-2xl mx-auto px-4 space-y-4">
-          <div className="p-5 space-y-4">
-            <div className="skeleton-line h-4 w-2/5"></div>
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-              <div className="skeleton-line h-3 w-1/4"></div>
-              <div className="skeleton-line h-5 w-full"></div>
-              <div className="skeleton-line h-5 w-4/5"></div>
-              <div className="skeleton-line h-5 w-3/5"></div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 py-8">
+        <div className="max-w-3xl mx-auto px-4 space-y-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-6 space-y-6"
+          >
+            <div className="skeleton-line h-5 w-2/5 rounded-xl"></div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100 p-8 space-y-4 shadow-lg">
+              <div className="skeleton-line h-4 w-1/4 rounded-lg"></div>
+              <div className="skeleton-line h-6 w-full rounded-lg"></div>
+              <div className="skeleton-line h-6 w-4/5 rounded-lg"></div>
+              <div className="skeleton-line h-6 w-3/5 rounded-lg"></div>
             </div>
-            <div className="flex gap-3 mt-4">
-              <div className="skeleton-line h-12 flex-1" style={{borderRadius: '100px'}}></div>
-              <div className="skeleton-line h-12 flex-1" style={{borderRadius: '100px'}}></div>
+            <div className="flex gap-4 mt-6">
+              <div className="skeleton-line h-14 flex-1 rounded-2xl"></div>
+              <div className="skeleton-line h-14 flex-1 rounded-2xl"></div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-6">
-      <div className="recipe-reveal max-w-2xl mx-auto px-4 space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 py-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-3xl mx-auto px-4 space-y-6"
+      >
 
         {/* Header */}
-        <div className="flex justify-between items-center bg-white border border-gray-200 rounded-xl p-4 sticky top-4 z-10 shadow-md">
-          <button
-            className="text-orange-600 font-medium hover:text-orange-700 transition flex items-center gap-1"
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-between items-center bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl p-4 sticky top-4 z-20 shadow-lg"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-orange-600 font-semibold hover:text-orange-700 transition flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-orange-50"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft size={16} /> Back
-          </button>
-          <div className="text-sm font-semibold text-gray-800 max-w-[150px] sm:max-w-[250px] truncate">
+            <ArrowLeft size={18} /> Back
+          </motion.button>
+          <div className="text-base font-bold text-gray-900 max-w-[150px] sm:max-w-[300px] truncate">
             {recipe.title}
           </div>
-          <button
-            className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-xs font-medium py-1.5 px-3 rounded-lg transition duration-200"
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold py-2 px-4 rounded-xl transition-all duration-200 shadow-sm"
             onClick={() => setShowIngredients(!showIngredients)}
           >
             {showIngredients ? 'Hide' : 'Ingredients'}
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Progress bar */}
-        <div className="px-1">
-          <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%`, transition: 'width 0.4s ease' }}
-            />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="px-2"
+        >
+          <div className="relative h-3 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full relative"
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+            </motion.div>
           </div>
-          <div className="text-center text-xs text-gray-500 mt-1.5">
+          <div className="text-center text-sm font-semibold text-gray-600 mt-2">
             Step {currentStep + 1} of {steps.length}
           </div>
-        </div>
+        </motion.div>
 
         {/* Ingredients panel */}
-        {showIngredients && (
-          <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-md">
-            <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-              <ShoppingCart size={16} className="text-orange-600" /> Ingredients needed
-            </h3>
-            <ul className="space-y-1.5">
-              {ingredients.map((ing, i) => (
-                <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
-                  <span className="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5 flex-shrink-0" />
-                  <span>{ing}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <AnimatePresence>
+          {showIngredients && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white/80 backdrop-blur-sm border border-orange-100 rounded-2xl p-6 shadow-xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-md">
+                    <ShoppingCart size={18} className="text-white" />
+                  </div>
+                  Ingredients needed
+                </h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowIngredients(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <X size={20} />
+                </motion.button>
+              </div>
+              <ul className="space-y-3">
+                {ingredients.map((ing, i) => (
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="flex items-start gap-3 text-gray-700 bg-gray-50 p-3 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    <span className="w-2 h-2 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full mt-2 flex-shrink-0 shadow-sm" />
+                    <span className="font-medium">{ing}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Step card */}
-        <div key={animKey} className={`bg-white border border-orange-100 rounded-xl p-5 min-h-[200px] flex flex-col justify-center relative shadow-md hover:shadow-lg transition duration-200 ${slideDirection === 'next' ? 'step-enter-next' : 'step-enter-prev'}`}>
-          <span className="absolute top-3 left-3 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-medium py-1 px-2.5 rounded-lg">
-            Step {currentStep + 1}
-          </span>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: slideDirection === 'next' ? 100 : -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: slideDirection === 'next' ? -100 : 100 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="bg-white/80 backdrop-blur-sm border border-orange-100 rounded-3xl p-8 min-h-[280px] flex flex-col justify-center relative shadow-2xl overflow-hidden"
+          >
+            {/* Decorative gradient */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-orange-200/30 to-amber-200/30 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-orange-200/30 to-amber-200/30 rounded-full blur-3xl" />
 
-          <p className="text-base font-medium text-gray-800 leading-relaxed mt-6">
-            {steps[currentStep]}
-          </p>
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring" }}
+              className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-lg"
+            >
+              Step {currentStep + 1}
+            </motion.span>
 
-          {completedSteps.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {completedSteps.map(i => (
-                <span key={i} className="check-bounce bg-green-50 border border-green-200 text-green-700 text-xs font-medium py-1 px-2.5 rounded-lg flex items-center gap-1">
-                  <Check size={12} /> Step {i + 1} done
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-lg font-semibold text-gray-900 leading-relaxed mt-8 relative z-10"
+            >
+              {steps[currentStep]}
+            </motion.p>
+
+            {completedSteps.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-wrap gap-2 mt-6 relative z-10"
+              >
+                {completedSteps.map((i, idx) => (
+                  <motion.span
+                    key={i}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 text-green-700 text-sm font-semibold py-1.5 px-3 rounded-xl flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Check size={14} /> Step {i + 1} done
+                  </motion.span>
+                ))}
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {/* Timer section */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-md">
-          <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-            <Timer size={16} className="text-orange-600" /> Need a timer?
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-6 shadow-xl"
+        >
+          <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-md">
+              <Timer size={18} className="text-white" />
+            </div>
+            Need a timer?
           </h3>
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-wrap gap-2.5 mb-4">
             {[1, 2, 5, 10, 15].map(min => (
-              <button
+              <motion.button
                 key={min}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 px-4 rounded-lg transition duration-200 hover:scale-[1.02]"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                 onClick={() => startTimer(min)}
               >
                 {min}m
-              </button>
+              </motion.button>
             ))}
           </div>
 
-          {timeLeft > 0 && (
-            <div className="flex items-center gap-4 bg-orange-50 border border-orange-100 p-3 rounded-lg">
-              <span className={`text-2xl font-bold text-gray-800 tracking-tight font-mono w-20 text-center ${timeLeft <= 10 && timeLeft > 0 ? 'timer-urgent' : ''}`}>
-                {formatTime(timeLeft)}
-              </span>
-              <button
-                className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex-1 flex items-center justify-center gap-2"
-                onClick={() => setTimerRunning(r => !r)}
+          <AnimatePresence>
+            {timeLeft > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex items-center gap-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 p-4 rounded-2xl shadow-md overflow-hidden"
               >
-                {timerRunning ? <><PauseCircle size={16} /> Pause</> : <><PlayCircle size={16} /> Resume</>}
-              </button>
-            </div>
-          )}
-        </div>
+                <motion.span
+                  animate={timeLeft <= 10 && timeLeft > 0 ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                  className={`text-3xl font-bold text-gray-900 tracking-tight font-mono w-24 text-center ${
+                    timeLeft <= 10 && timeLeft > 0 ? 'text-red-600' : ''
+                  }`}
+                >
+                  {formatTime(timeLeft)}
+                </motion.span>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 flex-1 flex items-center justify-center gap-2"
+                  onClick={() => setTimerRunning(r => !r)}
+                >
+                  {timerRunning ? (
+                    <>
+                      <PauseCircle size={18} /> Pause
+                    </>
+                  ) : (
+                    <>
+                      <PlayCircle size={18} /> Resume
+                    </>
+                  )}
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Navigation buttons */}
-        <div className="flex gap-3">
-          <button
-            className={`flex-1 py-2.5 rounded-lg font-medium transition duration-200 flex items-center justify-center gap-2 ${
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex gap-4"
+        >
+          <motion.button
+            whileHover={currentStep > 0 ? { scale: 1.02 } : {}}
+            whileTap={currentStep > 0 ? { scale: 0.98 } : {}}
+            className={`flex-1 py-4 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg ${
               currentStep === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:scale-[1.01]'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-white hover:bg-gray-50 text-gray-800 hover:shadow-xl'
             }`}
             onClick={handlePrev}
             disabled={currentStep === 0}
           >
-            <ArrowLeft size={16} /> Prev
-          </button>
-          <button
-            className="flex-1 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2"
+            <ArrowLeft size={18} /> Previous
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold transition-all duration-200 hover:shadow-xl flex items-center justify-center gap-2 shadow-lg"
             onClick={handleNext}
           >
-            {currentStep === steps.length - 1 ? <><Sparkles size={16} /> Done!</> : <>Next step <ArrowRight size={16} /></>}
-          </button>
-        </div>
+            {currentStep === steps.length - 1 ? (
+              <>
+                <Sparkles size={18} /> Done!
+              </>
+            ) : (
+              <>
+                Next step <ArrowRight size={18} />
+              </>
+            )}
+          </motion.button>
+        </motion.div>
 
         {/* Step dots */}
-        <div className="flex justify-center gap-2 pb-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="flex justify-center gap-2.5 pb-6"
+        >
           {steps.map((_, i) => (
-            <div
+            <motion.div
               key={i}
-              className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                i === currentStep ? 'bg-orange-500'
-                  : completedSteps.includes(i) ? 'bg-green-500'
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                i === currentStep
+                  ? 'bg-orange-500 w-8 shadow-md'
+                  : completedSteps.includes(i)
+                  ? 'bg-green-500 shadow-sm'
                   : 'bg-gray-300'
               }`}
             />
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
       
-      <Toaster position="top-right" gutter={8} toastOptions={{
-        duration: 3000,
-        style: { background: '#fff', color: '#374151', fontWeight: '500', fontSize: '14px', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.07)', maxWidth: '380px' },
-        success: { iconTheme: { primary: '#f97316', secondary: '#ffffff' } },
-        error: { iconTheme: { primary: '#ef4444', secondary: '#ffffff' } },
-      }} />
+      <Toaster
+        position="top-right"
+        gutter={8}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: '#374151',
+            fontWeight: '600',
+            fontSize: '14px',
+            borderRadius: '12px',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+            maxWidth: '400px',
+          },
+          success: { iconTheme: { primary: '#f97316', secondary: '#ffffff' } },
+          error: { iconTheme: { primary: '#ef4444', secondary: '#ffffff' } },
+        }}
+      />
     </div>
   )
 }

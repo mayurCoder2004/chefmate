@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { AuthContext } from "../contexts/AuthContext";
 import logo from "../assets/chefmate-logo.png";
-import { Home, Bookmark, Menu, User, LogOut, KeyRound, UserPlus, X } from 'lucide-react';
+import { Home, Bookmark, Menu, User, LogOut, KeyRound, UserPlus, X, ChefHat, Sparkles } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
@@ -26,130 +27,211 @@ export default function Navbar() {
   ];
 
   const desktopLinkClass = (active) =>
-    `flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+    `flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
       active
-        ? 'bg-orange-500 text-white'
-        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30'
+        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
     }`;
 
   const mobileLinkClass = (active) =>
-    `w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+    `w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-semibold transition-all duration-200 ${
       active
-        ? 'bg-orange-500 text-white'
+        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30'
         : 'text-gray-700 hover:bg-gray-100'
     }`;
 
   return (
     <>
-      <nav className="bg-white border-b border-gray-200 p-4 flex justify-between items-center fixed top-0 left-0 w-full z-50 shadow-sm">
+      <motion.nav 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="bg-white/90 backdrop-blur-xl border-b border-gray-200/80 px-6 py-4 flex justify-between items-center fixed top-0 left-0 w-full z-50 shadow-lg"
+      >
         {/* Logo */}
-        <Link to="/app" className="flex items-center gap-2 hover:opacity-80 transition" onClick={closeMobileMenu}>
-          <img src={logo} alt="ChefMate Logo" className="h-8 w-auto" />
-          <span className="hidden sm:block text-lg font-semibold text-gray-800">ChefMate</span>
+        <Link to="/app" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200 group" onClick={closeMobileMenu}>
+          <motion.div
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+            className="relative"
+          >
+            <img src={logo} alt="ChefMate Logo" className="h-10 w-auto" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          </motion.div>
+          <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight">ChefMate</span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-3">
           {NAV_LINKS.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className={desktopLinkClass(isActive(to))}>
-              <Icon size={16} /> {label}
-            </Link>
+            <motion.div key={to} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to={to} className={desktopLinkClass(isActive(to))}>
+                <Icon size={18} strokeWidth={2.5} /> {label}
+              </Link>
+            </motion.div>
           ))}
 
           {user && (
-            <div className="flex items-center gap-3 ml-3 pl-3 border-l border-gray-200">
-              <span className="hidden xl:flex items-center gap-1 text-sm text-gray-600">
-                <User size={15} /> Hi, {user?.name || 'Chef'}!
+            <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-300">
+              <span className="hidden xl:flex items-center gap-2.5 text-sm text-gray-700 font-semibold">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                  {(user?.name || 'C')[0].toUpperCase()}
+                </div>
+                Hi, {user?.name || 'Chef'}
               </span>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition duration-200"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200"
               >
-                <LogOut size={16} /> Logout
-              </button>
+                <LogOut size={18} strokeWidth={2.5} /> Logout
+              </motion.button>
             </div>
           )}
 
           {!user && (
-            <div className="flex items-center gap-1 ml-2">
-              <Link to="/login" className={desktopLinkClass(isActive('/login'))}>
-                <KeyRound size={16} /> Login
-              </Link>
-              <Link to="/signup" className="flex items-center gap-1.5 px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition duration-200 hover:scale-[1.02]">
-                <UserPlus size={16} /> Sign Up
-              </Link>
+            <div className="flex items-center gap-3 ml-3">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link to="/login" className={desktopLinkClass(isActive('/login'))}>
+                  <KeyRound size={18} strokeWidth={2.5} /> Login
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link to="/signup" className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
+                  <UserPlus size={18} strokeWidth={2.5} /> Sign Up
+                </Link>
+              </motion.div>
             </div>
           )}
         </div>
 
         {/* Mobile Hamburger */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
           onClick={toggleMobileMenu}
-          className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition duration-200"
+          className="lg:hidden p-2.5 rounded-xl text-gray-700 hover:bg-gray-100 transition-all duration-200"
           aria-label="Toggle mobile menu"
         >
-          {isMobileMenuOpen ? <X size={22} /> : (
-            <div className="w-5 h-5 flex flex-col justify-center gap-1">
-              <span className="block w-5 h-0.5 bg-gray-600" />
-              <span className="block w-5 h-0.5 bg-gray-600" />
-              <span className="block w-5 h-0.5 bg-gray-600" />
-            </div>
-          )}
-        </button>
-      </nav>
+          {isMobileMenuOpen ? <X size={24} strokeWidth={2.5} /> : <Menu size={24} strokeWidth={2.5} />}
+        </motion.button>
+      </motion.nav>
 
       {/* Mobile Overlay */}
-      <div
-        className={`lg:hidden fixed inset-0 bg-black/40 z-40 transition-opacity duration-200 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        onClick={closeMobileMenu}
-      />
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={closeMobileMenu}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Mobile Drawer */}
-      <div className={`lg:hidden fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white border-l border-gray-200 z-50 transform transition-transform duration-300 shadow-2xl ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        {/* Drawer Header */}
-        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="ChefMate Logo" className="h-7 w-auto" />
-            <span className="text-base font-semibold text-gray-800">ChefMate</span>
-          </div>
-          <button onClick={closeMobileMenu} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition duration-200" aria-label="Close menu">
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Drawer Content */}
-        <div className="p-4 space-y-1 overflow-y-auto h-full pb-20">
-          {user && (
-            <div className="mb-4 p-3 rounded-lg bg-gray-50 border border-gray-200">
-              <p className="text-sm font-medium text-gray-800 flex items-center gap-2"><User size={16} className="text-orange-500" /> Hi, {user?.name || 'Chef'}!</p>
-              <p className="text-xs text-gray-500 mt-0.5">Welcome back to ChefMate</p>
-            </div>
-          )}
-
-          {NAV_LINKS.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className={mobileLinkClass(isActive(to))} onClick={closeMobileMenu}>
-              <Icon size={18} /><span>{label}</span>
-            </Link>
-          ))}
-
-          <div className="pt-3 mt-3 border-t border-gray-100">
-            {user ? (
-              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition duration-200">
-                <LogOut size={18} /><span>Logout</span>
-              </button>
-            ) : (
-              <div className="space-y-1">
-                <Link className={mobileLinkClass(isActive('/login'))} to="/login" onClick={closeMobileMenu}>
-                  <KeyRound size={18} /><span>Login</span>
-                </Link>
-                <Link className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition duration-200" to="/signup" onClick={closeMobileMenu}>
-                  <UserPlus size={18} /><span>Sign Up</span>
-                </Link>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white border-l border-gray-200 z-50 shadow-2xl"
+          >
+            {/* Drawer Header */}
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-orange-50 to-amber-50">
+              <div className="flex items-center gap-3">
+                <img src={logo} alt="ChefMate Logo" className="h-9 w-auto" />
+                <span className="text-lg font-bold text-gray-900 tracking-tight">ChefMate</span>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
+              <motion.button 
+                whileTap={{ scale: 0.9 }}
+                onClick={closeMobileMenu} 
+                className="p-2 rounded-xl text-gray-600 hover:bg-white/50 transition-all duration-200" 
+                aria-label="Close menu"
+              >
+                <X size={22} strokeWidth={2.5} />
+              </motion.button>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="p-6 space-y-3 overflow-y-auto h-full pb-24">
+              {user && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="mb-6 p-5 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-base font-bold shadow-lg">
+                      {(user?.name || 'C')[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-base font-bold text-gray-900">Hi, {user?.name || 'Chef'}</p>
+                      <p className="text-sm text-gray-600 flex items-center gap-1">
+                        <Sparkles size={12} className="text-orange-500" />
+                        Welcome back
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {NAV_LINKS.map(({ to, label, icon: Icon }, index) => (
+                <motion.div
+                  key={to}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
+                >
+                  <Link to={to} className={mobileLinkClass(isActive(to))} onClick={closeMobileMenu}>
+                    <Icon size={22} strokeWidth={2.5} /><span>{label}</span>
+                  </Link>
+                </motion.div>
+              ))}
+
+              <div className="pt-5 mt-5 border-t border-gray-200">
+                {user ? (
+                  <motion.button 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.25 }}
+                    onClick={handleLogout} 
+                    className="w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-semibold text-gray-700 hover:bg-gray-100 transition-all duration-200"
+                  >
+                    <LogOut size={22} strokeWidth={2.5} /><span>Logout</span>
+                  </motion.button>
+                ) : (
+                  <div className="space-y-3">
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.25 }}
+                    >
+                      <Link className={mobileLinkClass(isActive('/login'))} to="/login" onClick={closeMobileMenu}>
+                        <KeyRound size={22} strokeWidth={2.5} /><span>Login</span>
+                      </Link>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Link className="w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-base font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40 hover:from-orange-600 hover:to-orange-700 transition-all duration-200" to="/signup" onClick={closeMobileMenu}>
+                        <UserPlus size={22} strokeWidth={2.5} /><span>Sign Up</span>
+                      </Link>
+                    </motion.div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

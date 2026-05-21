@@ -1,12 +1,13 @@
 import { useMemo, useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   ChefHat, Search, RotateCcw, Salad, Timer, Share2, Bookmark,
-  Utensils, Leaf, ShoppingCart, Package, Users, FileText,
+  Utensils, Leaf, ShoppingCart, Package, Users,
   Heart, XCircle, Check, ChevronDown, ChevronUp, Wheat, Carrot,
-  Milk, Flame, Drumstick, Soup
+  Milk, Flame, Drumstick, Soup, Bell
 } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
 import { authenticatedFetch, apiFetch } from '../utils/apiClient';
@@ -404,80 +405,116 @@ export default function SmartRecipe() {
   const customChips = selectedIngredients.filter((i) => !PREDEFINED_INGREDIENTS.includes(i));
 
   return (
-    <div className="min-h-screen pb-20 pt-28 px-4" style={{ backgroundColor: '#FDF6EE' }}>
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen pb-20 pt-28 px-4 bg-gradient-to-b from-[#FDF6EE] to-[#FFF5EB]">
+      <div className="max-w-4xl mx-auto space-y-8">
 
         {/* Header */}
-        <div className="text-center mb-2">
-          <h1 className="text-2xl font-semibold text-gray-800 flex items-center justify-center gap-2 mb-2">
-            <ChefHat size={24} className="text-orange-500" /> Smart Recipe
-          </h1>
-          <p className="text-sm text-gray-600">Pick your ingredients and get an AI-generated recipe.</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-4"
+        >
+          <div className="inline-flex items-center justify-center gap-2.5 mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+              <ChefHat size={24} className="text-white" strokeWidth={2.5} />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Smart Recipe Generator</h1>
+          <p className="text-base text-gray-600 max-w-2xl mx-auto">Select your ingredients and let AI create a personalized recipe just for you</p>
+        </motion.div>
 
         {/* Input card */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-5 shadow-sm hover:shadow-md transition duration-200">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-white border border-gray-200 rounded-3xl p-8 space-y-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
 
           {/* Categorized ingredient chips */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-              <Leaf size={16} className="text-green-600" /> Pick Your Ingredients
+            <label className="block text-base font-semibold text-gray-900 mb-4 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                <Leaf size={18} className="text-green-600" strokeWidth={2.5} />
+              </div>
+              Pick Your Ingredients
             </label>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
               {Object.entries(CATEGORIZED_INGREDIENTS).map(([category, { icon: Icon, items }]) => (
-                <div key={category} className="border border-gray-200 rounded-lg overflow-hidden">
+                <motion.div 
+                  key={category} 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50/50 hover:bg-gray-50 transition-colors duration-200"
+                >
                   <button
                     onClick={() => toggleCategory(category)}
-                    className="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between text-left"
+                    className="w-full px-5 py-3.5 bg-white hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between text-left group"
                   >
-                    <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <Icon size={16} className="text-orange-500" />
+                    <span className="text-sm font-semibold text-gray-900 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors duration-200">
+                        <Icon size={18} className="text-orange-600" strokeWidth={2.5} />
+                      </div>
                       {category}
                     </span>
-                    {expandedCategories[category] ? (
-                      <ChevronUp size={16} className="text-gray-500" />
-                    ) : (
-                      <ChevronDown size={16} className="text-gray-500" />
-                    )}
+                    <motion.div
+                      animate={{ rotate: expandedCategories[category] ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronDown size={18} className="text-gray-500" strokeWidth={2.5} />
+                    </motion.div>
                   </button>
                   
-                  {expandedCategories[category] && (
-                    <div className="p-3 bg-white flex flex-wrap gap-2">
-                      {items.map((name) => {
-                        const selected = selectedIngredients.includes(name);
-                        return (
-                          <button
-                            key={name}
-                            onClick={() => toggleIngredient(name)}
-                            className={clsx(
-                              'px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ease-in-out select-none',
-                              selected
-                                ? 'bg-orange-500 border-orange-500 text-white scale-105'
-                                : 'bg-white border-gray-200 text-gray-600 hover:border-orange-400'
-                            )}
-                          >
-                            <span className="flex items-center gap-1">
-                              {selected && <Check size={12} />}
-                              {name}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                  <AnimatePresence>
+                    {expandedCategories[category] && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 bg-white flex flex-wrap gap-2.5">
+                          {items.map((name) => {
+                            const selected = selectedIngredients.includes(name);
+                            return (
+                              <motion.button
+                                key={name}
+                                onClick={() => toggleIngredient(name)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={clsx(
+                                  'px-4 py-2 rounded-full text-sm font-medium border-2 transition-all duration-200 select-none shadow-sm',
+                                  selected
+                                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 border-orange-500 text-white shadow-md'
+                                    : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50'
+                                )}
+                              >
+                                <span className="flex items-center gap-1.5">
+                                  {selected && <Check size={14} strokeWidth={3} />}
+                                  {name}
+                                </span>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               ))}
             </div>
           </div>
 
           {/* Custom ingredient input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Add a custom ingredient — press <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-mono">Enter</kbd>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Add custom ingredient <span className="text-gray-500">— press <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded-lg text-xs font-mono shadow-sm">Enter</kbd></span>
             </label>
             <input
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all bg-white text-gray-700 placeholder-gray-400 text-sm"
-              placeholder="e.g. avocado, coconut milk…"
+              className="input-field"
+              placeholder="e.g. avocado, coconut milk, basil..."
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
               onKeyDown={handleCustomInput}
@@ -485,28 +522,60 @@ export default function SmartRecipe() {
           </div>
 
           {/* Custom chips */}
-          {customChips.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {customChips.map((name) => (
-                <span key={name} className="px-3 py-1.5 rounded-full bg-orange-500 text-white text-sm font-medium flex items-center gap-1">
-                  {name}
-                  <button onClick={() => removeCustomIngredient(name)} className="ml-1 hover:text-orange-200 transition-colors" aria-label={`Remove ${name}`}>×</button>
-                </span>
-              ))}
-            </div>
-          )}
+          <AnimatePresence>
+            {customChips.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex flex-wrap gap-2.5"
+              >
+                {customChips.map((name) => (
+                  <motion.span 
+                    key={name} 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-medium flex items-center gap-2 shadow-md"
+                  >
+                    {name}
+                    <button 
+                      onClick={() => removeCustomIngredient(name)} 
+                      className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors duration-200" 
+                      aria-label={`Remove ${name}`}
+                    >
+                      <XCircle size={16} strokeWidth={2.5} />
+                    </button>
+                  </motion.span>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Selection count */}
-          <p className="text-sm text-gray-600">
-            {selectedIngredients.length} ingredient{selectedIngredients.length !== 1 ? 's' : ''} selected
-          </p>
+          <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-200">
+            <span className="text-sm font-medium text-gray-700">
+              {selectedIngredients.length} ingredient{selectedIngredients.length !== 1 ? 's' : ''} selected
+            </span>
+            {selectedIngredients.length > 0 && (
+              <span className="text-xs text-gray-500">Max 20 ingredients</span>
+            )}
+          </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-1"><Salad size={16} className="text-green-600" /> Diet</label>
-              <select value={diet} onChange={(e) => setDiet(e.target.value)}
-                className="border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 text-sm focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-green-100 flex items-center justify-center">
+                  <Salad size={16} className="text-green-600" strokeWidth={2.5} />
+                </div>
+                Diet
+              </label>
+              <select 
+                value={diet} 
+                onChange={(e) => setDiet(e.target.value)}
+                className="input-field w-auto min-w-[140px]"
+              >
                 <option value="none">None</option>
                 <option value="veg">Vegetarian</option>
                 <option value="vegan">Vegan</option>
@@ -514,105 +583,175 @@ export default function SmartRecipe() {
                 <option value="paleo">Paleo</option>
               </select>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-1"><Timer size={16} className="text-orange-500" /> Max time (min)</label>
-              <input type="number" min="5" max="240"
-                className="border border-gray-200 rounded-lg px-3 py-2 w-28 bg-white text-gray-700 text-sm focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-all"
-                value={maxTime} onChange={(e) => setMaxTime(e.target.value)} placeholder="e.g. 30" />
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+                  <Timer size={16} className="text-orange-600" strokeWidth={2.5} />
+                </div>
+                Max time
+              </label>
+              <input 
+                type="number" 
+                min="5" 
+                max="240"
+                className="input-field w-28"
+                value={maxTime} 
+                onChange={(e) => setMaxTime(e.target.value)} 
+                placeholder="30 min" 
+              />
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
-            <button disabled={!canSubmit} onClick={fetchSmartRecipe}
-              className={clsx('px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition duration-200',
-                canSubmit ? 'bg-orange-500 text-white hover:bg-orange-600 hover:scale-[1.02]' : 'bg-gray-100 text-gray-400 cursor-not-allowed')}>
-              {loading ? (<><span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> Generating...</>)
-                : (<><Search size={16} /> Find My Recipe</>)}
-            </button>
-            <button onClick={() => { setSelectedIngredients([]); setRecipe(null); toast.success('Cleared!', { duration: 2000 }); }}
-              className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition duration-200 flex items-center gap-2">
-              <RotateCcw size={16} /> Reset
-            </button>
+          <div className="flex items-center gap-3 pt-2">
+            <motion.button 
+              disabled={!canSubmit} 
+              onClick={fetchSmartRecipe}
+              whileHover={canSubmit ? { scale: 1.02 } : {}}
+              whileTap={canSubmit ? { scale: 0.98 } : {}}
+              className={clsx(
+                'flex-1 px-6 py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 shadow-md',
+                canSubmit 
+                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-lg hover:from-orange-600 hover:to-orange-700' 
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+              )}
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Search size={18} strokeWidth={2.5} /> Find My Recipe
+                </>
+              )}
+            </motion.button>
+            <motion.button 
+              onClick={() => { setSelectedIngredients([]); setRecipe(null); toast.success('Cleared!', { duration: 2000 }); }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-6 py-3.5 bg-white border-2 border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+            >
+              <RotateCcw size={18} strokeWidth={2.5} /> Reset
+            </motion.button>
           </div>
 
           {/* Daily usage indicator */}
-          {hasGeneratedRecipe && (
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Timer size={16} className="text-orange-600" />
-                  {dailyUsage} of {MAX_DAILY_RECIPES} {user ? 'recipes' : 'free recipes'} used today
-                </span>
-              </div>
-              
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="h-full transition-all duration-500 ease-out rounded-full"
-                  style={{
-                    width: `${(dailyUsage / MAX_DAILY_RECIPES) * 100}%`,
-                    backgroundColor: '#E8521A'
-                  }}
-                />
-              </div>
-              
-              {dailyUsage >= MAX_DAILY_RECIPES && (
-                <p className="text-sm text-orange-700 font-medium flex items-center gap-2">
-                  <XCircle size={16} />
-                  {user ? 'Daily limit reached. Come back tomorrow!' : 'Free limit reached. Sign in for 15 recipes/day!'}
-                </p>
-              )}
-            </div>
-          )}
+          <AnimatePresence>
+            {hasGeneratedRecipe && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-5 bg-gradient-to-br from-orange-50 to-orange-100/50 border-2 border-orange-200 rounded-2xl space-y-3 shadow-sm"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-900 flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-200 flex items-center justify-center">
+                      <Timer size={16} className="text-orange-700" strokeWidth={2.5} />
+                    </div>
+                    {dailyUsage} of {MAX_DAILY_RECIPES} {user ? 'recipes' : 'free recipes'} used today
+                  </span>
+                </div>
+                
+                <div className="w-full bg-orange-200/50 rounded-full h-3 overflow-hidden shadow-inner">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(dailyUsage / MAX_DAILY_RECIPES) * 100}%` }}
+                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full shadow-sm"
+                  />
+                </div>
+                
+                {dailyUsage >= MAX_DAILY_RECIPES && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-orange-800 font-medium flex items-center gap-2 bg-white/60 px-3 py-2 rounded-lg"
+                  >
+                    <XCircle size={16} strokeWidth={2.5} />
+                    {user ? 'Daily limit reached. Come back tomorrow!' : 'Free limit reached. Sign in for 15 recipes/day!'}
+                  </motion.p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Error */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm flex items-center gap-2"><XCircle size={16} /> {error}</p>
-            </div>
-          )}
-        </div>
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="p-4 bg-red-50 border-2 border-red-200 rounded-2xl shadow-sm"
+              >
+                <p className="text-red-700 text-sm font-medium flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-red-200 flex items-center justify-center flex-shrink-0">
+                    <XCircle size={16} className="text-red-700" strokeWidth={2.5} />
+                  </div>
+                  {error}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Output */}
         <div ref={recipeRef}>
-          {loading && !recipe && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3 mt-4">
-              <div className="skeleton-line h-4 w-3/5"></div>
-              <div className="skeleton-line h-3 w-2/5 mt-1"></div>
-              <div style={{height: '1px', background: '#f0f0f0', margin: '12px 0'}}></div>
-              <div className="skeleton-line h-3 w-full"></div>
-              <div className="skeleton-line h-3 w-4/5"></div>
-              <div className="skeleton-line h-3 w-3/5"></div>
-              <div style={{height: '1px', background: '#f0f0f0', margin: '12px 0'}}></div>
-              <div className="skeleton-line h-3 w-full"></div>
-              <div className="skeleton-line h-3 w-2/3"></div>
-              <div className="skeleton-line h-10 w-full mt-2" style={{borderRadius: '12px'}}></div>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {loading && !recipe && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="bg-white rounded-3xl border border-gray-200 p-8 space-y-4 shadow-lg"
+              >
+                <div className="skeleton-line h-6 w-3/5"></div>
+                <div className="skeleton-line h-4 w-2/5 mt-2"></div>
+                <div className="h-px bg-gray-200 my-4"></div>
+                <div className="skeleton-line h-4 w-full"></div>
+                <div className="skeleton-line h-4 w-4/5"></div>
+                <div className="skeleton-line h-4 w-3/5"></div>
+                <div className="h-px bg-gray-200 my-4"></div>
+                <div className="skeleton-line h-4 w-full"></div>
+                <div className="skeleton-line h-4 w-2/3"></div>
+                <div className="skeleton-line h-12 w-full mt-4 rounded-xl"></div>
+              </motion.div>
+            )}
 
-          {recipe && !loading && (
-            <div 
-              className="recipe-reveal bg-white border border-orange-100 rounded-xl p-5 space-y-5 shadow-md hover:shadow-lg transition duration-200"
-            >
+            {recipe && !loading && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="recipe-reveal bg-white border-2 border-orange-100 rounded-3xl p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300"
+              >
               {/* Title row */}
-              <div className="flex items-start justify-between gap-4">
-                <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                  <Utensils size={20} className="text-orange-500 flex-shrink-0" />{recipe.title}
-                </h2>
-                <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
-                  <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg">
-                    <Timer size={14} className="text-orange-600" />
-                    <span className="text-orange-700 font-medium text-sm">{recipe.estimatedTime} min</span>
+              <div className="flex items-start justify-between gap-6 pb-6 border-b border-gray-100">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                      <Utensils size={24} className="text-white" strokeWidth={2.5} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 leading-tight">{recipe.title}</h2>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <div className="flex items-center gap-2 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 px-4 py-2.5 rounded-xl shadow-sm">
+                    <Timer size={16} className="text-orange-600" strokeWidth={2.5} />
+                    <span className="text-orange-700 font-bold text-sm">{recipe.estimatedTime} min</span>
                   </div>
                   {recipe.estimatedCost && (
-                    <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-                      <span>💰</span>
+                    <div className="flex items-center gap-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 px-4 py-2.5 rounded-xl text-sm text-green-700 font-bold shadow-sm">
+                      <span>Cost</span>
                       <span>{recipe.estimatedCost}</span>
                     </div>
                   )}
                   {recipe.cookingEquipment && (
-                    <div className="flex items-center gap-2 text-sm text-orange-600 font-medium">
-                      <span>🍳</span>
+                    <div className="flex items-center gap-2 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 px-4 py-2.5 rounded-xl text-sm text-blue-700 font-bold shadow-sm">
                       <span>{recipe.cookingEquipment}</span>
                     </div>
                   )}
@@ -620,200 +759,311 @@ export default function SmartRecipe() {
               </div>
 
               {recipe.healthBenefits?.length > 0 && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-green-800 text-sm flex items-start gap-2">
-                    <Heart size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
-                    <span><strong>Why it's healthy:</strong> {recipe.healthBenefits.join(', ')}</span>
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="p-5 bg-gradient-to-br from-green-50 to-green-100/50 border-2 border-green-200 rounded-2xl shadow-sm"
+                >
+                  <p className="text-green-900 text-sm flex items-start gap-3 leading-relaxed">
+                    <div className="w-8 h-8 rounded-lg bg-green-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Heart size={16} className="text-green-700" strokeWidth={2.5} />
+                    </div>
+                    <span><strong className="font-semibold">Why it's healthy:</strong> {recipe.healthBenefits.join(', ')}</span>
                   </p>
-                </div>
+                </motion.div>
               )}
 
-              <div className="grid lg:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center gap-2">
-                      <ShoppingCart size={18} className="text-orange-500" /> Used Ingredients
+              <div className="grid lg:grid-cols-2 gap-6">
+                <div className="space-y-5">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+                  >
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
+                        <ShoppingCart size={20} className="text-orange-600" strokeWidth={2.5} />
+                      </div>
+                      Used Ingredients
                     </h3>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-2.5">
                       {recipe.usedIngredients?.map((x, i) => (
-                        <li key={x + i} className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="w-1.5 h-1.5 bg-orange-400 rounded-full flex-shrink-0" />{x}
-                        </li>
+                        <motion.li 
+                          key={x + i} 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + i * 0.05 }}
+                          className="flex items-center gap-3 text-sm text-gray-700 font-medium"
+                        >
+                          <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0 shadow-sm" />
+                          {x}
+                        </motion.li>
                       ))}
                     </ul>
-                  </div>
+                  </motion.div>
 
                   {recipe.optionalIngredients?.length > 0 && (
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                      <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center gap-2">
-                        <Package size={18} className="text-orange-500" /> Optional / Pantry
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+                    >
+                      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center">
+                          <Package size={20} className="text-gray-600" strokeWidth={2.5} />
+                        </div>
+                        Optional / Pantry
                       </h3>
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-2.5">
                         {recipe.optionalIngredients.map((x, i) => (
-                          <li key={x + i} className="flex items-center gap-2 text-sm text-gray-600">
-                            <span className="w-1.5 h-1.5 bg-gray-300 rounded-full flex-shrink-0" />{x}
-                          </li>
+                          <motion.li 
+                            key={x + i} 
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 + i * 0.05 }}
+                            className="flex items-center gap-3 text-sm text-gray-600 font-medium"
+                          >
+                            <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0" />
+                            {x}
+                          </motion.li>
                         ))}
                       </ul>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl p-4">
-                  <h3 className="text-lg font-medium text-gray-700 mb-3 flex items-center gap-2">
-                    <ChefHat size={18} className="text-orange-500" /> Cooking Steps
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-gradient-to-br from-orange-50 to-white border-2 border-orange-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-200 flex items-center justify-center">
+                      <ChefHat size={20} className="text-orange-700" strokeWidth={2.5} />
+                    </div>
+                    Cooking Steps
                   </h3>
-                  <ol className="space-y-3">
+                  <ol className="space-y-4">
                     {recipe.cookingSteps?.map((s, i) => (
-                      <li key={i} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center font-medium text-xs">{i + 1}</span>
-                        <span className="text-sm text-gray-600 leading-relaxed">{s}</span>
-                      </li>
+                      <motion.li 
+                        key={i} 
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + i * 0.1 }}
+                        className="flex gap-4"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-md">
+                          {i + 1}
+                        </div>
+                        <span className="text-sm text-gray-700 leading-relaxed font-medium pt-1">{s}</span>
+                      </motion.li>
                     ))}
                   </ol>
-                  <div className="mt-4 pt-3 border-t border-gray-100 space-y-1.5">
+                  <div className="mt-6 pt-5 border-t-2 border-gray-100 space-y-2">
                     {recipe.servings && (
-                      <p className="text-sm text-gray-600 flex items-center gap-2">
-                        <Users size={16} className="text-orange-500" /> <strong>Servings:</strong> {recipe.servings}
+                      <p className="text-sm text-gray-700 flex items-center gap-3 font-medium">
+                        <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                          <Users size={16} className="text-orange-600" strokeWidth={2.5} />
+                        </div>
+                        <span><strong className="font-semibold">Servings:</strong> {recipe.servings}</span>
                       </p>
                     )}
                   </div>
-                </div>
+                </motion.div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button onClick={() => navigate('/cook', { state: { recipe } })}
-                  className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition duration-200 hover:scale-[1.02] flex items-center justify-center gap-2">
-                  <ChefHat size={18} /> Start Cooking
-                </button>
-                <button onClick={shareRecipe}
-                  className="px-5 py-2.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition duration-200 flex items-center justify-center gap-2">
-                  <Share2 size={18} /> Share Recipe
-                </button>
-                <button onClick={shareOnWhatsApp}
-                  className="px-5 py-2.5 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition duration-200 flex items-center justify-center gap-2">
-                  <Share2 size={18} /> WhatsApp
-                </button>
-                <button onClick={saveRecipe} disabled={saving}
-                  className={clsx('px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition duration-200 flex items-center justify-center gap-2', saving && 'opacity-50 cursor-not-allowed')}>
-                  {saving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600" /> Saving…</>)
-                    : (<><Bookmark size={18} /> Save Recipe</>)}
-                </button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t-2 border-gray-100">
+                <motion.button 
+                  onClick={() => navigate('/cook', { state: { recipe } })}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md"
+                >
+                  <ChefHat size={20} strokeWidth={2.5} /> Start Cooking
+                </motion.button>
+                <motion.button 
+                  onClick={shareRecipe}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md"
+                >
+                  <Share2 size={20} strokeWidth={2.5} /> Share Recipe
+                </motion.button>
+                <motion.button 
+                  onClick={shareOnWhatsApp}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md"
+                >
+                  <Share2 size={20} strokeWidth={2.5} /> WhatsApp
+                </motion.button>
+                <motion.button 
+                  onClick={saveRecipe} 
+                  disabled={saving}
+                  whileHover={!saving ? { scale: 1.02 } : {}}
+                  whileTap={!saving ? { scale: 0.98 } : {}}
+                  className={clsx(
+                    'flex-1 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md',
+                    saving 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-lg'
+                  )}
+                >
+                  {saving ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark size={20} strokeWidth={2.5} /> Save Recipe
+                    </>
+                  )}
+                </motion.button>
               </div>
-              <p className="text-xs text-gray-400">Access saved recipes anytime from your profile.</p>
+              <p className="text-xs text-gray-500 text-center">Access saved recipes anytime from your profile</p>
 
               {/* Feedback Section */}
-              <div className="pt-4 border-t border-gray-100">
+              <div className="pt-6 border-t-2 border-gray-100">
                 {!feedbackState.submitted ? (
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-sm text-gray-600">Was this recipe helpful?</span>
-                    <button
-                      onClick={() => handleFeedback('helpful')}
-                      className="text-2xl hover:scale-110 transition-transform duration-200 focus:outline-none"
-                      aria-label="Helpful"
-                      style={{
-                        filter: feedbackState.selected === 'helpful' ? 'none' : 'grayscale(0.3)',
-                        opacity: feedbackState.selected === 'helpful' ? 1 : 0.7
-                      }}
-                    >
-                      👍
-                    </button>
-                    <button
-                      onClick={() => handleFeedback('not_helpful')}
-                      className="text-2xl hover:scale-110 transition-transform duration-200 focus:outline-none"
-                      aria-label="Not helpful"
-                      style={{
-                        filter: feedbackState.selected === 'not_helpful' ? 'none' : 'grayscale(0.3)',
-                        opacity: feedbackState.selected === 'not_helpful' ? 1 : 0.7
-                      }}
-                    >
-                      👎
-                    </button>
+                  <div className="flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-2xl">
+                    <span className="text-sm font-medium text-gray-700">Was this recipe helpful?</span>
+                    <div className="flex gap-3">
+                      <motion.button
+                        onClick={() => handleFeedback('helpful')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-12 h-12 rounded-xl bg-white border-2 border-gray-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 flex items-center justify-center text-2xl shadow-sm hover:shadow-md"
+                        aria-label="Helpful"
+                      >
+                        👍
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleFeedback('not_helpful')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-12 h-12 rounded-xl bg-white border-2 border-gray-200 hover:border-red-400 hover:bg-red-50 transition-all duration-200 flex items-center justify-center text-2xl shadow-sm hover:shadow-md"
+                        aria-label="Not helpful"
+                      >
+                        👎
+                      </motion.button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
-                      Thanks for your feedback! 🙏
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center p-4 bg-green-50 border-2 border-green-200 rounded-2xl"
+                  >
+                    <p className="text-sm text-green-800 font-medium flex items-center justify-center gap-2">
+                      <Check size={18} className="text-green-600" strokeWidth={2.5} />
+                      Thanks for your feedback!
                     </p>
-                  </div>
+                  </motion.div>
                 )}
               </div>
 
               {/* Push Notification Prompt */}
               {recipe && (
-                <div style={{
-                  background: '#FFF0E8',
-                  border: '1px solid rgba(232,82,26,0.2)',
-                  borderRadius: '16px',
-                  padding: '16px 20px',
-                  marginTop: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}>
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: '600', color: '#2C1810', marginBottom: '4px' }}>
-                      🍳 Want daily recipe ideas at 7pm?
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#5C3D2E' }}>
-                      We'll remind you to cook something real instead of ordering Swiggy
-                    </p>
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="p-6 bg-gradient-to-br from-orange-50 to-orange-100/50 border-2 border-orange-200 rounded-2xl shadow-sm"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <Bell size={24} className="text-white" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className="text-base font-bold text-gray-900 mb-1">
+                        Want daily recipe ideas at 7pm?
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        We'll remind you to cook something real instead of ordering Swiggy
+                      </p>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
+                  <div className="flex gap-3">
+                    <motion.button
                       onClick={handleSubscribe}
                       disabled={isLoading}
-                      style={{
-                        background: '#E8521A',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '100px',
-                        padding: '8px 16px',
-                        fontSize: '13px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        flex: 1
-                      }}
+                      whileHover={!isLoading ? { scale: 1.02 } : {}}
+                      whileTap={!isLoading ? { scale: 0.98 } : {}}
+                      className="flex-1 px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white border-none rounded-xl text-sm font-semibold shadow-md hover:shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isLoading ? 'Setting up...' : 'Yes, remind me! 🔔'}
-                    </button>
-                    <button
+                      {isLoading ? 'Setting up...' : 'Yes, remind me!'}
+                    </motion.button>
+                    <motion.button
                       onClick={handleDismiss}
-                      style={{
-                        background: 'transparent',
-                        color: '#5C3D2E',
-                        border: '1px solid rgba(44,24,16,0.15)',
-                        borderRadius: '100px',
-                        padding: '8px 16px',
-                        fontSize: '13px',
-                        cursor: 'pointer'
-                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="px-5 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                       No thanks
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {/* What next */}
-              <div className="pt-4 border-t border-gray-100">
-                <p className="text-sm font-medium text-gray-700 mb-3">What do you want to do next?</p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <button onClick={() => navigate('/recipes')}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition duration-200 hover:scale-[1.01]">
-                    <Utensils size={16} /> Explore More Recipes
-                  </button>
-                  <button onClick={() => navigate('/meal-planner')}
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition duration-200 hover:scale-[1.01]">
-                    <Salad size={16} /> Plan My Meals
-                  </button>
+              <div className="pt-6 border-t-2 border-gray-100">
+                <p className="text-base font-bold text-gray-900 mb-4">What do you want to do next?</p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <motion.button 
+                    onClick={() => navigate('/recipes')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white border-2 border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    <Utensils size={18} strokeWidth={2.5} /> Explore More Recipes
+                  </motion.button>
+                  <motion.button 
+                    onClick={() => navigate('/meal-planner')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white border-2 border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                  >
+                    <Salad size={18} strokeWidth={2.5} /> Plan My Meals
+                  </motion.button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
+        </AnimatePresence>
         </div>
       </div>
-      <Toaster />
+      <Toaster 
+        position="bottom-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: '#111827',
+            padding: '16px',
+            borderRadius: '12px',
+            border: '1px solid #E5E7EB',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+            fontWeight: '500',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10B981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#EF4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   );
 }

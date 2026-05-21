@@ -1,130 +1,250 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Sparkles, Utensils, Share2, Check } from 'lucide-react'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Sparkles, ArrowRight, Play, Check, Zap } from 'lucide-react';
 
-const chips = ['Dal', 'Chawal', 'Aata', 'Tomato', 'Egg', 'Onion', 'Bread', 'Paneer']
+const FloatingCard = ({ delay = 0, children, className = "" }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
 
-/** Interactive phone mockup shown in hero */
-const PhoneMockup = () => {
-  const [activeChips, setActiveChips] = useState(['Dal', 'Chawal', 'Tomato', 'Onion'])
+const AnimatedPhoneMockup = () => {
+  const [activeChips, setActiveChips] = useState(['Dal', 'Chawal', 'Tomato', 'Onion']);
+  const chips = ['Dal', 'Chawal', 'Aata', 'Tomato', 'Egg', 'Onion', 'Bread', 'Paneer'];
 
-  const toggleChip = (chip) =>
+  const toggleChip = (chip) => {
     setActiveChips(prev =>
       prev.includes(chip) ? prev.filter(c => c !== chip) : [...prev, chip]
-    )
+    );
+  };
 
   return (
-    <div className="flex justify-center">
-      <div className="w-56 bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
-        {/* Phone top bar */}
-        <div className="bg-orange-500 px-4 py-3">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-white text-xs font-bold">ChefMate</span>
-            <span className="text-white/70 text-xs">9:41</span>
-          </div>
-          <div className="text-white text-sm font-semibold leading-snug">What's in your kitchen?</div>
-          <div className="text-white/80 text-xs mt-0.5">Tap what you have → get a recipe</div>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 30 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="relative"
+    >
+      {/* Floating gradient orbs */}
+      <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-orange-400/30 to-pink-400/30 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      
+      {/* Phone mockup */}
+      <div className="relative w-72 mx-auto">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl border-8 border-gray-900 overflow-hidden transform hover:scale-105 transition-transform duration-500">
+          {/* Notch */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-3xl z-10" />
+          
+          {/* Screen */}
+          <div className="relative bg-gradient-to-br from-orange-50 to-orange-100/50 pt-8">
+            {/* Status bar */}
+            <div className="px-6 py-2 flex justify-between items-center text-xs text-gray-600">
+              <span className="font-semibold">9:41</span>
+              <div className="flex gap-1">
+                <div className="w-4 h-4 bg-gray-400 rounded-sm" />
+                <div className="w-4 h-4 bg-gray-400 rounded-sm" />
+                <div className="w-4 h-4 bg-gray-400 rounded-sm" />
+              </div>
+            </div>
 
-        {/* Phone body */}
-        <div className="p-3">
-          <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">Tap your ingredients</div>
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {chips.map(chip => (
-              <button
-                key={chip}
-                onClick={() => toggleChip(chip)}
-                className={`text-xs px-2 py-1 rounded-full border transition-colors ${
-                  activeChips.includes(chip)
-                    ? 'bg-orange-50 border-orange-400 text-orange-600 font-medium'
-                    : 'bg-gray-50 border-gray-200 text-gray-500'
-                }`}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
+            {/* App header */}
+            <div className="px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600">
+              <h3 className="text-white font-bold text-lg mb-1">Smart Recipe</h3>
+              <p className="text-white/90 text-xs">What's in your kitchen?</p>
+            </div>
 
-          <button className="w-full bg-orange-500 text-white text-xs font-medium py-2 rounded-lg mb-3 flex items-center justify-center gap-1">
-            <Sparkles size={10} /> Find my recipe
-          </button>
-
-          {/* Recipe card preview */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <div className="bg-orange-50 px-3 py-2 flex gap-2 items-center">
-              <Utensils size={18} className="text-orange-500 flex-shrink-0" />
+            {/* Content */}
+            <div className="p-6 space-y-4 min-h-[400px]">
               <div>
-                <div className="text-xs font-semibold text-gray-800">Dal Tadka + Chawal</div>
-                <div className="flex gap-1.5 mt-1">
-                  <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">12 min</span>
-                  <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">₹22 est.</span>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Select Ingredients</p>
+                <div className="flex flex-wrap gap-2">
+                  {chips.map((chip, i) => (
+                    <motion.button
+                      key={chip}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + i * 0.05 }}
+                      onClick={() => toggleChip(chip)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                        activeChips.includes(chip)
+                          ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md scale-105'
+                          : 'bg-white border border-gray-200 text-gray-600 hover:border-orange-300'
+                      }`}
+                    >
+                      {chip}
+                    </motion.button>
+                  ))}
                 </div>
               </div>
-            </div>
-            <div className="px-3 py-2 flex gap-1.5">
-              <div className="flex-1 text-center text-xs py-1 border border-gray-200 rounded text-gray-500">Save</div>
-              <div className="flex-1 text-center text-xs py-1 border border-gray-200 rounded text-gray-500 flex items-center justify-center gap-0.5">
-                <Share2 size={9} /> Share
-              </div>
-              <div className="flex-1 text-center text-xs py-1 bg-orange-500 text-white rounded">Cook</div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-xl font-semibold text-sm shadow-lg flex items-center justify-center gap-2"
+              >
+                <Sparkles size={16} />
+                Find My Recipe
+              </motion.button>
+
+              {/* Recipe preview */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+                className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
+              >
+                <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4">
+                  <h4 className="font-bold text-gray-900 text-sm mb-2">Dal Tadka + Chawal</h4>
+                  <div className="flex gap-2">
+                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">12 min</span>
+                    <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">₹22</span>
+                  </div>
+                </div>
+                <div className="p-3 flex gap-2">
+                  <button className="flex-1 py-2 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg">Save</button>
+                  <button className="flex-1 py-2 text-xs font-medium text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg">Cook</button>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
+    </motion.div>
+  );
+};
 
-/** Full hero section */
 const LandingHero = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
-    <section className="py-16 px-6 bg-white border-b border-gray-100">
-      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-        {/* Left: copy */}
-        <div>
-          <div className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-medium px-3 py-1.5 rounded-full mb-5">
-            Made for Indian bachelor life
-          </div>
-
-          <h1 className="text-3xl md:text-4xl font-semibold text-gray-800 leading-tight mb-4">
-            1 burner.<br />
-            <span className="text-orange-500">5 ingredients.</span><br />
-            Real food tonight.
-          </h1>
-
-          <p className="text-sm text-gray-600 leading-relaxed mb-6 max-w-md">
-            Tell ChefMate what's in your PG kitchen — dal, chawal, whatever's left — and get a
-            real recipe in seconds. No oven. No grinding. No Swiggy bill.
-          </p>
-
-          <div className="flex gap-3 flex-wrap mb-5">
-            <button
-              className="px-5 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors"
-              onClick={() => navigate('/app')}
-            >
-              Find my recipe →
-            </button>
-            <button
-              className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-              onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              See how it works
-            </button>
-          </div>
-
-          <p className="text-xs text-gray-400 flex items-center gap-1.5">
-            <Check size={13} className="text-orange-500" />
-            Free to use. No credit card. Works on any phone.
-          </p>
-        </div>
-
-        {/* Right: phone mockup */}
-        <PhoneMockup />
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-orange-200/40 to-pink-200/40 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-orange-100/20 to-transparent rounded-full blur-3xl" />
       </div>
-    </section>
-  )
-}
 
-export default LandingHero
+      <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left content */}
+          <div className="space-y-8">
+            <FloatingCard delay={0.1}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-orange-200/50 rounded-full shadow-sm">
+                <Zap size={16} className="text-orange-500" />
+                <span className="text-sm font-semibold text-gray-700">AI-Powered Recipe Generator</span>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard delay={0.2}>
+              <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+                  Cook Real Food
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 bg-clip-text text-transparent">
+                  Tonight
+                </span>
+              </h1>
+            </FloatingCard>
+
+            <FloatingCard delay={0.3}>
+              <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-xl">
+                Turn whatever's in your kitchen into a delicious meal. No fancy ingredients, no complicated steps. Just real food in minutes.
+              </p>
+            </FloatingCard>
+
+            <FloatingCard delay={0.4}>
+              <div className="flex flex-wrap gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/app')}
+                  className="group px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-3"
+                >
+                  Get Started Free
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="px-8 py-4 bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-700 rounded-2xl font-semibold text-lg hover:bg-white hover:border-gray-300 transition-all duration-300 flex items-center gap-3"
+                >
+                  <Play size={20} />
+                  Watch Demo
+                </motion.button>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard delay={0.5}>
+              <div className="flex flex-wrap gap-6 pt-4">
+                {[
+                  'No signup required',
+                  'Works on any device',
+                  'Free forever'
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check size={14} className="text-green-600" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm font-medium text-gray-600">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </FloatingCard>
+
+            <FloatingCard delay={0.6}>
+              <div className="flex items-center gap-8 pt-4">
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">500+</div>
+                  <div className="text-sm text-gray-600">Recipes Created</div>
+                </div>
+                <div className="w-px h-12 bg-gray-200" />
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">100+</div>
+                  <div className="text-sm text-gray-600">Active Users</div>
+                </div>
+                <div className="w-px h-12 bg-gray-200" />
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">Free</div>
+                  <div className="text-sm text-gray-600">Forever</div>
+                </div>
+              </div>
+            </FloatingCard>
+          </div>
+
+          {/* Right mockup */}
+          <div className="relative lg:block hidden">
+            <AnimatedPhoneMockup />
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+      >
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center pt-2"
+        >
+          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+};
+
+export default LandingHero;
