@@ -151,7 +151,7 @@ export default function More() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { label: 'Recipes Created', value: '500+', icon: '🍳' },
-              { label: 'Active Users', value: '100+', icon: '👥' },
+              { label: 'Active Users', value: '300+', icon: '👥' },
               { label: 'Free Forever', value: '100%', icon: '✨' },
             ].map((stat, index) => (
               <motion.div

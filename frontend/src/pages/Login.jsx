@@ -213,7 +213,7 @@ export default function Login() {
             <div className="space-y-4">
               {[
                 "500+ recipes created",
-                "100+ active home cooks",
+                "300+ active home cooks",
                 "Free forever"
               ].map((feature, i) => (
                 <motion.div

@@ -113,6 +113,23 @@ const CATEGORIZED_INGREDIENTS = {
 };
 
 const PREDEFINED_INGREDIENTS = Object.values(CATEGORIZED_INGREDIENTS).flatMap(cat => cat.items);
+const PREDEFINED_INGREDIENT_SET = new Set(PREDEFINED_INGREDIENTS.map((x) => x.toLowerCase()));
+const INGREDIENT_ALIASES = {
+  'shimla mirch': 'capsicum',
+  'dhania': 'coriander',
+  'coriander leaves': 'coriander',
+  'hari mirch': 'green chili',
+  'mirchi': 'green chili',
+  'lal mirch powder': 'red chili powder',
+  'aloo': 'potato',
+  'pyaz': 'onion',
+  'dahi': 'curd',
+  'atta': 'aata',
+  'rava': 'suji',
+  'baingan': 'brinjal',
+  'adrak': 'ginger',
+  'lahsun': 'garlic',
+};
 
 export default function SmartRecipe() {
   const navigate = useNavigate();
@@ -126,6 +143,7 @@ export default function SmartRecipe() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const recipeRef = useRef(null);
+  const ingredientValidationCache = useRef(new Map());
   const ingredients = selectedIngredients;
   
   // Feedback state
@@ -225,6 +243,22 @@ export default function SmartRecipe() {
     return [];
   }
 
+  function normalizeCookingSteps(value) {
+    const rawSteps = Array.isArray(value)
+      ? value
+      : typeof value === 'string'
+        ? value.split(/\n+/)
+        : [];
+
+    const cleaned = rawSteps
+      .map((x) => String(x).trim())
+      .filter(Boolean)
+      .map((step) => step.replace(/^\d+[\).\-\s:]+/, '').trim())
+      .filter((step) => step && !/^\d+$/.test(step));
+
+    return cleaned;
+  }
+
   function normalizeRecipePayload(data) {
     if (!data || typeof data !== 'object') return null;
     const src = data.recipe && typeof data.recipe === 'object' ? data.recipe : data;
@@ -236,7 +270,7 @@ export default function SmartRecipe() {
       usedIngredients: toArray(src.usedIngredients),
       optionalIngredients: toArray(src.optionalIngredients),
       healthBenefits: toArray(src.healthBenefits),
-      cookingSteps: toArray(src.cookingSteps),
+      cookingSteps: normalizeCookingSteps(src.cookingSteps),
     };
   }
 
@@ -246,24 +280,98 @@ export default function SmartRecipe() {
     );
   }
 
-  function handleCustomInput(e) {
+  function normalizeIngredientName(value) {
+    return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+  }
+
+  function localValidateIngredient(value) {
+    const normalized = normalizeIngredientName(value);
+    if (!normalized) return { verdict: 'invalid_non_food', reason: 'Ingredient is empty.' };
+    if (normalized.length < 2 || normalized.length > 30) {
+      return { verdict: 'invalid_non_food', reason: 'Ingredient must be 2-30 characters.' };
+    }
+    if (/^\d+$/.test(normalized) || !/[a-z]/.test(normalized) || /^[^a-z]+$/i.test(normalized)) {
+      return { verdict: 'invalid_non_food', reason: 'Please enter a real food ingredient.' };
+    }
+
+    const canonical = INGREDIENT_ALIASES[normalized] || normalized;
+    if (PREDEFINED_INGREDIENT_SET.has(canonical)) {
+      return { verdict: 'valid_ingredient', canonical, reason: 'Matched known ingredient.' };
+    }
+
+    return { verdict: 'unknown', canonical };
+  }
+
+  async function validateIngredientHybrid(value) {
+    const local = localValidateIngredient(value);
+    if (local.verdict !== 'unknown') return local;
+
+    const cacheKey = local.canonical;
+    if (ingredientValidationCache.current.has(cacheKey)) {
+      return ingredientValidationCache.current.get(cacheKey);
+    }
+
+    const API_BASE = import.meta.env?.VITE_BASE_URL || 'http://localhost:5000';
+    try {
+      const res = await fetch(`${API_BASE}/api/ingredients/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredient: cacheKey }),
+      });
+      const data = await res.json().catch(() => ({}));
+      const result = {
+        verdict: data.verdict || 'possibly_valid',
+        canonical: normalizeIngredientName(data.canonical || cacheKey),
+        reason: data.reason || 'Checked with fallback validation.',
+      };
+      ingredientValidationCache.current.set(cacheKey, result);
+      return result;
+    } catch {
+      return { verdict: 'possibly_valid', canonical: cacheKey, reason: 'Could not verify now, added with caution.' };
+    }
+  }
+
+  async function handleCustomInput(e) {
     if (e.key !== 'Enter') return;
     e.preventDefault();
-    const raw = customInput.trim().toLowerCase();
+    const raw = customInput.trim();
     if (!raw) return;
     const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    const verdicts = await Promise.all(parts.map((part) => validateIngredientHybrid(part)));
+
+    const approved = [];
+    let rejectedCount = 0;
+    let warningCount = 0;
+
+    verdicts.forEach((result) => {
+      if (result.verdict === 'invalid_non_food') {
+        rejectedCount += 1;
+        return;
+      }
+      if (result.verdict === 'possibly_valid') warningCount += 1;
+      approved.push(result.canonical);
+    });
+
+    if (rejectedCount > 0) {
+      toast.error(`Rejected ${rejectedCount} invalid ingredient${rejectedCount > 1 ? 's' : ''}.`, { duration: 2500 });
+    }
+
+    if (warningCount > 0) {
+      toast(`Added ${warningCount} item${warningCount > 1 ? 's' : ''} as possibly valid.`, { duration: 2500 });
+    }
+
     setSelectedIngredients((prev) => {
-      const next = [...new Set([...prev, ...parts])].slice(0, 20);
+      const next = [...new Set([...prev, ...approved])].slice(0, 20);
       const added = next.length - prev.length;
       if (added > 0) toast.success(`Added ${added} ingredient${added > 1 ? 's' : ''}!`, { duration: 2000 });
-      else toast('Already added!', { duration: 2000 });
+      else if (approved.length > 0) toast('Already added!', { duration: 2000 });
       if (next.length >= 20) toast('Max 20 ingredients reached!', { duration: 3000 });
       return next;
     });
     setCustomInput('');
   }
 
-  function removeCustomIngredient(name) {
+  function removeIngredient(name) {
     setSelectedIngredients((prev) => prev.filter((i) => i !== name));
     toast.success(`Removed "${name}"`, { duration: 1500 });
   }
@@ -432,6 +540,51 @@ export default function SmartRecipe() {
           className="bg-white border border-gray-200 rounded-3xl p-8 space-y-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
         >
 
+          {/* Custom ingredient input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Add custom ingredient <span className="text-gray-500">- press <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded-lg text-xs font-mono shadow-sm">Enter</kbd></span>
+            </label>
+            <input
+              className="input-field"
+              placeholder="e.g. avocado, coconut milk, basil..."
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              onKeyDown={handleCustomInput}
+            />
+          </div>
+
+          {/* Custom chips */}
+          <AnimatePresence>
+            {customChips.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex flex-wrap gap-2.5"
+              >
+                {customChips.map((name) => (
+                  <motion.span 
+                    key={name} 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-medium flex items-center gap-2 shadow-md"
+                  >
+                    {name}
+                    <button 
+                      onClick={() => removeIngredient(name)} 
+                      className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors duration-200" 
+                      aria-label={`Remove ${name}`}
+                    >
+                      <XCircle size={16} strokeWidth={2.5} />
+                    </button>
+                  </motion.span>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Categorized ingredient chips */}
           <div>
             <label className="block text-base font-semibold text-gray-900 mb-4 flex items-center gap-2.5">
@@ -507,51 +660,6 @@ export default function SmartRecipe() {
             </div>
           </div>
 
-          {/* Custom ingredient input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Add custom ingredient <span className="text-gray-500">— press <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded-lg text-xs font-mono shadow-sm">Enter</kbd></span>
-            </label>
-            <input
-              className="input-field"
-              placeholder="e.g. avocado, coconut milk, basil..."
-              value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-              onKeyDown={handleCustomInput}
-            />
-          </div>
-
-          {/* Custom chips */}
-          <AnimatePresence>
-            {customChips.length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex flex-wrap gap-2.5"
-              >
-                {customChips.map((name) => (
-                  <motion.span 
-                    key={name} 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-medium flex items-center gap-2 shadow-md"
-                  >
-                    {name}
-                    <button 
-                      onClick={() => removeCustomIngredient(name)} 
-                      className="ml-1 hover:bg-white/20 rounded-full p-0.5 transition-colors duration-200" 
-                      aria-label={`Remove ${name}`}
-                    >
-                      <XCircle size={16} strokeWidth={2.5} />
-                    </button>
-                  </motion.span>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Selection count */}
           <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-200">
             <span className="text-sm font-medium text-gray-700">
@@ -561,6 +669,30 @@ export default function SmartRecipe() {
               <span className="text-xs text-gray-500">Max 20 ingredients</span>
             )}
           </div>
+
+          {selectedIngredients.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Selected ingredients</p>
+              <div className="flex flex-wrap gap-2.5">
+                {selectedIngredients.map((name) => (
+                  <span
+                    key={`selected-${name}`}
+                    className="px-3 py-1.5 rounded-full bg-orange-100 text-orange-800 text-sm font-medium flex items-center gap-1.5"
+                  >
+                    {name}
+                    <button
+                      type="button"
+                      onClick={() => removeIngredient(name)}
+                      className="hover:bg-orange-200 rounded-full p-0.5 transition-colors duration-200"
+                      aria-label={`Remove ${name}`}
+                    >
+                      <XCircle size={14} strokeWidth={2.5} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Filters */}
           <div className="flex flex-wrap gap-4">

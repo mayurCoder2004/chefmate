@@ -96,6 +96,36 @@ const IngredientsBody = z.object({
   }).default({ diet: 'none' })
 });
 
+const IngredientValidateBody = z.object({
+  ingredient: z.string().min(1).max(60)
+});
+
+const COMMON_INGREDIENTS = new Set([
+  "chawal", "rice", "aata", "atta", "bread", "poha", "oats", "maggi", "suji", "rava", "roti", "vermicelli", "maida", "cornflour",
+  "onion", "tomato", "potato", "aloo", "green chili", "chili", "garlic", "ginger", "capsicum", "bell pepper", "carrot", "spinach",
+  "corn", "peas", "mushroom", "brinjal", "eggplant", "cabbage", "egg", "eggs", "milk", "curd", "yogurt", "paneer", "butter", "ghee",
+  "cheese", "cream", "salt", "turmeric", "haldi", "jeera", "cumin", "garam masala", "red chili powder", "dal", "toor dal", "moong dal",
+  "besan", "gram flour", "chicken", "rajma", "chana", "tofu", "soya chunks", "fish", "mutton", "oil", "ketchup", "peanut butter", "lemon",
+  "soy sauce", "vinegar", "mayonnaise", "chaat masala", "hing", "banana", "apple", "coconut", "lemon juice", "coriander", "dhania"
+]);
+
+const INGREDIENT_ALIASES = {
+  "shimla mirch": "capsicum",
+  "dhania": "coriander",
+  "coriander leaves": "coriander",
+  "hari mirch": "green chili",
+  "mirchi": "green chili",
+  "lal mirch powder": "red chili powder",
+  "aloo": "potato",
+  "pyaz": "onion",
+  "dahi": "curd",
+  "atta": "aata",
+  "rava": "suji",
+  "baingan": "brinjal",
+  "adrak": "ginger",
+  "lahsun": "garlic"
+};
+
 // Extract JSON safely from AI text
 function extractJSON(str) {
   if (!str || typeof str !== "string") return null;
@@ -140,6 +170,69 @@ function toArray(value) {
       .filter(Boolean);
   }
   return [];
+}
+
+function normalizeIngredient(input) {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function levenshtein(a, b) {
+  const s = a || "";
+  const t = b || "";
+  const dp = Array.from({ length: s.length + 1 }, () => new Array(t.length + 1).fill(0));
+  for (let i = 0; i <= s.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= t.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 1; j <= t.length; j++) {
+      const cost = s[i - 1] === t[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[s.length][t.length];
+}
+
+function validateIngredientLocal(rawIngredient) {
+  const normalized = normalizeIngredient(rawIngredient);
+  if (!normalized) return { verdict: "invalid_non_food", reason: "Ingredient is empty." };
+  if (normalized.length < 2 || normalized.length > 30) {
+    return { verdict: "invalid_non_food", reason: "Ingredient should be 2-30 characters long." };
+  }
+  if (/^\d+$/.test(normalized) || !/[a-z]/.test(normalized) || /^[^a-z]+$/i.test(normalized)) {
+    return { verdict: "invalid_non_food", reason: "Please enter a real food ingredient." };
+  }
+
+  const canonical = INGREDIENT_ALIASES[normalized] || normalized;
+  if (COMMON_INGREDIENTS.has(canonical)) {
+    return { verdict: "valid_ingredient", canonical, reason: "Matched known ingredient." };
+  }
+
+  let bestMatch = null;
+  let bestDistance = Infinity;
+  for (const known of COMMON_INGREDIENTS) {
+    const distance = levenshtein(canonical, known);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestMatch = known;
+    }
+  }
+
+  const threshold = canonical.length <= 6 ? 1 : 2;
+  if (bestMatch && bestDistance <= threshold) {
+    return {
+      verdict: "possibly_valid",
+      canonical: bestMatch,
+      reason: `Did you mean "${bestMatch}"?`
+    };
+  }
+
+  return { verdict: "unknown", canonical };
 }
 
 function normalizeRecipe(raw) {
@@ -456,6 +549,60 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
 
     console.error(err.details || err.message);
     res.status(err.statusCode || 500).json({ error: err.message || "LLM request failed", details: err.details || undefined });
+  }
+});
+
+app.post('/api/ingredients/validate', async (req, res) => {
+  const parsed = IngredientValidateBody.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
+  }
+
+  const ingredient = parsed.data.ingredient;
+  const localResult = validateIngredientLocal(ingredient);
+
+  if (localResult.verdict === "valid_ingredient" || localResult.verdict === "possibly_valid" || localResult.verdict === "invalid_non_food") {
+    return res.json({
+      ingredient,
+      verdict: localResult.verdict,
+      canonical: localResult.canonical || normalizeIngredient(ingredient),
+      reason: localResult.reason
+    });
+  }
+
+  try {
+    const prompt = `Classify if this is a real edible cooking ingredient.
+Ingredient: "${ingredient}"
+Return strict JSON only:
+{"verdict":"valid_ingredient|possibly_valid|invalid_non_food","canonical":"normalized-name","reason":"short reason"}`;
+
+    const { text } = await callOpenRouterWithFallback({
+      messages: [
+        { role: "system", content: "You are a strict ingredient validator for a recipe app. Return only JSON." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0
+    });
+
+    const ai = extractJSON(text) || {};
+    const verdict = ["valid_ingredient", "possibly_valid", "invalid_non_food"].includes(ai.verdict)
+      ? ai.verdict
+      : "possibly_valid";
+
+    return res.json({
+      ingredient,
+      verdict,
+      canonical: normalizeIngredient(ai.canonical || ingredient),
+      reason: typeof ai.reason === "string" && ai.reason.trim() ? ai.reason.trim() : "Checked with AI fallback."
+    });
+  } catch (err) {
+    console.warn("[ingredient-validate] AI fallback unavailable:", err?.message || err);
+    return res.json({
+      ingredient,
+      verdict: "possibly_valid",
+      canonical: normalizeIngredient(ingredient),
+      reason: "Could not verify with AI right now. Added as possibly valid."
+    });
   }
 });
 

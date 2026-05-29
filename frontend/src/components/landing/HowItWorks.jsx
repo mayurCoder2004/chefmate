@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, Zap, ChefHat, ArrowRight } from 'lucide-react';
 
 const steps = [
@@ -30,6 +31,8 @@ const steps = [
 ];
 
 const HowItWorks = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="how" className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white">
       {/* Background decoration */}
@@ -131,6 +134,7 @@ const HowItWorks = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/app')}
               className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
             >
               Get Started Free

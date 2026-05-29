@@ -130,7 +130,7 @@ const ForWho = () => {
               </div>
               <div className="text-center">
                 <div className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
-                  100+
+                  300+
                 </div>
                 <div className="text-gray-300 font-medium">Active Users</div>
               </div>

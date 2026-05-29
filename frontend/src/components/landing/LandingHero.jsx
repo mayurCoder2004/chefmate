@@ -209,7 +209,7 @@ const LandingHero = () => {
                 </div>
                 <div className="w-px h-12 bg-gray-200" />
                 <div>
-                  <div className="text-3xl font-bold text-gray-900">100+</div>
+                  <div className="text-3xl font-bold text-gray-900">300+</div>
                   <div className="text-sm text-gray-600">Active Users</div>
                 </div>
                 <div className="w-px h-12 bg-gray-200" />
