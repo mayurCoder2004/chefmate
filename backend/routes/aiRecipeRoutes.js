@@ -3,6 +3,7 @@ import { z } from "zod";
 import { callOpenRouterWithFallback } from "../services/openRouterService.js";
 import { recipeLimiter } from "../middlewares/rateLimit.js";
 import { authOptional } from "../middlewares/auth.js";
+import GeneratedRecipe from "../models/GeneratedRecipe.js";
 
 const router = express.Router();
 
@@ -357,6 +358,9 @@ router.post("/", authOptional, recipeLimiter, async (req, res) => {
   console.log(`[recipe-generation] starting for ingredients:`, userIngredients);
   console.log(`[recipe-generation] preferences:`, prefs);
 
+  // Track generation start time
+  const generationStartTime = Date.now();
+
   try {
     // Generate recipe with retry logic
     const { recipe, model, overlapData } = await generateRecipeWithRetry(
@@ -365,8 +369,21 @@ router.post("/", authOptional, recipeLimiter, async (req, res) => {
       2 // max retries
     );
     
+    // Calculate generation time
+    const generationTime = Date.now() - generationStartTime;
+    
     console.log(`[recipe-generation] success with model: ${model}`);
     console.log(`[recipe-generation] final overlap: ${overlapData.overlap}/${overlapData.total} (${(overlapData.percentage * 100).toFixed(0)}%)`);
+    console.log(`[recipe-generation] generation time: ${generationTime}ms`);
+    
+    // Save analytics asynchronously (don't block response)
+    saveRecipeAnalytics({
+      userId: req.user?._id || null,
+      ingredients: userIngredients,
+      recipeName: recipe.title,
+      aiProvider: model,
+      generationTime
+    });
     
     return res.json({ 
       modelUsed: model, 
@@ -389,6 +406,29 @@ router.post("/", authOptional, recipeLimiter, async (req, res) => {
     });
   }
 });
+
+// ============================================================================
+// ANALYTICS HELPER
+// ============================================================================
+
+async function saveRecipeAnalytics({ userId, ingredients, recipeName, aiProvider, generationTime }) {
+  try {
+    const analyticsData = {
+      userId,
+      ingredients,
+      recipeName,
+      aiProvider,
+      generationTime
+    };
+    
+    await GeneratedRecipe.create(analyticsData);
+    
+    console.log(`[analytics] recipe generation saved: ${recipeName} (${aiProvider}, ${generationTime}ms)`);
+  } catch (err) {
+    // Don't throw - just log the error so it doesn't break recipe generation
+    console.error(`[analytics] failed to save generation analytics:`, err.message);
+  }
+}
 
 export default router;
 

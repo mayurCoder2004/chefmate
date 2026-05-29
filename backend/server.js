@@ -19,6 +19,7 @@ import {
   smartRecipeLimiter
 } from "./middlewares/rateLimit.js";
 import { authOptional } from "./middlewares/auth.js";
+import GeneratedRecipe from "./models/GeneratedRecipe.js";
 
 
 dotenv.config();
@@ -429,6 +430,9 @@ app.post('/api/smart-recipe',authOptional, smartRecipeLimiter, async (req, res) 
 
   const { ingredients, prefs } = parsed.data;
 
+  // Track generation start time
+  const generationStartTime = Date.now();
+
   const systemPrompt = `
 You are a professional chef and nutrition coach.
 Use ONLY the provided ingredients as core items. Optional pantry items like oil, salt, pepper, basic spices are okay.
@@ -474,6 +478,17 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
       });
       
       const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+      
+      // Save analytics for fallback recipe
+      const generationTime = Date.now() - generationStartTime;
+      saveRecipeAnalytics({
+        userId: req.user?._id || null,
+        ingredients,
+        recipeName: fallbackRecipe.title,
+        aiProvider: "local-fallback",
+        generationTime
+      });
+      
       return res.status(200).json({
         modelUsed: "local-fallback",
         fallback: true,
@@ -497,6 +512,17 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
       } else {
         // If no ingredients either, use fallback
         const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+        
+        // Save analytics for fallback recipe
+        const generationTime = Date.now() - generationStartTime;
+        saveRecipeAnalytics({
+          userId: req.user?._id || null,
+          ingredients,
+          recipeName: fallbackRecipe.title,
+          aiProvider: "local-fallback",
+          generationTime
+        });
+        
         return res.status(200).json({
           modelUsed: "local-fallback",
           fallback: true,
@@ -522,12 +548,35 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
         recipe
       });
       const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
+      
+      // Save analytics for fallback recipe
+      const generationTime = Date.now() - generationStartTime;
+      saveRecipeAnalytics({
+        userId: req.user?._id || null,
+        ingredients,
+        recipeName: fallbackRecipe.title,
+        aiProvider: "local-fallback",
+        generationTime
+      });
+      
       return res.status(200).json({
         modelUsed: "local-fallback",
         fallback: true,
         ...fallbackRecipe
       });
     }
+
+    // Calculate generation time
+    const generationTime = Date.now() - generationStartTime;
+    
+    // Save analytics asynchronously (don't block response)
+    saveRecipeAnalytics({
+      userId: req.user?._id || null,
+      ingredients,
+      recipeName: recipe.title,
+      aiProvider: model,
+      generationTime
+    });
 
     res.json({
       modelUsed: model,
@@ -540,6 +589,17 @@ estimatedTime is a number (minutes). servings is an integer (e.g. 2).
     if (err?.message === "All OpenRouter fallback models failed") {
       const fallbackRecipe = buildLocalFallbackRecipe(ingredients, prefs);
       console.warn("[smart-recipe] using local fallback recipe due to provider rate limits");
+      
+      // Save analytics for fallback recipe
+      const generationTime = Date.now() - generationStartTime;
+      saveRecipeAnalytics({
+        userId: req.user?._id || null,
+        ingredients,
+        recipeName: fallbackRecipe.title,
+        aiProvider: "local-fallback",
+        generationTime
+      });
+      
       return res.status(200).json({
         modelUsed: "local-fallback",
         fallback: true,
@@ -610,6 +670,29 @@ Return strict JSON only:
 // Ping endpoint
 // ------------------------
 app.get('/ping', (_req, res) => res.json({ ok: true }));
+
+// ============================================================================
+// ANALYTICS HELPER
+// ============================================================================
+
+async function saveRecipeAnalytics({ userId, ingredients, recipeName, aiProvider, generationTime }) {
+  try {
+    const analyticsData = {
+      userId,
+      ingredients,
+      recipeName,
+      aiProvider,
+      generationTime
+    };
+    
+    await GeneratedRecipe.create(analyticsData);
+    
+    console.log(`[analytics] recipe generation saved: ${recipeName} (${aiProvider}, ${generationTime}ms)`);
+  } catch (err) {
+    // Don't throw - just log the error so it doesn't break recipe generation
+    console.error(`[analytics] failed to save generation analytics:`, err.message);
+  }
+}
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -336,6 +336,10 @@ export default function SmartRecipe() {
     e.preventDefault();
     const raw = customInput.trim();
     if (!raw) return;
+    
+    // Clear input immediately to prevent confusion
+    setCustomInput('');
+    
     const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
     const verdicts = await Promise.all(parts.map((part) => validateIngredientHybrid(part)));
 
@@ -343,13 +347,15 @@ export default function SmartRecipe() {
     let rejectedCount = 0;
     let warningCount = 0;
 
-    verdicts.forEach((result) => {
+    verdicts.forEach((result, index) => {
       if (result.verdict === 'invalid_non_food') {
         rejectedCount += 1;
+        console.log(`[ingredient] rejected: "${parts[index]}" - ${result.reason}`);
         return;
       }
       if (result.verdict === 'possibly_valid') warningCount += 1;
       approved.push(result.canonical);
+      console.log(`[ingredient] approved: "${parts[index]}" → "${result.canonical}"`);
     });
 
     if (rejectedCount > 0) {
@@ -368,7 +374,6 @@ export default function SmartRecipe() {
       if (next.length >= 20) toast('Max 20 ingredients reached!', { duration: 3000 });
       return next;
     });
-    setCustomInput('');
   }
 
   function removeIngredient(name) {
