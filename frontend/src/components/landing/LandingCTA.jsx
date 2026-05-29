@@ -173,7 +173,7 @@ const LandingCTA = () => {
             <a href="#" className="hover:text-gray-700 transition-colors">Contact Us</a>
           </div>
           <p className="mt-6 text-gray-400">
-            © 2024 ChefMate. Made with love for home cooks.
+            © {new Date().getFullYear()} ChefMate. Made with love for home cooks.
           </p>
         </motion.div>
       </div>
