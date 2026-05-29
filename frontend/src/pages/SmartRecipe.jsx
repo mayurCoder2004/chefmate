@@ -7,7 +7,7 @@ import {
   ChefHat, Search, RotateCcw, Salad, Timer, Share2, Bookmark,
   Utensils, Leaf, ShoppingCart, Package, Users,
   Heart, XCircle, Check, ChevronDown, ChevronUp, Wheat, Carrot,
-  Milk, Flame, Drumstick, Soup, Bell
+  Milk, Flame, Drumstick, Soup, Bell, Sparkles
 } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
 import { authenticatedFetch, apiFetch } from '../utils/apiClient';
@@ -518,40 +518,66 @@ export default function SmartRecipe() {
   const customChips = selectedIngredients.filter((i) => !PREDEFINED_INGREDIENTS.includes(i));
 
   return (
-    <div className="min-h-screen pb-20 pt-28 px-4 bg-gradient-to-b from-[#FDF6EE] to-[#FFF5EB]">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen pb-20 pt-24 px-4 bg-gradient-to-br from-orange-50 via-white to-blue-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-orange-200/40 to-pink-200/40 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-orange-100/20 to-transparent rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative max-w-5xl mx-auto space-y-8">
 
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-4"
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center gap-2.5 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-              <ChefHat size={24} className="text-white" strokeWidth={2.5} />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Smart Recipe Generator</h1>
-          <p className="text-base text-gray-600 max-w-2xl mx-auto">Select your ingredients and let AI create a personalized recipe just for you</p>
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-orange-200/50 rounded-full shadow-sm mb-6"
+          >
+            <Sparkles size={16} className="text-orange-500" />
+            <span className="text-sm font-semibold text-gray-700">AI-Powered Recipe Generator</span>
+          </motion.div>
+          
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            <span className="bg-gradient-to-r from-gray-900 to-gray-800 bg-clip-text text-transparent">
+              What's in Your
+            </span>
+            {' '}
+            <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+              Kitchen?
+            </span>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Select your ingredients and let AI create a personalized recipe just for you. No fancy ingredients needed.
+          </p>
         </motion.div>
 
         {/* Input card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white border border-gray-200 rounded-3xl p-8 space-y-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
+          transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-3xl p-8 lg:p-10 space-y-8 shadow-xl hover:shadow-2xl transition-all duration-500"
         >
 
           {/* Custom ingredient input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Add custom ingredient <span className="text-gray-500">- press <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded-lg text-xs font-mono shadow-sm">Enter</kbd></span>
+            <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center">
+                <Sparkles size={16} className="text-orange-600" strokeWidth={2.5} />
+              </div>
+              Add custom ingredient
+              <span className="text-gray-500 font-normal">- press <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded-lg text-xs font-mono shadow-sm">Enter</kbd></span>
             </label>
             <input
-              className="input-field"
+              className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200 shadow-sm hover:border-gray-300"
               placeholder="e.g. avocado, coconut milk, basil..."
               value={customInput}
               onChange={(e) => setCustomInput(e.target.value)}
@@ -592,35 +618,35 @@ export default function SmartRecipe() {
 
           {/* Categorized ingredient chips */}
           <div>
-            <label className="block text-base font-semibold text-gray-900 mb-4 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                <Leaf size={18} className="text-green-600" strokeWidth={2.5} />
+            <label className="block text-lg font-bold text-gray-900 mb-5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center shadow-sm">
+                <Leaf size={20} className="text-green-600" strokeWidth={2.5} />
               </div>
               Pick Your Ingredients
             </label>
-            <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
               {Object.entries(CATEGORIZED_INGREDIENTS).map(([category, { icon: Icon, items }]) => (
                 <motion.div 
                   key={category} 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50/50 hover:bg-gray-50 transition-colors duration-200"
+                  className="border-2 border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300"
                 >
                   <button
                     onClick={() => toggleCategory(category)}
-                    className="w-full px-5 py-3.5 bg-white hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between text-left group"
+                    className="w-full px-6 py-4 bg-gradient-to-r from-gray-50 to-white hover:from-gray-100 hover:to-gray-50 transition-all duration-200 flex items-center justify-between text-left group"
                   >
-                    <span className="text-sm font-semibold text-gray-900 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors duration-200">
-                        <Icon size={18} className="text-orange-600" strokeWidth={2.5} />
+                    <span className="text-base font-bold text-gray-900 flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-sm">
+                        <Icon size={20} className="text-orange-600" strokeWidth={2.5} />
                       </div>
                       {category}
                     </span>
                     <motion.div
                       animate={{ rotate: expandedCategories[category] ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <ChevronDown size={18} className="text-gray-500" strokeWidth={2.5} />
+                      <ChevronDown size={20} className="text-gray-500" strokeWidth={2.5} />
                     </motion.div>
                   </button>
                   
@@ -633,7 +659,7 @@ export default function SmartRecipe() {
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                         className="overflow-hidden"
                       >
-                        <div className="p-4 bg-white flex flex-wrap gap-2.5">
+                        <div className="p-5 bg-gradient-to-br from-gray-50 to-white flex flex-wrap gap-2.5">
                           {items.map((name) => {
                             const selected = selectedIngredients.includes(name);
                             return (
@@ -643,14 +669,14 @@ export default function SmartRecipe() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className={clsx(
-                                  'px-4 py-2 rounded-full text-sm font-medium border-2 transition-all duration-200 select-none shadow-sm',
+                                  'px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all duration-200 select-none',
                                   selected
-                                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 border-orange-500 text-white shadow-md'
-                                    : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50'
+                                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 border-orange-500 text-white shadow-lg shadow-orange-200'
+                                    : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50 shadow-sm hover:shadow-md'
                                 )}
                               >
-                                <span className="flex items-center gap-1.5">
-                                  {selected && <Check size={14} strokeWidth={3} />}
+                                <span className="flex items-center gap-2">
+                                  {selected && <Check size={16} strokeWidth={3} />}
                                   {name}
                                 </span>
                               </motion.button>
@@ -666,32 +692,38 @@ export default function SmartRecipe() {
           </div>
 
           {/* Selection count */}
-          <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-200">
-            <span className="text-sm font-medium text-gray-700">
+          <div className="flex items-center justify-between py-4 px-6 bg-gradient-to-r from-orange-50 to-orange-100/50 rounded-2xl border-2 border-orange-200 shadow-sm">
+            <span className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-orange-200 flex items-center justify-center">
+                <ShoppingCart size={16} className="text-orange-700" strokeWidth={2.5} />
+              </div>
               {selectedIngredients.length} ingredient{selectedIngredients.length !== 1 ? 's' : ''} selected
             </span>
             {selectedIngredients.length > 0 && (
-              <span className="text-xs text-gray-500">Max 20 ingredients</span>
+              <span className="text-sm text-orange-700 font-semibold">Max 20</span>
             )}
           </div>
 
           {selectedIngredients.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Selected ingredients</p>
+            <div className="bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 shadow-sm">
+              <p className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Package size={18} className="text-gray-600" strokeWidth={2.5} />
+                Selected ingredients
+              </p>
               <div className="flex flex-wrap gap-2.5">
                 {selectedIngredients.map((name) => (
                   <span
                     key={`selected-${name}`}
-                    className="px-3 py-1.5 rounded-full bg-orange-100 text-orange-800 text-sm font-medium flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-100 to-orange-50 border-2 border-orange-200 text-orange-800 text-sm font-semibold flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow duration-200"
                   >
                     {name}
                     <button
                       type="button"
                       onClick={() => removeIngredient(name)}
-                      className="hover:bg-orange-200 rounded-full p-0.5 transition-colors duration-200"
+                      className="hover:bg-orange-200 rounded-full p-1 transition-colors duration-200"
                       aria-label={`Remove ${name}`}
                     >
-                      <XCircle size={14} strokeWidth={2.5} />
+                      <XCircle size={16} strokeWidth={2.5} />
                     </button>
                   </span>
                 ))}
@@ -700,18 +732,18 @@ export default function SmartRecipe() {
           )}
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-green-100 flex items-center justify-center">
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center shadow-sm">
                   <Salad size={16} className="text-green-600" strokeWidth={2.5} />
                 </div>
-                Diet
+                Diet Preference
               </label>
               <select 
                 value={diet} 
                 onChange={(e) => setDiet(e.target.value)}
-                className="input-field w-auto min-w-[140px]"
+                className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200 shadow-sm hover:border-gray-300 cursor-pointer"
               >
                 <option value="none">None</option>
                 <option value="veg">Vegetarian</option>
@@ -720,47 +752,47 @@ export default function SmartRecipe() {
                 <option value="paleo">Paleo</option>
               </select>
             </div>
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center">
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center shadow-sm">
                   <Timer size={16} className="text-orange-600" strokeWidth={2.5} />
                 </div>
-                Max time
+                Max Cooking Time
               </label>
               <input 
                 type="number" 
                 min="5" 
                 max="240"
-                className="input-field w-28"
+                className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-900 font-medium focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200 shadow-sm hover:border-gray-300"
                 value={maxTime} 
                 onChange={(e) => setMaxTime(e.target.value)} 
-                placeholder="30 min" 
+                placeholder="30 minutes" 
               />
             </div>
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex items-center gap-4 pt-4">
             <motion.button 
               disabled={!canSubmit} 
               onClick={fetchSmartRecipe}
               whileHover={canSubmit ? { scale: 1.02 } : {}}
               whileTap={canSubmit ? { scale: 0.98 } : {}}
               className={clsx(
-                'flex-1 px-6 py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 shadow-md',
+                'flex-1 px-8 py-5 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 shadow-lg',
                 canSubmit 
-                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-lg hover:from-orange-600 hover:to-orange-700' 
+                  ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-2xl hover:from-orange-600 hover:to-orange-700 shadow-orange-200' 
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
               )}
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Generating...
+                  <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                  Generating Recipe...
                 </>
               ) : (
                 <>
-                  <Search size={18} strokeWidth={2.5} /> Find My Recipe
+                  <Sparkles size={20} strokeWidth={2.5} /> Find My Recipe
                 </>
               )}
             </motion.button>
@@ -768,9 +800,9 @@ export default function SmartRecipe() {
               onClick={() => { setSelectedIngredients([]); setRecipe(null); toast.success('Cleared!', { duration: 2000 }); }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-6 py-3.5 bg-white border-2 border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-8 py-5 bg-white border-2 border-gray-200 text-gray-700 rounded-2xl text-base font-bold hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 flex items-center gap-3 shadow-sm hover:shadow-lg"
             >
-              <RotateCcw size={18} strokeWidth={2.5} /> Reset
+              <RotateCcw size={20} strokeWidth={2.5} /> Reset
             </motion.button>
           </div>
 
@@ -863,32 +895,31 @@ export default function SmartRecipe() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="recipe-reveal bg-white border-2 border-orange-100 rounded-3xl p-8 space-y-6 shadow-xl hover:shadow-2xl transition-shadow duration-300"
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="recipe-reveal bg-white/90 backdrop-blur-sm border-2 border-orange-200 rounded-3xl p-8 lg:p-10 space-y-8 shadow-2xl hover:shadow-3xl transition-all duration-500"
               >
               {/* Title row */}
-              <div className="flex items-start justify-between gap-6 pb-6 border-b border-gray-100">
+              <div className="flex items-start justify-between gap-6 pb-8 border-b-2 border-gray-100">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-                      <Utensils size={24} className="text-white" strokeWidth={2.5} />
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-xl">
+                      <Utensils size={28} className="text-white" strokeWidth={2.5} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 leading-tight">{recipe.title}</h2>
+                    <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">{recipe.title}</h2>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <div className="flex items-center gap-2 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 px-4 py-2.5 rounded-xl shadow-sm">
-                    <Timer size={16} className="text-orange-600" strokeWidth={2.5} />
-                    <span className="text-orange-700 font-bold text-sm">{recipe.estimatedTime} min</span>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2.5 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-300 px-5 py-3 rounded-xl shadow-md">
+                    <Timer size={18} className="text-orange-600" strokeWidth={2.5} />
+                    <span className="text-orange-700 font-bold text-base">{recipe.estimatedTime} min</span>
                   </div>
                   {recipe.estimatedCost && (
-                    <div className="flex items-center gap-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 px-4 py-2.5 rounded-xl text-sm text-green-700 font-bold shadow-sm">
-                      <span>Cost</span>
+                    <div className="flex items-center gap-2.5 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300 px-5 py-3 rounded-xl text-base text-green-700 font-bold shadow-md">
                       <span>{recipe.estimatedCost}</span>
                     </div>
                   )}
                   {recipe.cookingEquipment && (
-                    <div className="flex items-center gap-2 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 px-4 py-2.5 rounded-xl text-sm text-blue-700 font-bold shadow-sm">
+                    <div className="flex items-center gap-2.5 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 px-5 py-3 rounded-xl text-base text-blue-700 font-bold shadow-md">
                       <span>{recipe.cookingEquipment}</span>
                     </div>
                   )}
@@ -900,13 +931,13 @@ export default function SmartRecipe() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="p-5 bg-gradient-to-br from-green-50 to-green-100/50 border-2 border-green-200 rounded-2xl shadow-sm"
+                  className="p-6 bg-gradient-to-br from-green-50 to-green-100/50 border-2 border-green-300 rounded-2xl shadow-md"
                 >
-                  <p className="text-green-900 text-sm flex items-start gap-3 leading-relaxed">
-                    <div className="w-8 h-8 rounded-lg bg-green-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Heart size={16} className="text-green-700" strokeWidth={2.5} />
+                  <p className="text-green-900 text-base flex items-start gap-4 leading-relaxed">
+                    <div className="w-10 h-10 rounded-xl bg-green-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <Heart size={20} className="text-green-700" strokeWidth={2.5} />
                     </div>
-                    <span><strong className="font-semibold">Why it's healthy:</strong> {recipe.healthBenefits.join(', ')}</span>
+                    <span><strong className="font-bold text-lg">Health Benefits:</strong><br/>{recipe.healthBenefits.join(', ')}</span>
                   </p>
                 </motion.div>
               )}
@@ -1013,30 +1044,30 @@ export default function SmartRecipe() {
                 </motion.div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t-2 border-gray-100">
+              <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-2 border-gray-100">
                 <motion.button 
                   onClick={() => navigate('/cook', { state: { recipe } })}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold text-sm hover:shadow-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md"
+                  className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl font-bold text-base hover:shadow-2xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-orange-200"
                 >
-                  <ChefHat size={20} strokeWidth={2.5} /> Start Cooking
+                  <ChefHat size={22} strokeWidth={2.5} /> Start Cooking
                 </motion.button>
                 <motion.button 
                   onClick={shareRecipe}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md"
+                  className="flex-1 px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl text-base font-bold hover:shadow-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-blue-200"
                 >
-                  <Share2 size={20} strokeWidth={2.5} /> Share Recipe
+                  <Share2 size={22} strokeWidth={2.5} /> Share
                 </motion.button>
                 <motion.button 
                   onClick={shareOnWhatsApp}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 px-6 py-3.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md"
+                  className="flex-1 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl text-base font-bold hover:shadow-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-green-200"
                 >
-                  <Share2 size={20} strokeWidth={2.5} /> WhatsApp
+                  <Share2 size={22} strokeWidth={2.5} /> WhatsApp
                 </motion.button>
                 <motion.button 
                   onClick={saveRecipe} 
@@ -1044,10 +1075,10 @@ export default function SmartRecipe() {
                   whileHover={!saving ? { scale: 1.02 } : {}}
                   whileTap={!saving ? { scale: 0.98 } : {}}
                   className={clsx(
-                    'flex-1 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2.5 shadow-md',
+                    'flex-1 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg',
                     saving 
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:shadow-lg'
+                      : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:shadow-xl'
                   )}
                 >
                   {saving ? (
@@ -1057,12 +1088,12 @@ export default function SmartRecipe() {
                     </>
                   ) : (
                     <>
-                      <Bookmark size={20} strokeWidth={2.5} /> Save Recipe
+                      <Bookmark size={22} strokeWidth={2.5} /> Save
                     </>
                   )}
                 </motion.button>
               </div>
-              <p className="text-xs text-gray-500 text-center">Access saved recipes anytime from your profile</p>
+              <p className="text-sm text-gray-500 text-center font-medium">Access saved recipes anytime from your profile</p>
 
               {/* Feedback Section */}
               <div className="pt-6 border-t-2 border-gray-100">
@@ -1148,24 +1179,24 @@ export default function SmartRecipe() {
               )}
 
               {/* What next */}
-              <div className="pt-6 border-t-2 border-gray-100">
-                <p className="text-base font-bold text-gray-900 mb-4">What do you want to do next?</p>
-                <div className="flex flex-col sm:flex-row gap-3">
+              <div className="pt-8 border-t-2 border-gray-100">
+                <p className="text-lg font-bold text-gray-900 mb-5">What do you want to do next?</p>
+                <div className="grid sm:grid-cols-2 gap-4">
                   <motion.button 
                     onClick={() => navigate('/recipes')}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white border-2 border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-white border-2 border-gray-300 text-gray-700 text-base font-bold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-xl"
                   >
-                    <Utensils size={18} strokeWidth={2.5} /> Explore More Recipes
+                    <Utensils size={20} strokeWidth={2.5} /> Explore More Recipes
                   </motion.button>
                   <motion.button 
                     onClick={() => navigate('/meal-planner')}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white border-2 border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-white border-2 border-gray-300 text-gray-700 text-base font-bold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-xl"
                   >
-                    <Salad size={18} strokeWidth={2.5} /> Plan My Meals
+                    <Salad size={20} strokeWidth={2.5} /> Plan My Meals
                   </motion.button>
                 </div>
               </div>
