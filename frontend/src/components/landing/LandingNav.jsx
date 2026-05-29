@@ -17,9 +17,7 @@ const LandingNav = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Features', href: '#features' },
-    { label: 'How it Works', href: '#how' },
-    { label: 'Pricing', href: '#pricing' },
+    // Removed Features, How it Works, and Pricing links
   ];
 
   return (
@@ -51,22 +49,7 @@ const LandingNav = () => {
               </span>
             </motion.div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link, i) => (
-                <motion.a
-                  key={i}
-                  href={link.href}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.1 }}
-                  className="text-gray-600 hover:text-gray-900 font-medium transition-colors relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 group-hover:w-full transition-all duration-300" />
-                </motion.a>
-              ))}
-            </div>
+            {/* Desktop Navigation - Removed */}
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-4">
@@ -140,21 +123,7 @@ const LandingNav = () => {
                   </button>
                 </div>
 
-                <div className="space-y-2">
-                  {navLinks.map((link, i) => (
-                    <motion.a
-                      key={i}
-                      href={link.href}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 + i * 0.05 }}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-4 py-3 text-gray-700 font-medium rounded-xl hover:bg-gray-100 transition-colors"
-                    >
-                      {link.label}
-                    </motion.a>
-                  ))}
-                </div>
+                {/* Navigation links removed */}
 
                 <div className="space-y-3 pt-6 border-t border-gray-200">
                   <button

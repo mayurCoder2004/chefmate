@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Play, Check, Zap } from 'lucide-react';
+import VideoModal from '../VideoModal';
+import demoVideo from '../../assets/chefmate-demo.mp4';
+import demoVideoDesktop from '../../assets/chefmate-demo-desktop.mp4';
 
 const FloatingCard = ({ delay = 0, children, className = "" }) => (
   <motion.div
@@ -121,6 +124,7 @@ const AnimatedPhoneMockup = () => {
 
 const LandingHero = () => {
   const navigate = useNavigate();
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
@@ -175,7 +179,7 @@ const LandingHero = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => setIsVideoModalOpen(true)}
                   className="px-8 py-4 bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-700 rounded-2xl font-semibold text-lg hover:bg-white hover:border-gray-300 transition-all duration-300 flex items-center gap-3"
                 >
                   <Play size={20} />
@@ -243,6 +247,14 @@ const LandingHero = () => {
           <div className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
         </motion.div>
       </motion.div>
+
+      {/* Video Modal */}
+      <VideoModal 
+        isOpen={isVideoModalOpen} 
+        onClose={() => setIsVideoModalOpen(false)}
+        videoSrc={demoVideo}
+        desktopVideoSrc={demoVideoDesktop}
+      />
     </section>
   );
 };
